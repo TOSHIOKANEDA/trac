@@ -1,0 +1,815 @@
+/* メインヘッダー */
+.main-header {
+    background: white;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e1e8ed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-left h1 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-actions-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.file-counter {
+    background: #dc3545;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 8px;
+    margin-left: 4px;
+    min-width: 14px;
+    text-align: center;
+}
+
+/* ボタンスタイル */
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    position: relative;
+}
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    color: #495057;
+}
+
+/* ドロップダウンメニュー */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    min-width: 220px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    z-index: 1000;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.dropdown-content.show {
+    display: block;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.dropdown-item i {
+    width: 16px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.dropdown-toggle::after {
+    content: '\f0d7';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-left: 6px;
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+
+.dropdown.show .dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+/* 既存のスタイル（フォームセクション等）*/
+.form-container {
+    padding: 0 30px 30px;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #667eea;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 20px 25px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e8ed;
+    transition: all 0.3s ease;
+}
+
+.section-header:hover {
+    background: #e3f2fd;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.accordion-toggle {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #667eea;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.section-content {
+    padding: 25px;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.form-section.collapsed .section-content {
+    display: none;
+}
+
+.form-section.collapsed .accordion-toggle {
+    transform: rotate(180deg);
+}
+
+.section-icon {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+}
+
+.form-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.grid-1 { grid-template-columns: 1fr; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-input, .form-select, .form-textarea {
+    padding: 12px 15px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.radio-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radio-item input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+}
+
+.date-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.schedule-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e1e8ed;
+}
+
+.schedule-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.schedule-title.loading {
+    color: #2e7d32;
+}
+
+.schedule-title.discharging {
+    color: #1976d2;
+}
+
+.cargo-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e1e8ed;
+}
+
+.cargo-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 14px;
+    min-width: 1000px;
+}
+
+.cargo-table th {
+    background: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 2px solid #e1e8ed;
+    border-right: 1px solid #e1e8ed;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.cargo-table th:last-child {
+    border-right: none;
+}
+
+.cargo-table td {
+    padding: 8px;
+    border-bottom: 1px solid #e1e8ed;
+    border-right: 1px solid #e1e8ed;
+    text-align: center;
+}
+
+.cargo-table td:last-child {
+    border-right: none;
+}
+
+.table-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e1e8ed;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    background: white;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.table-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.cargo-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.container-number-input {
+    min-width: 140px;
+}
+
+.seal-number-input {
+    min-width: 120px;
+}
+
+.container-type-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e1e8ed;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    background: white;
+    transition: all 0.3s ease;
+    min-width: 110px;
+}
+
+.container-type-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.chat-widgets {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1000;
+}
+
+.chat-widget {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    max-height: 400px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.chat-widget.minimized {
+    max-height: 50px;
+}
+
+.chat-widget.minimized .chat-content,
+.chat-widget.minimized .chat-input {
+    display: none;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-header.business {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+}
+
+.chat-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.chat-content {
+    padding: 15px;
+    height: 200px;
+    overflow-y: auto;
+}
+
+.chat-message {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+.chat-input input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+/* 参加者リスト */
+.participants-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e1e8ed;
+    background: white;
+    margin: 2px;
+    border-radius: 6px;
+}
+
+.participant-item:last-child {
+    border-bottom: none;
+}
+
+.participant-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.participant-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #667eea;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.participant-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.participant-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+}
+
+.participant-email {
+    font-size: 12px;
+    color: #666;
+}
+
+.remove-participant {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    font-size: 14px;
+}
+
+.remove-participant:hover {
+    background: #f8d7da;
+}
+
+.empty-participants {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 進捗モーダル（案件一覧スタイル適用） */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal-overlay.active, .modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal_show {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    max-width: 90%;
+    height: 100vh;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border-radius: 0;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-overlay.active .modal_show {
+    transform: translateX(0);
+}
+
+.modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e1e8ed;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.modal-content {
+    padding: 25px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-title i {
+    color: #667eea;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+/* マイルストーンリスト（タイムライン付き） */
+.milestone-list {
+    list-style: none;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.milestone-list::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e1e8ed;
+}
+
+.milestone-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.milestone-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+.milestone-icon.complete {
+    background: #4CAF50;
+    color: white;
+}
+
+.milestone-icon.current {
+    background: #667eea;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.milestone-icon.pending {
+    background: #e1e8ed;
+    color: #666;
+}
+
+.milestone-content {
+    flex: 1;
+}
+
+.milestone-name {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 2px;
+    font-size: 16px;
+}
+
+.milestone-date {
+    font-size: 12px;
+    color: #666;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}
+
+/* 削除ボタンのスタイル調整 */
+.delete-container-btn, .delete-good-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-container-btn:hover,
+.delete-good-btn:hover {
+    background: #fde0e0;
+    color: #dc3545;
+}
+
+.datetime-display {
+    font-size: 12px;
+    color: #666;
+}

@@ -1,0 +1,504 @@
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.content-container {
+    padding: 0 30px 30px;
+}
+
+.file-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #667eea;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 20px 25px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e8ed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.section-header:hover {
+    background: #e3f2fd;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.section-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+.section-badge {
+    background: #667eea;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.collapse-icon {
+    transition: transform 0.3s ease;
+}
+
+.section-content {
+    padding: 0;
+}
+
+/* 新しいレイアウト */
+.section-layout {
+    display: flex;
+    min-height: 400px;
+}
+
+.checklist-sidebar {
+    width: 280px;
+    background: #f8f9fb;
+    border-right: 1px solid #e1e8ed;
+    padding: 20px;
+}
+
+.checklist-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+.checklist-header h4 {
+    font-size: 14px;
+    color: #333;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checklist-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-size: 13px;
+}
+
+.checklist-item:hover {
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.checklist-item.completed {
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.checklist-icon {
+    font-size: 14px;
+    color: #ccc;
+    transition: all 0.3s ease;
+    width: 14px;
+}
+
+.checklist-icon.checked {
+    color: #28a745;
+}
+
+.checklist-label {
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+}
+
+.checklist-item.completed .checklist-label {
+    color: #333;
+    font-weight: 600;
+}
+
+.main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.upload-area {
+    padding: 20px;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+.upload-section {
+    background: #fafbfc;
+    border: 2px dashed #ddd;
+    border-radius: 12px;
+    padding: 25px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-section:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.upload-section.has-file {
+    border-style: solid;
+    background: #f0f7ff;
+}
+
+.upload-section i {
+    font-size: 36px;
+    color: #667eea;
+    margin-bottom: 12px;
+}
+
+.upload-text {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.upload-subtext {
+    font-size: 12px;
+    color: #999;
+}
+
+.files-area {
+    flex: 1;
+    padding: 20px;
+}
+
+.files-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.tab-button.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.file-item {
+    background: white;
+    border: 1px solid #e1e8ed;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.file-item.uploaded {
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+.file-item.pending {
+    border-color: #ddd;
+    background: #f5f5f5;
+    opacity: 0.7;
+}
+
+.file-item:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.file-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.file-type-select {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+}
+
+.file-type-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ddd;
+    flex-shrink: 0;
+}
+
+.status-indicator.uploaded {
+    background: #28a745;
+}
+
+.status-indicator.pending {
+    background: #ffc107;
+}
+
+.required-mark {
+    color: #dc3545;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+.file-info-section {
+    margin-bottom: 12px;
+}
+
+.uploaded-file-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 6px;
+    padding: 10px 12px;
+    transition: all 0.3s ease;
+}
+
+.uploaded-file-info.placeholder {
+    background: #f5f5f5;
+    color: #999;
+    border-color: #ddd;
+}
+
+.file-name-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.file-name-display i {
+    font-size: 14px;
+    color: #667eea;
+}
+
+.uploaded-file-info.placeholder .file-name-display i {
+    color: #999;
+}
+
+.file-name-display .file-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    word-break: break-all;
+}
+
+.uploaded-file-info.placeholder .file-name {
+    color: #999;
+    font-style: italic;
+}
+
+.file-size {
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.uploaded-file-info.placeholder .file-size {
+    color: #999;
+}
+
+.access-control {
+    border-top: 1px solid #e1e8ed;
+    padding-top: 12px;
+}
+
+.access-label {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.access-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.access-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: #f0f2f5;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.access-chip input[type="checkbox"] {
+    width: 12px;
+    height: 12px;
+    accent-color: #667eea;
+}
+
+.access-chip.active {
+    background: #e3f2fd;
+    border-color: #667eea;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.empty-state i {
+    font-size: 36px;
+    color: #ddd;
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    margin: 0;
+}
+
+.delete-file-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.delete-file-btn:hover {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.action-bar {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.collapsed .section-content {
+    display: none;
+}
+
+.hidden {
+    display: none;
+}

@@ -1,0 +1,945 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "favorites/new" %>
+<% end %>
+<% content_for :title, "お気に入り編集" %>
+
+<div data-controller="favorite-new" style="width:90%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-box"></i> お気に入り編集</h1>
+        <div class="header-actions">
+          <button class="btn btn-primary" data-action="click->favorite-new#save">
+            <i class="fas fa-save"></i> 保存
+          </button>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <!-- 荷主・業者情報セクション -->
+        <div class="form-section collapsed" id="stakeholderInfo">
+          <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="stakeholderInfo">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-users"></i></div>
+              荷主・業者情報
+            </div>
+            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+          </div>
+          <div class="section-content">
+            <div class="form-grid grid-2">
+              <div class="form-group">
+                <label class="form-label">SHIPPER</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="company1" selected>ABC Trading Co., Ltd.</option>
+                  <option value="company2">XYZ Corporation</option>
+                  <option value="company3">Tokyo Shipping Inc.</option>
+                  <option value="company4">Global Logistics Ltd.</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">CONSIGNEE</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="consignee1" selected>DEF Manufacturing</option>
+                  <option value="consignee2">GHI Industries</option>
+                  <option value="consignee3">JKL Distribution</option>
+                  <option value="consignee4">MNO Retail Group</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid grid-2" style="margin-top: 20px;">
+              <div class="form-group">
+                <label class="form-label">SI Notifier</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="si_notifier1" selected>PQR Shipping Agent</option>
+                  <option value="si_notifier2">STU Logistics Partner</option>
+                  <option value="si_notifier3">VWX International Agent</option>
+                  <option value="si_notifier4">YZ Cargo Forwarder</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Master Notifier</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="master_notifier1" selected>ABC Customs Broker</option>
+                  <option value="master_notifier2">DEF Clearance Service</option>
+                  <option value="master_notifier3">GHI Trade Solutions</option>
+                  <option value="master_notifier4">JKL International Trade</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid grid-2" style="margin-top: 20px;">
+              <div class="form-group">
+                <label class="form-label">Client</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="client1" selected>MNO Corporation</option>
+                  <option value="client2">PQR Industries</option>
+                  <option value="client3">STU Trading Group</option>
+                  <option value="client4">VWX Manufacturing</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">AGENT</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="agent1" selected>PQR Freight Forwarder</option>
+                  <option value="agent2">STU Logistics Services</option>
+                  <option value="agent3">VWX International</option>
+                  <option value="agent4">YZ Cargo Solutions</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid grid-1" style="margin-top: 20px;">
+              <div class="form-group">
+                <label class="form-label">通関業者</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="kansai" selected>株式会社関東国際</option>
+                  <option value="tokyo_customs">東京通関サービス</option>
+                  <option value="yokohama_customs">横浜カスタムス</option>
+                  <option value="osaka_customs">大阪通関</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 輸送情報セクション -->
+        <div class="form-section" id="transportInfo">
+          <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="transportInfo">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-ship"></i></div>
+              輸送情報
+            </div>
+            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+          </div>
+          <div class="section-content">
+            <div class="form-grid grid-2">
+              <div class="form-group">
+                <label class="form-label">SHIPMENT</label>
+                <select class="form-select" data-action="change->favorite-new#handleShipmentChange" data-favorite-new-target="shipmentSelect">
+                  <option value="">選択してください</option>
+                  <option value="export" selected>輸出</option>
+                  <option value="import">輸入</option>
+                  <option value="third_country">三国間</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">METHOD</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="LCL">LCL</option>
+                  <option value="FCL" selected>FCL</option>
+                  <option value="AIR">AIR</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid grid-1" style="margin-top: 20px;">
+              <div class="form-group">
+                <label class="form-label">TERM</label>
+                <select class="form-select">
+                  <option value="">選択してください</option>
+                  <option value="EXW">EXW</option>
+                  <option value="FOB" selected>FOB</option>
+                  <option value="FCA">FCA</option>
+                  <option value="CFR">CFR</option>
+                  <option value="CIF">CIF</option>
+                  <option value="DAP">DAP</option>
+                  <option value="DDP">DDP</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid grid-4" style="margin-top: 20px;">
+              <div class="form-group">
+                <label class="form-label">PLACE OF RECEIPT</label>
+                <input type="text" class="form-input" value="BANGKOK">
+              </div>
+              <div class="form-group">
+                <label class="form-label">PORT OF LOADING</label>
+                <input type="text" class="form-input" value="BANGKOK, THAILAND">
+              </div>
+              <div class="form-group">
+                <label class="form-label">PORT OF DISCHARGE</label>
+                <input type="text" class="form-input" value="TOKYO, JAPAN">
+              </div>
+              <div class="form-group">
+                <label class="form-label">PLACE OF DELIVERY</label>
+                <input type="text" class="form-input" value="TOKYO">
+              </div>
+            </div>
+
+            <div class="form-grid grid-2" style="margin-top: 20px;">
+              <div class="form-group">
+                <label class="form-label">Pick UP</label>
+                <textarea class="form-textarea" style="min-height: 80px;" placeholder="集荷先住所を入力してください"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Delivery</label>
+                <textarea class="form-textarea" style="min-height: 80px;" placeholder="配送先住所を入力してください"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 貨物情報セクション -->
+        <div class="form-section collapsed" id="productInfo">
+          <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="productInfo">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-boxes"></i></div>
+              貨物情報
+            </div>
+            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+          </div>
+          <div class="section-content">
+            <div class="cargo-table-container">
+              <table class="cargo-table">
+                <thead>
+                  <tr>
+                    <th>PKGS</th>
+                    <th>TYPE OF PKG</th>
+                    <th>N/W (kg)</th>
+                    <th>G/W (kg)</th>
+                    <th>M3</th>
+                    <th style="width: 50px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody data-favorite-new-target="cargoTableBody">
+                  <tr>
+                    <td><input type="number" class="table-input" value="197"></td>
+                    <td><input type="text" class="table-input" value="CARTON"></td>
+                    <td><input type="number" class="table-input" value="2100"></td>
+                    <td><input type="number" class="table-input" value="2364"></td>
+                    <td><input type="number" class="table-input" value="25"></td>
+                    <td>
+                      <button class="delete-row-btn" title="行を削除" data-action="click->favorite-new#deleteRow">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top: 15px;">
+              <button type="button" class="btn btn-secondary" data-action="click->favorite-new#addCargoRow">
+                <i class="fas fa-plus"></i> 行を追加
+              </button>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group" style="margin-top: 25px;">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" style="min-height: 100px;" placeholder="商品の詳細説明を入力してください">Frozen Food Products
+- Temperature controlled goods
+- Requires refrigerated transport</textarea>
+            </div>
+
+            <!-- 備考 -->
+            <div class="form-group" style="margin-top: 20px;">
+              <label class="form-label">備考</label>
+              <textarea class="form-textarea" style="min-height: 80px;" placeholder="その他の備考事項を入力してください">特記事項なし</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 必要書類セクション -->
+        <div class="form-section collapsed" id="documentsInfo">
+          <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="documentsInfo">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-file-alt"></i></div>
+              必要書類
+            </div>
+            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+          </div>
+          <div class="section-content">
+            <!-- 輸出書類一覧 -->
+            <div id="exportDocuments" data-favorite-new-target="exportDocuments">
+              <h4 style="margin-bottom: 20px; color: #333; font-size: 16px;">輸出書類一覧</h4>
+              
+              <!-- 荷主が提出する書類 -->
+              <div class="document-category" style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 15px; color: #555; font-size: 14px; font-weight: bold;">【荷主が提出する書類】</h5>
+                <div class="form-grid grid-2">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="commercial_invoice"> Commercial Invoice
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="packing_list"> Packing List
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="msds"> MSDS
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="coo"> COO（原産地証明書）
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="other_docs"> 検疫書類
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="lc"> L/C（荷主バンの場合）
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="van_image"> バン画像
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="van_report"> バンレポ
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_shipper_docs[]" value="delivery_slip"> 搬入票
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- フォワーダーが提出する書類 -->
+              <div class="document-category" style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 15px; color: #555; font-size: 14px; font-weight: bold;">【フォワーダーが提出する書類】</h5>
+                <div class="form-grid grid-2">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="quotation"> 見積書
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="si"> S/I（Shipping Instruction）
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="hbl_awb"> HBL / AWB
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="dg_declaration"> DG Declaration
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="insurance"> 保険証券
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="booking_confirmation"> Booking Confirmation
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="mbl"> MBL
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_forwarder_docs[]" value="freight_memo"> フレートメモ
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 通関業者が提出する書類 -->
+              <div class="document-category" style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 15px; color: #555; font-size: 14px; font-weight: bold;">【通関業者が提出する書類】</h5>
+                <div class="form-grid grid-2">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_customs_docs[]" value="weight_certificate"> 検量証明書
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_customs_docs[]" value="export_permit"> 輸出許可書
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="export_customs_docs[]" value="dock_receipt"> D/R（Dock Receipt）
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 輸入書類一覧 -->
+            <div id="importDocuments" data-favorite-new-target="importDocuments" style="display: none;">
+              <h4 style="margin-bottom: 20px; color: #333; font-size: 16px;">輸入書類一覧</h4>
+              
+              <!-- 荷主が提出する書類 -->
+              <div class="document-category" style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 15px; color: #555; font-size: 14px; font-weight: bold;">【荷主が提出する書類】</h5>
+                <div class="form-grid grid-2">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_shipper_docs[]" value="hbl_awb"> HBL / AWB
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_shipper_docs[]" value="commercial_invoice"> Commercial Invoice
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_shipper_docs[]" value="packing_list"> Packing List
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_shipper_docs[]" value="msds"> MSDS
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_shipper_docs[]" value="coo"> COO（原産地証明書）
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_shipper_docs[]" value="other_docs"> 検疫書類
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_shipper_docs[]" value="insurance"> 保険証券
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- フォワーダーが提出する書類 -->
+              <div class="document-category" style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 15px; color: #555; font-size: 14px; font-weight: bold;">【フォワーダーが提出する書類】</h5>
+                <div class="form-grid grid-2">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_forwarder_docs[]" value="quotation"> 見積書
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_forwarder_docs[]" value="house_arrival_notice"> House Arrival Notice
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_forwarder_docs[]" value="do"> D/O
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_forwarder_docs[]" value="dg_declaration"> DG Declaration
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_forwarder_docs[]" value="master_arrival_notice"> Master Arrival Notice
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 代理店が提出する書類 -->
+              <div class="document-category" style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 15px; color: #555; font-size: 14px; font-weight: bold;">【代理店が提出する書類】</h5>
+                <div class="form-grid grid-2">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_agent_docs[]" value="mbl"> MBL
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_agent_docs[]" value="hbl_awb"> HBL / AWB
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 通関業者が提出する書類 -->
+              <div class="document-category" style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 15px; color: #555; font-size: 14px; font-weight: bold;">【通関業者が提出する書類】</h5>
+                <div class="form-grid grid-2">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_customs_docs[]" value="import_permit"> 輸入許可書
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="import_customs_docs[]" value="pod"> POD
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 支払い・請求管理情報セクション（入力部分） -->
+        <div class="form-section" id="finbalanceInfo">
+          <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="finbalanceInfo">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-yen-sign"></i></div>
+              支払い・請求管理情報
+            </div>
+            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+          </div>
+          <div class="section-content">
+            <div class="cargo-table-container">
+              <table class="cargo-table" id="accountingTable">
+                <thead>
+                  <tr>
+                    <th>項目名</th>
+                    <th>収入 (円)</th>
+                    <th>支出 (円)</th>
+                    <th>差額 (円)</th>
+                    <th style="width: 50px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody data-favorite-new-target="accountingTableBody">
+                  <!-- デフォルトで1行表示 -->
+                  <tr>
+                    <td>
+                      <select class="table-select item-select">
+                        <option value="">項目を選択してください</option>
+                        <option value="集荷費用">集荷費用</option>
+                        <option value="保管料">保管料</option>
+                        <option value="梱包費">梱包費</option>
+                        <option value="輸出通関手数料">輸出通関手数料</option>
+                        <option value="輸出税・関税">輸出税・関税</option>
+                        <option value="検査費用">検査費用</option>
+                        <option value="海上運賃">海上運賃</option>
+                        <option value="航空運賃">航空運賃</option>
+                        <option value="B/L発行手数料">B/L発行手数料</option>
+                        <option value="CAF">CAF</option>
+                        <option value="BAF">BAF</option>
+                        <option value="DO費用">DO費用</option>
+                        <option value="海上保険料">海上保険料</option>
+                        <option value="コンテナチャージ">コンテナチャージ</option>
+                        <option value="THC">THC</option>
+                        <option value="VGM申告費用">VGM申告費用</option>
+                        <option value="輸入通関費用">輸入通関費用</option>
+                        <option value="輸入関税">輸入関税</option>
+                        <option value="現地配送費（仕向地側配送費）">現地配送費（仕向地側配送費）</option>
+                      </select>
+                    </td>
+                    <td><input type="number" class="table-input income-input" placeholder="0" min="0" data-action="input->favorite-new#calculateTotals"></td>
+                    <td><input type="number" class="table-input expense-input" placeholder="0" min="0" data-action="input->favorite-new#calculateTotals"></td>
+                    <td><span class="balance-output">¥0</span></td>
+                    <td>
+                      <button class="delete-row-btn" title="行を削除" data-action="click->favorite-new#deleteRow">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top: 15px;">
+              <button type="button" class="btn btn-secondary" data-action="click->favorite-new#addAccountingRow">
+                <i class="fas fa-plus"></i> 行を追加
+              </button>
+            </div>
+            
+            <div class="totals-container">
+              <div class="total-item">
+                <div class="total-label">収入合計</div>
+                <div class="total-value" data-favorite-new-target="totalIncome">¥0</div>
+              </div>
+              <div class="total-item">
+                <div class="total-label">支出合計</div>
+                <div class="total-value" data-favorite-new-target="totalExpense">¥0</div>
+              </div>
+              <div class="total-item">
+                <div class="total-label">総差額</div>
+                <div class="total-value" data-favorite-new-target="grandTotal">¥0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ファイルアップロードセクション -->
+        <div class="form-section" id="fileUploadInfo">
+          <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="fileUploadInfo">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-paperclip"></i></div>
+              ファイルアップロード
+            </div>
+            <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+          </div>
+          <div class="section-content">
+            <div class="upload-table-container">
+              <table class="upload-table">
+                <thead>
+                  <tr>
+                    <th>ファイル選択</th>
+                    <th>書類種別</th>
+                    <th>提出者</th>
+                    <th>ファイル名</th>
+                    <th>シッパー<br>閲覧権</th>
+                    <th>コンサイニー<br>閲覧権</th>
+                    <th>通関<br>閲覧権</th>
+                    <th>エージェント<br>閲覧権</th>
+                    <th>削除</th>
+                  </tr>
+                </thead>
+                <tbody data-favorite-new-target="uploadTableBody">
+                  <!-- アップロード行1 -->
+                  <tr class="upload-table-row">
+                    <td>
+                      <div class="upload-field">
+                        <input type="file" class="file-input" id="file-1" data-action="change->favorite-new#handleFileUpload" data-upload-index="1">
+                        <label for="file-1" class="file-label">
+                          <i class="fas fa-cloud-upload-alt"></i>
+                          <span>ファイルを選択</span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <select class="form-select document-select">
+                        <option value="">書類種別を選択</option>
+                        <option value="commercial_invoice">Commercial Invoice</option>
+                        <option value="packing_list">Packing List</option>
+                        <option value="msds">MSDS</option>
+                        <option value="coo">COO（原産地証明書）</option>
+                        <option value="quarantine_docs">検疫書類</option>
+                        <option value="other_docs">その他書類</option>
+                        <option value="lc">L/C</option>
+                        <option value="quotation">見積書</option>
+                        <option value="shipping_instruction">S/I (Shipping Instruction)</option>
+                        <option value="hbl_awb">HBL/AWB</option>
+                        <option value="dg_declaration">DG Declaration</option>
+                        <option value="insurance">保険証券</option>
+                        <option value="freight_memo">フレートメモ</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-select submitter-select">
+                        <option value="">提出者を選択</option>
+                        <option value="shipper">荷主が提出する書類</option>
+                        <option value="forwarder">フォワーダーが提出する書類</option>
+                        <option value="customs">通関業者が提出する書類</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="file-info" data-upload-target="fileInfo1">
+                        <span class="file-name">ファイル未選択</span>
+                      </div>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="shipper_view_1" id="shipper_view_1">
+                      <label for="shipper_view_1" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="consignee_view_1" id="consignee_view_1">
+                      <label for="consignee_view_1" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="customs_view_1" id="customs_view_1">
+                      <label for="customs_view_1" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="agent_view_1" id="agent_view_1">
+                      <label for="agent_view_1" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="action-cell">
+                      <button type="button" class="delete-file-btn" data-action="click->favorite-new#deleteFile" data-upload-index="1" disabled>
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- アップロード行2-5 省略（同じ構造で続く） -->
+                  <tr class="upload-table-row">
+                    <td>
+                      <div class="upload-field">
+                        <input type="file" class="file-input" id="file-2" data-action="change->favorite-new#handleFileUpload" data-upload-index="2">
+                        <label for="file-2" class="file-label">
+                          <i class="fas fa-cloud-upload-alt"></i>
+                          <span>ファイルを選択</span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <select class="form-select document-select">
+                        <option value="">書類種別を選択</option>
+                        <option value="commercial_invoice">Commercial Invoice</option>
+                        <option value="packing_list">Packing List</option>
+                        <option value="msds">MSDS</option>
+                        <option value="coo">COO（原産地証明書）</option>
+                        <option value="quarantine_docs">検疫書類</option>
+                        <option value="other_docs">その他書類</option>
+                        <option value="lc">L/C</option>
+                        <option value="quotation">見積書</option>
+                        <option value="shipping_instruction">S/I (Shipping Instruction)</option>
+                        <option value="hbl_awb">HBL/AWB</option>
+                        <option value="dg_declaration">DG Declaration</option>
+                        <option value="insurance">保険証券</option>
+                        <option value="freight_memo">フレートメモ</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-select submitter-select">
+                        <option value="">提出者を選択</option>
+                        <option value="shipper">荷主が提出する書類</option>
+                        <option value="forwarder">フォワーダーが提出する書類</option>
+                        <option value="customs">通関業者が提出する書類</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="file-info" data-upload-target="fileInfo2">
+                        <span class="file-name">ファイル未選択</span>
+                      </div>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="shipper_view_2" id="shipper_view_2">
+                      <label for="shipper_view_2" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="consignee_view_2" id="consignee_view_2">
+                      <label for="consignee_view_2" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="customs_view_2" id="customs_view_2">
+                      <label for="customs_view_2" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="agent_view_2" id="agent_view_2">
+                      <label for="agent_view_2" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="action-cell">
+                      <button type="button" class="delete-file-btn" data-action="click->favorite-new#deleteFile" data-upload-index="2" disabled>
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr class="upload-table-row">
+                    <td>
+                      <div class="upload-field">
+                        <input type="file" class="file-input" id="file-3" data-action="change->favorite-new#handleFileUpload" data-upload-index="3">
+                        <label for="file-3" class="file-label">
+                          <i class="fas fa-cloud-upload-alt"></i>
+                          <span>ファイルを選択</span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <select class="form-select document-select">
+                        <option value="">書類種別を選択</option>
+                        <option value="commercial_invoice">Commercial Invoice</option>
+                        <option value="packing_list">Packing List</option>
+                        <option value="msds">MSDS</option>
+                        <option value="coo">COO（原産地証明書）</option>
+                        <option value="quarantine_docs">検疫書類</option>
+                        <option value="other_docs">その他書類</option>
+                        <option value="lc">L/C</option>
+                        <option value="quotation">見積書</option>
+                        <option value="shipping_instruction">S/I (Shipping Instruction)</option>
+                        <option value="hbl_awb">HBL/AWB</option>
+                        <option value="dg_declaration">DG Declaration</option>
+                        <option value="insurance">保険証券</option>
+                        <option value="freight_memo">フレートメモ</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-select submitter-select">
+                        <option value="">提出者を選択</option>
+                        <option value="shipper">荷主が提出する書類</option>
+                        <option value="forwarder">フォワーダーが提出する書類</option>
+                        <option value="customs">通関業者が提出する書類</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="file-info" data-upload-target="fileInfo3">
+                        <span class="file-name">ファイル未選択</span>
+                      </div>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="shipper_view_3" id="shipper_view_3">
+                      <label for="shipper_view_3" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="consignee_view_3" id="consignee_view_3">
+                      <label for="consignee_view_3" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="customs_view_3" id="customs_view_3">
+                      <label for="customs_view_3" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="agent_view_3" id="agent_view_3">
+                      <label for="agent_view_3" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="action-cell">
+                      <button type="button" class="delete-file-btn" data-action="click->favorite-new#deleteFile" data-upload-index="3" disabled>
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr class="upload-table-row">
+                    <td>
+                      <div class="upload-field">
+                        <input type="file" class="file-input" id="file-4" data-action="change->favorite-new#handleFileUpload" data-upload-index="4">
+                        <label for="file-4" class="file-label">
+                          <i class="fas fa-cloud-upload-alt"></i>
+                          <span>ファイルを選択</span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <select class="form-select document-select">
+                        <option value="">書類種別を選択</option>
+                        <option value="commercial_invoice">Commercial Invoice</option>
+                        <option value="packing_list">Packing List</option>
+                        <option value="msds">MSDS</option>
+                        <option value="coo">COO（原産地証明書）</option>
+                        <option value="quarantine_docs">検疫書類</option>
+                        <option value="other_docs">その他書類</option>
+                        <option value="lc">L/C</option>
+                        <option value="quotation">見積書</option>
+                        <option value="shipping_instruction">S/I (Shipping Instruction)</option>
+                        <option value="hbl_awb">HBL/AWB</option>
+                        <option value="dg_declaration">DG Declaration</option>
+                        <option value="insurance">保険証券</option>
+                        <option value="freight_memo">フレートメモ</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-select submitter-select">
+                        <option value="">提出者を選択</option>
+                        <option value="shipper">荷主が提出する書類</option>
+                        <option value="forwarder">フォワーダーが提出する書類</option>
+                        <option value="customs">通関業者が提出する書類</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="file-info" data-upload-target="fileInfo4">
+                        <span class="file-name">ファイル未選択</span>
+                      </div>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="shipper_view_4" id="shipper_view_4">
+                      <label for="shipper_view_4" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="consignee_view_4" id="consignee_view_4">
+                      <label for="consignee_view_4" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="customs_view_4" id="customs_view_4">
+                      <label for="customs_view_4" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="agent_view_4" id="agent_view_4">
+                      <label for="agent_view_4" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="action-cell">
+                      <button type="button" class="delete-file-btn" data-action="click->favorite-new#deleteFile" data-upload-index="4" disabled>
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr class="upload-table-row">
+                    <td>
+                      <div class="upload-field">
+                        <input type="file" class="file-input" id="file-5" data-action="change->favorite-new#handleFileUpload" data-upload-index="5">
+                        <label for="file-5" class="file-label">
+                          <i class="fas fa-cloud-upload-alt"></i>
+                          <span>ファイルを選択</span>
+                        </label>
+                      </div>
+                    </td>
+                    <td>
+                      <select class="form-select document-select">
+                        <option value="">書類種別を選択</option>
+                        <option value="commercial_invoice">Commercial Invoice</option>
+                        <option value="packing_list">Packing List</option>
+                        <option value="msds">MSDS</option>
+                        <option value="coo">COO（原産地証明書）</option>
+                        <option value="quarantine_docs">検疫書類</option>
+                        <option value="other_docs">その他書類</option>
+                        <option value="lc">L/C</option>
+                        <option value="quotation">見積書</option>
+                        <option value="shipping_instruction">S/I (Shipping Instruction)</option>
+                        <option value="hbl_awb">HBL/AWB</option>
+                        <option value="dg_declaration">DG Declaration</option>
+                        <option value="insurance">保険証券</option>
+                        <option value="freight_memo">フレートメモ</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-select submitter-select">
+                        <option value="">提出者を選択</option>
+                        <option value="shipper">荷主が提出する書類</option>
+                        <option value="forwarder">フォワーダーが提出する書類</option>
+                        <option value="customs">通関業者が提出する書類</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="file-info" data-upload-target="fileInfo5">
+                        <span class="file-name">ファイル未選択</span>
+                      </div>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="shipper_view_5" id="shipper_view_5">
+                      <label for="shipper_view_5" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="consignee_view_5" id="consignee_view_5">
+                      <label for="consignee_view_5" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="customs_view_5" id="customs_view_5">
+                      <label for="customs_view_5" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="checkbox-cell">
+                      <input type="checkbox" class="permission-checkbox" name="agent_view_5" id="agent_view_5">
+                      <label for="agent_view_5" class="checkbox-label-small"></label>
+                    </td>
+                    <td class="action-cell">
+                      <button type="button" class="delete-file-btn" data-action="click->favorite-new#deleteFile" data-upload-index="5" disabled>
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

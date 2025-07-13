@@ -1,0 +1,168 @@
+<div class="form-container">
+  <!-- 基本情報セクション -->
+  <div class="form-section">
+    <details open>
+      <summary>
+        <div class="section-title">
+          <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+          基本情報
+        </div>
+        <div class="accordion-icon"><i class="fas fa-chevron-down"></i></div>
+      </summary>
+      <div class="section-content">
+        <div class="form-grid grid-2">
+          <div class="form-group">
+            <label class="form-label required">会社名（英語）</label>
+            <%= f.text_field :english_name,
+                            class: "form-input",
+                            placeholder: "例: ABC Trading Co., Ltd.",
+                            data: { contractor_new_target: "companyNameEnglish" },
+                            required: true %>
+            <div class="help-text">B/L面上の会社名（英語）を入力してください</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label required">会社名（日本語）</label>
+            <%= f.text_field :japanese_name,
+                            class: "form-input",
+                            placeholder: "例: エービーシー株式会社",
+                            data: { contractor_new_target: "companyNameJapanese" },
+                            required: true %>
+            <div class="help-text">請求書上の会社名（日本語）を入力してください</div>
+          </div>
+        </div>
+        <div class="form-grid grid-1" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label required">取引先タイプ</label>
+            <div class="checkbox-group" data-contractor-new-target="partnerTypes">
+              <% @business_categories.each do |bc| %>
+                <div class="checkbox-item">
+                  <%= check_box_tag "company[category_ids][]", bc.id, 
+                                    @company.category_ids.include?(bc.id),
+                                    id: "category_#{bc.id}",
+                                    data: { contractor_new_target: "partnerTypeCheckbox" } %>
+                  <%= label_tag "category_#{bc.id}" do %>
+                    <span class="checkbox-label"><%= bc.category.upcase %></span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <div class="help-text">該当するタイプをすべて選択してください（複数選択可）</div>
+          </div>
+        </div>
+        <div class="form-grid grid-1" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label required">住所</label>
+            <%= f.text_area :address,
+                            class: "form-textarea",
+                            placeholder: "例: 〒100-0001 東京都千代田区千代田1-1-1\nまたは\n123 Main Street, Los Angeles, CA 90210, USA",
+                            data: { contractor_new_target: "address" },
+                            required: true %>
+            <div class="help-text">郵便番号、都道府県、市区町村、番地を含む完全な住所を入力してください</div>
+          </div>
+        </div>
+
+        <div class="form-grid grid-1" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label">会社概要</label>
+            <%= f.text_area :company_memo,
+                            class: "form-textarea",
+                            placeholder: "会社の概要や特記事項があれば入力してください（任意）",
+                            data: { contractor_new_target: "companyDescription" } %>
+          </div>
+        </div>
+
+        <div class="form-grid grid-1" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label">ステータス</label>
+            <div class="radio-group">
+              <div class="radio-item">
+                <%= f.radio_button :status, "active", checked: true, id: "active" %>
+                <%= f.label :status, "アクティブ", { value: "active", for: "active" } %>
+              </div>
+              <div class="radio-item">
+                <%= f.radio_button :status, "inactive", checked: false, id: "inactive"  %>
+                <%= f.label :status_inactive, "非アクティブ", { value: "inactive", for: "inactive" }  %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid grid-1" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label">取引条件・備考</label>
+            <%= f.text_area :deal_memo,
+                            class: "form-textarea",
+                            placeholder: "支払条件、配送条件、その他の取引に関する特記事項があれば入力してください（任意）",
+                            data: { contractor_new_target: "tradingTerms" } %>
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 連絡先情報セクション -->
+  <div class="form-section">
+    <details open>
+      <summary>
+        <div class="section-title">
+          <div class="section-icon"><i class="fas fa-address-book"></i></div>
+          連絡先情報
+        </div>
+        <div class="accordion-icon"><i class="fas fa-chevron-down"></i></div>
+      </summary>
+      <div class="section-content">
+        <div class="contact-table-container">
+          <table class="contact-table">
+            <thead>
+              <tr>
+                <th>担当者名 *</th>
+                <th>権限</th>
+                <th>部署</th>
+                <th>メールアドレス *</th>
+                <th>電話番号</th>
+                <th>削除</th>
+              </tr>
+            </thead>
+            <tbody data-contractor-new-target="contactTableBody">
+              <%= f.fields_for :users do |user_form| %>
+                <tr>
+                  <td><%= user_form.text_field :name, class: "table-input contact-name-input", placeholder: "例: 山田 一郎", required: true %></td>
+                  <td>
+                    <%= user_form.select :role, 
+                                        options_for_select([
+                                          ['選択してください', ''],
+                                          ['管理者', 'admin'],
+                                          ['編集者', 'editor'],
+                                          ['閲覧者', 'viewer']
+                                        ], user_form.object.role), 
+                                        {}, 
+                                        { class: "table-input contact-role-select", required: true } %>
+                  </td>
+                  <td><%= user_form.text_field :dept, class: "table-input contact-dept-input", placeholder: "例: 貿易部" %></td>
+                  <td><%= user_form.email_field :email, class: "table-input contact-email-input", placeholder: "例: yamada@company.com", required: true %></td>
+                  <td><%= user_form.telephone_field :phone, class: "table-input contact-phone-input", placeholder: "例: 0312345678" %></td>
+                  <td>
+                    <%= user_form.check_box :_destroy, { class: "hidden" }, "1", "0" %>
+                    <button type="button" class="delete-contact-btn" title="連絡先を削除" data-action="click->contractor-new#deleteRow" data-target-name="contactTableBody">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <button type="button" class="btn btn-secondary" data-action="click->contractor-new#addContactRow">
+            <i class="fas fa-plus"></i> 連絡先を追加
+          </button>
+        </div>
+
+        <div class="help-text" style="margin-top: 10px;">
+          ※ 担当者名とメールアドレスは必須項目です。複数の担当者を登録する場合は「連絡先を追加」ボタンをクリックしてください。
+        </div>
+      </div>
+    </details>
+  </div>
+</div>

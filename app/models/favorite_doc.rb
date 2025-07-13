@@ -1,0 +1,2 @@
+class FavoriteDoc < ApplicationRecord
+end

@@ -1,0 +1,430 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "event_files/new_export" %>
+<% end %>
+<% content_for :title, "案件ファイル" %>
+
+<%= render partial: "layouts/sidebar" %>
+<div class="main-content" data-controller="event-file-new">
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-folder-open"></i> 案件ファイル管理</h1>
+      <div class="header-info">
+        <div class="info-item">
+          <span class="info-label">MBL NO.</span>
+          <span class="info-value">MBL-XYZ123</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">HBL NO.</span>
+          <span class="info-value">HBL-ABC456</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">ステータス</span>
+          <span class="info-value">書類準備中</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-container">
+      <!-- 荷主セクション -->
+      <div class="file-section" id="shipperDocs" data-event-file-new-target="section">
+        <div class="section-header" data-action="click->event-file-new#toggleSection" data-section-id="shipperDocs">
+          <div class="section-title">
+            <div class="section-icon">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            荷主が提出する書類
+            <span class="section-badge" data-event-file-new-target="badge" id="shipperBadge">2/2</span>
+          </div>
+          <i class="fas fa-chevron-down collapse-icon"></i>
+        </div>
+        <div class="section-content">
+          <div class="section-layout">
+            <div class="checklist-sidebar">
+              <div class="checklist-header">
+                <h4><i class="fas fa-list-check"></i> 必要書類一覧</h4>
+              </div>
+              <div class="checklist-items" id="shipperChecklist">
+                <div class="checklist-item" data-file-type="invoice">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">インボイス</span>
+                </div>
+                <div class="checklist-item" data-file-type="packing_list">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">パッキングリスト</span>
+                </div>
+                <div class="checklist-item" data-file-type="certificate">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">証明書</span>
+                </div>
+                <div class="checklist-item" data-file-type="contract">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">契約書</span>
+                </div>
+                <div class="checklist-item" data-file-type="van_photos">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">バン写真</span>
+                </div>
+                <div class="checklist-item" data-file-type="other">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">その他</span>
+                </div>
+              </div>
+            </div>
+            <div class="main-area">
+              <div class="upload-area">
+                <div class="upload-section" data-action="click->event-file-new#uploadFile" data-event-file-new-target="uploadSection">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <div class="upload-text">ファイルをアップロード</div>
+                  <div class="upload-subtext">複数ファイル同時選択可能</div>
+                </div>
+              </div>
+              <div class="files-area">
+                <div class="files-tabs">
+                  <button class="tab-button active" data-action="click->event-file-new#switchTab" data-target-tab="shipperNewFiles">新規ファイル (<span data-count-target="newFiles">0</span>)</button>
+                  <button class="tab-button" data-action="click->event-file-new#switchTab" data-target-tab="shipperExistingFiles">既存ファイル (<span data-count-target="existingFiles">2</span>)</button>
+                </div>
+                <div id="shipperNewFiles" class="tab-content active" data-event-file-new-target="filesList">
+                  <div class="empty-state">
+                    <i class="fas fa-file-circle-plus"></i>
+                    <p>新規ファイルがありません</p>
+                  </div>
+                </div>
+                <div id="shipperExistingFiles" class="tab-content">
+                  <div class="file-item uploaded">
+                    <div class="file-item-header">
+                      <select class="file-type-select" data-action="change->event-file-new#onFileTypeChange">
+                        <option value="">ファイル種類を選択</option>
+                        <option value="invoice" selected>インボイス</option>
+                        <option value="packing_list">パッキングリスト</option>
+                        <option value="certificate">証明書</option>
+                        <option value="contract">契約書</option>
+                        <option value="van_photos">バン写真</option>
+                        <option value="other">その他</option>
+                      </select>
+                      <span class="required-mark">*必須</span>
+                      <button class="delete-file-btn" data-action="click->event-file-new#deleteFileItem" title="ファイルを削除">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <span class="status-indicator uploaded"></span>
+                    </div>
+                    <div class="file-info-section">
+                      <div class="uploaded-file-info">
+                        <div class="file-name-display">
+                          <i class="fas fa-file-pdf"></i>
+                          <span class="file-name">invoice_202508.pdf</span>
+                        </div>
+                        <div class="file-size">1.2MB</div>
+                      </div>
+                    </div>
+                    <div class="access-control">
+                      <div class="access-label">アクセス権限</div>
+                      <div class="access-chips">
+                        <label class="access-chip active" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox" checked>
+                          <span>通関業者</span>
+                        </label>
+                        <label class="access-chip active" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox" checked>
+                          <span>荷主</span>
+                        </label>
+                        <label class="access-chip" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox">
+                          <span>Agent</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="file-item uploaded">
+                    <div class="file-item-header">
+                      <select class="file-type-select" data-action="change->event-file-new#onFileTypeChange">
+                        <option value="" selected>ファイル種類を選択</option>
+                        <option value="packing_list">パッキングリスト</option>
+                        <option value="certificate">証明書</option>
+                        <option value="contract">契約書</option>
+                        <option value="van_photos">バン写真</option>
+                        <option value="other">その他</option>
+                      </select>
+                      <span class="required-mark">*必須</span>
+                      <button class="delete-file-btn" data-action="click->event-file-new#deleteFileItem" title="ファイルを削除">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <span class="status-indicator uploaded"></span>
+                    </div>
+                    <div class="file-info-section">
+                      <div class="uploaded-file-info">
+                        <div class="file-name-display">
+                          <i class="fas fa-file-excel"></i>
+                          <span class="file-name">packing_list_202508.xlsx</span>
+                        </div>
+                        <div class="file-size">856KB</div>
+                      </div>
+                    </div>
+                    <div class="access-control">
+                      <div class="access-label">アクセス権限</div>
+                      <div class="access-chips">
+                        <label class="access-chip" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox">
+                          <span>通関業者</span>
+                        </label>
+                        <label class="access-chip" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox">
+                          <span>荷主</span>
+                        </label>
+                        <label class="access-chip" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox">
+                          <span>Agent</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- フォワーダーセクション -->
+      <div class="file-section" id="forwarderDocs" data-event-file-new-target="section">
+        <div class="section-header" data-action="click->event-file-new#toggleSection" data-section-id="forwarderDocs">
+          <div class="section-title">
+            <div class="section-icon">
+              <i class="fas fa-shipping-fast"></i>
+            </div>
+            フォワーダーが提出する書類
+            <span class="section-badge" data-event-file-new-target="badge" id="forwarderBadge">1/1</span>
+          </div>
+          <i class="fas fa-chevron-down collapse-icon"></i>
+        </div>
+        <div class="section-content">
+          <div class="section-layout">
+            <div class="checklist-sidebar">
+              <div class="checklist-header">
+                <h4><i class="fas fa-list-check"></i> 必要書類一覧</h4>
+              </div>
+              <div class="checklist-items" id="forwarderChecklist">
+                <div class="checklist-item" data-file-type="bl">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">船荷証券（B/L）</span>
+                </div>
+                <div class="checklist-item" data-file-type="manifest">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">マニフェスト</span>
+                </div>
+                <div class="checklist-item" data-file-type="booking">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">ブッキング確認書</span>
+                </div>
+                <div class="checklist-item" data-file-type="freight_invoice">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">運賃請求書</span>
+                </div>
+                <div class="checklist-item" data-file-type="other">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">その他</span>
+                </div>
+              </div>
+            </div>
+            <div class="main-area">
+              <div class="upload-area">
+                <div class="upload-section" data-action="click->event-file-new#uploadFile" data-event-file-new-target="uploadSection">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <div class="upload-text">ファイルをアップロード</div>
+                  <div class="upload-subtext">複数ファイル同時選択可能</div>
+                </div>
+              </div>
+              <div class="files-area">
+                <div class="files-tabs">
+                  <button class="tab-button active" data-action="click->event-file-new#switchTab" data-target-tab="forwarderNewFiles">新規ファイル (<span data-count-target="newFiles">0</span>)</button>
+                  <button class="tab-button" data-action="click->event-file-new#switchTab" data-target-tab="forwarderExistingFiles">既存ファイル (<span data-count-target="existingFiles">1</span>)</button>
+                </div>
+                <div id="forwarderNewFiles" class="tab-content active" data-event-file-new-target="filesList">
+                  <div class="empty-state">
+                    <i class="fas fa-file-circle-plus"></i>
+                    <p>新規ファイルがありません</p>
+                  </div>
+                </div>
+                <div id="forwarderExistingFiles" class="tab-content">
+                  <div class="file-item uploaded">
+                    <div class="file-item-header">
+                      <select class="file-type-select" data-action="change->event-file-new#onFileTypeChange">
+                        <option value="">ファイル種類を選択</option>
+                        <option value="bl" selected>船荷証券（B/L）</option>
+                        <option value="manifest">マニフェスト</option>
+                        <option value="booking">ブッキング確認書</option>
+                        <option value="freight_invoice">運賃請求書</option>
+                        <option value="other">その他</option>
+                      </select>
+                      <span class="required-mark">*必須</span>
+                      <button class="delete-file-btn" data-action="click->event-file-new#deleteFileItem" title="ファイルを削除">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <span class="status-indicator uploaded"></span>
+                    </div>
+                    <div class="file-info-section">
+                      <div class="uploaded-file-info">
+                        <div class="file-name-display">
+                          <i class="fas fa-file-pdf"></i>
+                          <span class="file-name">bill_of_lading_202508.pdf</span>
+                        </div>
+                        <div class="file-size">2.1MB</div>
+                      </div>
+                    </div>
+                    <div class="access-control">
+                      <div class="access-label">アクセス権限</div>
+                      <div class="access-chips">
+                        <label class="access-chip active" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox" checked>
+                          <span>通関業者</span>
+                        </label>
+                        <label class="access-chip active" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox" checked>
+                          <span>荷主</span>
+                        </label>
+                        <label class="access-chip" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox">
+                          <span>Agent</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通関業者セクション -->
+      <div class="file-section" id="customsDocs" data-event-file-new-target="section">
+        <div class="section-header" data-action="click->event-file-new#toggleSection" data-section-id="customsDocs">
+          <div class="section-title">
+            <div class="section-icon">
+              <i class="fas fa-file-contract"></i>
+            </div>
+            通関業者が提出する書類
+            <span class="section-badge" data-event-file-new-target="badge" id="customsBadge">1/1</span>
+          </div>
+          <i class="fas fa-chevron-down collapse-icon"></i>
+        </div>
+        <div class="section-content">
+          <div class="section-layout">
+            <div class="checklist-sidebar">
+              <div class="checklist-header">
+                <h4><i class="fas fa-list-check"></i> 必要書類一覧</h4>
+              </div>
+              <div class="checklist-items" id="customsChecklist">
+                <div class="checklist-item" data-file-type="declaration">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">輸入申告書</span>
+                </div>
+                <div class="checklist-item" data-file-type="permit">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">許可書</span>
+                </div>
+                <div class="checklist-item" data-file-type="inspection">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">検査結果書</span>
+                </div>
+                <div class="checklist-item" data-file-type="duty_payment">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">関税納付書</span>
+                </div>
+                <div class="checklist-item" data-file-type="other">
+                  <i class="fas fa-square checklist-icon"></i>
+                  <span class="checklist-label">その他</span>
+                </div>
+              </div>
+            </div>
+            <div class="main-area">
+              <div class="upload-area">
+                <div class="upload-section" data-action="click->event-file-new#uploadFile" data-event-file-new-target="uploadSection">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <div class="upload-text">ファイルをアップロード</div>
+                  <div class="upload-subtext">複数ファイル同時選択可能</div>
+                </div>
+              </div>
+              <div class="files-area">
+                <div class="files-tabs">
+                  <button class="tab-button active" data-action="click->event-file-new#switchTab" data-target-tab="customsNewFiles">新規ファイル (<span data-count-target="newFiles">0</span>)</button>
+                  <button class="tab-button" data-action="click->event-file-new#switchTab" data-target-tab="customsExistingFiles">既存ファイル (<span data-count-target="existingFiles">1</span>)</button>
+                </div>
+                <div id="customsNewFiles" class="tab-content active" data-event-file-new-target="filesList">
+                  <div class="empty-state">
+                    <i class="fas fa-file-circle-plus"></i>
+                    <p>新規ファイルがありません</p>
+                  </div>
+                </div>
+                <div id="customsExistingFiles" class="tab-content">
+                  <div class="file-item uploaded">
+                    <div class="file-item-header">
+                      <select class="file-type-select" data-action="change->event-file-new#onFileTypeChange">
+                        <option value="">ファイル種類を選択</option>
+                        <option value="declaration" selected>輸入申告書</option>
+                        <option value="permit">許可書</option>
+                        <option value="inspection">検査結果書</option>
+                        <option value="duty_payment">関税納付書</option>
+                        <option value="other">その他</option>
+                      </select>
+                      <span class="required-mark">*必須</span>
+                      <button class="delete-file-btn" data-action="click->event-file-new#deleteFileItem" title="ファイルを削除">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <span class="status-indicator uploaded"></span>
+                    </div>
+                    <div class="file-info-section">
+                      <div class="uploaded-file-info">
+                        <div class="file-name-display">
+                          <i class="fas fa-file-excel"></i>
+                          <span class="file-name">import_declaration_202508.xlsx</span>
+                        </div>
+                        <div class="file-size">756KB</div>
+                      </div>
+                    </div>
+                    <div class="access-control">
+                      <div class="access-label">アクセス権限</div>
+                      <div class="access-chips">
+                        <label class="access-chip active" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox" checked>
+                          <span>通関業者</span>
+                        </label>
+                        <label class="access-chip active" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox" checked>
+                          <span>荷主</span>
+                        </label>
+                        <label class="access-chip" data-action="click->event-file-new#toggleAccessChip">
+                          <input type="checkbox">
+                          <span>Agent</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <div class="action-info">
+          <span style="color: #666; font-size: 14px;">
+            <i class="fas fa-info-circle"></i>
+            全書類: <span data-event-file-new-target="totalUploadedCount">4</span>/<span data-event-file-new-target="totalCount">4</span> アップロード済み
+          </span>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-secondary" data-action="click->event-file-new#downloadAll">
+            <i class="fas fa-download"></i>
+            全てダウンロード
+          </button>
+          <button class="btn btn-primary" data-action="click->event-file-new#saveChanges">
+            <i class="fas fa-save"></i>
+            変更を保存
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

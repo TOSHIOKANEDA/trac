@@ -1,0 +1,2 @@
+class FinbalanceIncome < ApplicationRecord
+end

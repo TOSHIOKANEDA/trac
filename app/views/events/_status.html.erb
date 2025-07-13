@@ -1,0 +1,87 @@
+<!-- 進捗モーダル（案件一覧スタイル） -->
+<div class="modal-overlay" data-event-new-target="milestoneModalOverlay" data-action="click->event-new#closeMilestoneModal">
+  <div class="modal_show" data-event-new-target="milestoneModal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fas fa-tasks"></i>
+        <span>案件進捗状況</span>
+      </div>
+      <button class="modal-close" data-action="click->event-new#closeMilestoneModal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-content" data-event-new-target="milestoneContent">
+      <ul class="milestone-list">
+        <li class="milestone-item">
+          <div class="milestone-icon complete">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">ブッキング確定</div>
+            <div class="milestone-date">2025/08/01</div>
+          </div>
+        </li>
+        <li class="milestone-item">
+          <div class="milestone-icon complete">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">船積書類受領</div>
+            <div class="milestone-date">2025/08/02</div>
+          </div>
+        </li>
+        <li class="milestone-item">
+          <div class="milestone-icon complete">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">バンニング</div>
+            <div class="milestone-date">2025/08/05</div>
+          </div>
+        </li>
+        <li class="milestone-item">
+          <div class="milestone-icon complete">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">検疫完了</div>
+            <div class="milestone-date">2025/08/08</div>
+          </div>
+        </li>
+        <li class="milestone-item">
+          <div class="milestone-icon current">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">ETD</div>
+            <div class="milestone-date">2025/08/20</div>
+          </div>
+        </li>
+        <li class="milestone-item">
+          <div class="milestone-icon pending">
+            <i class="fas fa-circle"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">ETA</div>
+          </div>
+        </li>
+        <li class="milestone-item">
+          <div class="milestone-icon pending">
+            <i class="fas fa-circle"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">配送日</div>
+          </div>
+        </li>
+        <li class="milestone-item">
+          <div class="milestone-icon pending">
+            <i class="fas fa-circle"></i>
+          </div>
+          <div class="milestone-content">
+            <div class="milestone-name">請求書発行</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

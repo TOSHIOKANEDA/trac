@@ -1,0 +1,2 @@
+class Kpler < ApplicationRecord
+end

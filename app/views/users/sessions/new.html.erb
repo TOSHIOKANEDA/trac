@@ -1,0 +1,52 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "users/sessions" %>
+<% end %>
+<% content_for :title, "トラフィックカレンダー" %>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">
+        <i class="fas fa-truck"></i>
+        ログイン
+      </h1>
+      <p class="auth-subtitle">物流管理システムへようこそ</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), local: true) do |f| %>
+      <% if resource.errors.any? %>
+        <div class="alert alert-danger">
+          <strong>エラーが発生しました:</strong>
+          <ul style="margin: 10px 0 0 20px;">
+            <% resource.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= f.label :email, "メールアドレス", class: "form-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", 
+                          class: "form-input", 
+                          placeholder: "your-email@example.com" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password, "パスワード", class: "form-label" %>
+        <%= f.password_field :password, autocomplete: "current-password", 
+                             class: "form-input", 
+                             placeholder: "パスワードを入力してください" %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <div class="form-checkbox">
+          <%= f.check_box :remember_me %>
+          <%= f.label :remember_me, "ログイン状態を保持する" %>
+        </div>
+      <% end %>
+
+      <%= f.submit "ログイン", class: "btn btn-primary" %>
+    <% end %>
+
+  </div>
+</div>

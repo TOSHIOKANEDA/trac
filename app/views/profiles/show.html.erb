@@ -1,0 +1,147 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "profiles/show" %>
+<% end %>
+<% content_for :title, "個人設定" %>
+<%= render partial: "layouts/sidebar" %>
+<div class="main-content">
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1><i class="fas fa-user-cog"></i> 個人設定</h1>
+      </div>
+    </div>
+
+    <div class="content-container">
+      <div class="settings-grid">
+        <!-- パスワード変更セクション -->
+        <% if @show_password %>
+          <div class="settings-section">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="section-icon"><i class="fas fa-lock"></i></div>
+                パスワード変更
+              </div>
+            </div>
+            <div class="section-content">
+              <%= form_for(current_user, as: :user, url: user_registration_path, html: { method: :put }, local: true) do |f| %>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <%= f.label :current_password, "現在のパスワード", class: "form-label" %>
+                    <%= f.password_field :current_password, class: "form-input", placeholder: "現在のパスワードを入力", required: true %>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :password, "新しいパスワード", class: "form-label" %>
+                    <%= f.password_field :password, class: "form-input", placeholder: "新しいパスワードを入力", required: true %>
+                  </div>
+
+                  <div class="form-group">
+                    <%= f.label :password_confirmation, "新しいパスワード（確認）", class: "form-label" %>
+                    <%= f.password_field :password_confirmation, class: "form-input", placeholder: "新しいパスワードを再入力", required: true %>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <%= f.submit "パスワード変更", class: "btn btn-primary" do %>
+                    <i class="fas fa-key"></i> パスワード変更
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- ステータス変更セクション -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-sliders-h"></i></div>
+              利用ステータス
+            </div>
+          </div>
+          <div class="section-content">
+            <%= form_for(@user, as: :user, url: user_registration_path, html: { method: :put }, local: true) do |f| %>
+              <div class="status-item">
+                <div class="status-info">
+                  <div class="status-title">利用可否</div>
+                  <div class="status-desc">システムの利用可否を切り替えます</div>
+                </div>
+
+                <label class="toggle-switch">
+                  <%= f.check_box :status, checked: @user.status %>
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <%= f.submit "ステータスを保存", class: "btn btn-primary" do %>
+                  <i class="fas fa-save"></i> ステータスを保存
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- 通知設定セクション -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-bell"></i></div>
+              メール通知設定
+            </div>
+          </div>
+          <div class="section-content">
+            <%= form_for(@user, url: user_registration_path, html: { method: :put }, local: true) do |f| %>
+              <div class="notification-item">
+                <div class="notification-info">
+                  <div class="notification-title">本船遅延</div>
+                  <div class="notification-desc">本船の到着予定が遅延した際の通知</div>
+                  <div style="margin-top: 10px;">
+                    <%= f.label :delay_days, "通知する遅延日数", class: "form-label", style: "margin-bottom: 5px;" %>
+                    <%= f.select :delay_days,
+                          options_for_select([1,2,3,5,7].map { |n| ["#{n}日以上", n] }, @user.delay_days),
+                          {}, 
+                          class: "form-select",
+                          style: "width: 150px; font-size: 13px; padding: 8px 12px;" %>
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <%= f.check_box :delay_mail, checked: @user.delay_mail %>
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="notification-item">
+                <div class="notification-info">
+                  <div class="notification-title">チャット連絡</div>
+                  <div class="notification-desc">チャットでメッセージが届いた際の通知</div>
+                </div>
+                <label class="toggle-switch">
+                  <%= f.check_box :chat_mail, checked: @user.chat_mail %>
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="notification-item">
+                <div class="notification-info">
+                  <div class="notification-title">ステータス更新</div>
+                  <div class="notification-desc">案件のステータスが更新された際の通知</div>
+                </div>
+                <label class="toggle-switch">
+                  <%= f.check_box :status_mail, checked: @user.status_mail %>
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <%= f.submit "通知設定を保存", class: "btn btn-primary inline-flex items-center px-4 py-2" do %>
+                  <i class="fas fa-save mr-2"></i> 通知設定を保存
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

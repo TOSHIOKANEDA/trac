@@ -1,0 +1,120 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "contractors/index" %>
+<% end %>
+<% content_for :title, "取引先管理" %>
+<%= render partial: "layouts/sidebar" %>
+<div class="main-content">
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-building"></i> 取引先管理</h1>
+      <div class="header-actions">
+        <%= button_to new_contractor_path, method: :get, class: "btn btn-primary" do %>
+          <i class="fas fa-plus"></i> 新規取引先追加
+        <% end %>
+      </div>
+    </div>
+
+    <div class="content-container">
+      <!-- フィルター・検索セクション -->
+      <div class="filter-section">
+        <div class="filter-header">
+          <div class="filter-title">
+            <div class="section-icon"><i class="fas fa-search"></i></div>
+            検索・フィルター
+          </div>
+        </div>
+        <div class="filter-content">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label class="form-label">タイプ</label>
+              <select class="form-select">
+                <option value="">すべてのタイプ</option>
+                <option value="SHIPPER">SHIPPER</option>
+                <option value="CONSIGNEE">CONSIGNEE</option>
+                <option value="AGENT">AGENT</option>
+                <option value="NOTIFIER">NOTIFIER</option>
+                <option value="CLIENT">CLIENT</option>
+                <option value="CUSTOMS">通関業者</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">英語会社名</label>
+              <input type="text" class="form-input" placeholder="英語会社名で検索...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">日本語会社名</label>
+              <input type="text" class="form-input" placeholder="日本語会社名で検索...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ステータス</label>
+              <select class="form-select">
+                <option value="">すべてのステータス</option>
+                <option value="active">アクティブ</option>
+                <option value="inactive">非アクティブ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary">
+                <i class="fas fa-search"></i> 検索実行
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- テーブルセクション -->
+      <div class="table-section">
+        <div class="table-header">
+          <div class="table-title">
+            <div class="section-icon"><i class="fas fa-table"></i></div>
+            取引先リスト（<%= @companies&.length || 0 %>社）
+          </div>
+        </div>
+        <div class="partner-table-container">
+          <table class="partner-table">
+            <thead>
+              <tr>
+                <th>英語会社名</th>
+                <th>日本語会社名</th>
+                <th>タイプ</th>
+                <th>ステータス</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @companies.each do |company| %>
+              <tr>
+                <td>
+                  <div class="company-info">
+                    <div class="company-name"><%= company.english_name%></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="company-info">
+                    <div class="company-name-jp"><%= company.japanese_name%></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="type-badges">
+                    <% business_category_names(company.categories).each do |category| %>
+                      <span class="type-badge type-<%= category.downcase %>"><%= category.upcase %></span>
+                    <% end %>
+                  </div>
+                </td>
+                <td>
+                  <span class="status-badge status-<%= company.status? ? "active" : "inactive" %>"><%= company.status? ? "アクティブ" : "非アクティブ" %></span>
+                </td>
+                <td>
+                  <%= link_to edit_contractor_path(company.id), class: "action-link" do %>
+                    <i class="fas fa-edit"></i> 編集
+                  <% end %>
+                </td>
+              </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

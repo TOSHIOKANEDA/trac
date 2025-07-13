@@ -1,0 +1,2 @@
+class KplerHistory < ApplicationRecord
+end

@@ -1,0 +1,128 @@
+/* ログイン専用のスタイル */
+.auth-container {
+min-height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+padding: 20px;
+width: 100%;
+}
+
+.auth-card {
+background: white;
+padding: 40px;
+border-radius: 20px;
+box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+max-width: 450px;
+width: 100%;
+text-align: center;
+}
+
+.auth-header {
+margin-bottom: 30px;
+}
+
+.auth-title {
+font-size: 28px;
+font-weight: 600;
+color: #333;
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+}
+
+.auth-subtitle {
+color: #666;
+font-size: 16px;
+}
+
+.form-group {
+margin-bottom: 20px;
+text-align: left;
+}
+
+.form-label {
+display: block;
+font-weight: 500;
+color: #555;
+margin-bottom: 8px;
+font-size: 14px;
+}
+
+.form-input {
+width: 100%;
+padding: 15px;
+border: 2px solid #e1e8ed;
+border-radius: 10px;
+font-size: 16px;
+transition: all 0.3s ease;
+background: white;
+}
+
+.form-input:focus {
+outline: none;
+border-color: #667eea;
+box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-checkbox {
+display: flex;
+align-items: center;
+gap: 8px;
+margin: 20px 0;
+}
+
+.form-checkbox input {
+width: 18px;
+height: 18px;
+}
+
+.form-checkbox label {
+font-size: 14px;
+color: #666;
+cursor: pointer;
+}
+
+.btn {
+padding: 15px 30px;
+border: none;
+border-radius: 10px;
+cursor: pointer;
+font-weight: 600;
+font-size: 16px;
+transition: all 0.3s ease;
+text-decoration: none;
+display: inline-block;
+text-align: center;
+width: 100%;
+margin: 10px 0;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, #667eea, #764ba2);
+color: white;
+}
+
+.btn-primary:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.auth-links {
+margin-top: 30px;
+text-align: center;
+}
+
+.auth-links a {
+color: #667eea;
+text-decoration: none;
+font-size: 14px;
+margin: 0 10px;
+}
+
+.auth-links a:hover {
+text-decoration: underline;
+}

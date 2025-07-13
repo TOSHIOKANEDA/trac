@@ -1,0 +1,62 @@
+.alert {
+padding: 15px;
+margin: 20px 0;
+border-radius: 8px;
+font-size: 14px;
+}
+
+.alert-danger {
+background: #fee;
+color: #c53030;
+border: 1px solid #fed7d7;
+}
+
+.alert-success {
+background: #f0fff4;
+color: #38a169;
+border: 1px solid #c6f6d5;
+}
+
+.alert-info {
+background: #ebf8ff;
+color: #3182ce;
+border: 1px solid #bee3f8;
+}
+
+/* フラッシュメッセージ */
+.flash-messages {
+position: fixed;
+top: 20px;
+right: 20px;
+z-index: 9999;
+max-width: 400px;
+}
+
+.flash-message {
+padding: 15px 20px;
+margin-bottom: 10px;
+border-radius: 8px;
+color: white;
+font-weight: 500;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+animation: slideIn 0.3s ease;
+}
+
+.flash-notice { background: #38a169; }
+.flash-alert { background: #e53e3e; }
+.flash-error { background: #e53e3e; }
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.flash-message {
+  transition: opacity 0.3s ease;
+}

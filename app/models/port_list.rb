@@ -1,0 +1,2 @@
+class PortList < ApplicationRecord
+end

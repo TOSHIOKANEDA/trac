@@ -1,0 +1,21 @@
+class CreateFavoriteShipments < ActiveRecord::Migration[7.2]
+  def change
+    create_table :favorite_shipments do |t|
+      t.references :favorite, null: false, foreign_key: true
+      t.integer :shipment
+      t.integer :method
+      t.integer :term
+      t.string :place_of_receipt
+      t.string :port_of_loading
+      t.string :port_of_discharge
+      t.string :port_of_delivery
+      t.string :pick_up
+      t.string :delivery
+      t.references :create, foreign_key: { to_table: :users }
+      t.references :update, foreign_key: { to_table: :users }
+      t.datetime :discarded_at
+      t.timestamps
+    end
+    add_index :favorite_shipments, :discarded_at
+  end
+end

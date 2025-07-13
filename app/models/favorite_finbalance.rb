@@ -1,0 +1,2 @@
+class FavoriteFinbalance < ApplicationRecord
+end

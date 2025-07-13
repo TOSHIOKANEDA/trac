@@ -1,0 +1,2 @@
+class FavoriteShipment < ApplicationRecord
+end

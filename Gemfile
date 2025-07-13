@@ -48,6 +48,9 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem "letter_opener_web"
+  gem "pry"
+  gem "pry-byebug"
 end
 
 group :test do
@@ -55,3 +58,10 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "sassc-rails"
+gem "devise"
+gem "cancancan"
+gem 'discard'
+gem 'rails-i18n'
+gem 'ransack'

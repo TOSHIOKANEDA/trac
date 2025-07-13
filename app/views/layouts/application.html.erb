@@ -1,27 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <title><%= content_for(:title) || "Trac" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%# ↓ ここから2行を追加 %>
-    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/main.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.11/main.css" rel="stylesheet">
-    <%# ↑ ここまで %>
-
-    <%= yield :head %>
-
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    
+    <%= stylesheet_link_tag "all.min", "application" %>
+    <%= javascript_include_tag "lucide", "fullcalendar", "tailwindcss" %>
+    <%= yield :stylesheets %>
     <%= javascript_importmap_tags %>
+    <title><%= content_for?(:title) ? yield(:title) : "トラフィックカレンダー" %></title>
   </head>
 
   <body>
+    <!-- フラッシュメッセージ -->
+    <% if notice || alert || flash[:error] %>
+      <div class="flash-messages">
+        <% if notice %>
+          <div class="flash-message flash-notice" data-controller="flash">
+            <i class="fas fa-check-circle"></i> <%= notice %>
+          </div>
+        <% end %>
+        <% if alert %>
+          <div class="flash-message flash-alert" data-controller="flash">
+            <i class="fas fa-exclamation-triangle"></i> <%= alert %>
+          </div>
+        <% end %>
+        <% if flash[:error] %>
+          <div class="flash-message flash-error" data-controller="flash">
+            <i class="fas fa-times-circle"></i> <%= flash[:error] %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
     <%= yield %>
   </body>
 </html>

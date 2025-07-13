@@ -1,0 +1,100 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "favorites/index" %>
+<% end %>
+<% content_for :title, "お気に入り一覧" %>
+
+<div data-controller="favorite-index" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  
+  <div class="main-content">
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-list"></i> お気に入り一覧</h1>
+        <div class="header-actions">
+          <%= button_to new_favorite_path, method: :get, class: "btn btn-primary" do %>
+            <i class="fas fa-plus"></i> お気に入り追加
+          <% end %>
+        </div>
+      </div>
+
+      <div class="content-container">
+        <!-- フィルター・検索セクション -->
+        <div class="filter-section">
+          <div class="filter-header">
+            <div class="filter-title">
+              <div class="section-icon"><i class="fas fa-search"></i></div>
+              検索・フィルター
+            </div>
+          </div>
+          <div class="filter-content">
+            <div class="filter-grid">
+              <div class="form-group">
+                <label class="form-label">種別</label>
+                <select data-favorite-index-target="typeFilter" class="form-select">
+                  <option value="">すべて</option>
+                  <option value="輸出">輸出</option>
+                  <option value="輸入">輸入</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">案件名</label>
+                <input type="text" data-favorite-index-target="nameSearch" class="form-input" placeholder="案件名で検索...">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">積み地</label>
+                <input type="text" data-favorite-index-target="loadingPortSearch" class="form-input" placeholder="TYO, LAX...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">揚げ地</label>
+                <input type="text" data-favorite-index-target="dischargePortSearch" class="form-input" placeholder="TYO, LAX...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Shipper名</label>
+                <input type="text" data-favorite-index-target="shipperSearch" class="form-input" placeholder="Shipper名で検索...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Consignee名</label>
+                <input type="text" data-favorite-index-target="consigneeSearch" class="form-input" placeholder="Consignee名で検索...">
+              </div>
+              <div class="form-group">
+                <button class="btn btn-primary" data-action="click->favorite-index#filterProjects">
+                  <i class="fas fa-search"></i> 検索実行
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- テーブルセクション -->
+        <div class="table-section">
+          <div class="table-header">
+            <div class="table-title">
+              <div class="section-icon"><i class="fas fa-table"></i></div>
+              お気に入りリスト
+            </div>
+          </div>
+          <div class="project-table-container">
+            <table class="project-table">
+              <thead>
+                <tr>
+                  <th>種別</th>
+                  <th>案件名</th>
+                  <th>積み地</th>
+                  <th>揚げ地</th>
+                  <th>Shipper名</th>
+                  <th>Consignee名</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody data-favorite-index-target="projectTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

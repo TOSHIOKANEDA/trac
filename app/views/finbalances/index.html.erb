@@ -1,0 +1,155 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "finbalances/index" %>
+<% end %>
+<% content_for :title, "支払い・請求管理一覧" %>
+<div data-controller="finbalance-index" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-chart-line"></i> 支払い・請求管理一覧</h1>
+      </div>
+
+      <div class="content-container">
+        <!-- Summary Section -->
+        <div class="summary-section">
+          <div class="summary-title">
+            <i class="fas fa-calculator"></i>
+            収益サマリー
+          </div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-label">総収入</div>
+              <div class="summary-value">¥ 2,250,000</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">総支出</div>
+              <div class="summary-value">¥ 1,890,000</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">純利益</div>
+              <div class="summary-value">¥ 360,000</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-label">平均利益率</div>
+              <div class="summary-value">16.0%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <div class="filter-header">
+            <div class="filter-title">
+              <div class="section-icon"><i class="fas fa-filter"></i></div>
+              検索・フィルター
+            </div>
+          </div>
+          <div class="filter-content">
+            <div class="filter-grid">
+              <div class="form-group">
+                <label class="form-label">B/L番号</label>
+                <input type="text" id="bl-filter" class="form-input" placeholder="BL-12345..." data-finbalance-index-target="blFilter">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ID番号</label>
+                <input type="text" id="id-filter" class="form-input" placeholder="ID..." data-finbalance-index-target="idFilter">
+              </div>
+              <div class="form-group">
+                <label class="form-label">輸出/輸入</label>
+                <select id="type-filter" class="form-select" data-finbalance-index-target="typeFilter">
+                  <option value="">全て</option>
+                  <option value="輸出">輸出</option>
+                  <option value="輸入">輸入</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Method</label>
+                <select id="method-filter" class="form-select" data-finbalance-index-target="methodFilter">
+                  <option value="">全て</option>
+                  <option value="FCL">FCL</option>
+                  <option value="LCL">LCL</option>
+                  <option value="AIR">AIR</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">積み地</label>
+                <select id="loading-port-filter" class="form-select" data-finbalance-index-target="loadingPortFilter">
+                  <option value="">全て</option>
+                  <option value="SHA">SHA</option>
+                  <option value="TAO">TAO</option>
+                  <option value="LAX">LAX</option>
+                  <option value="BKK">BKK</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">揚げ地</label>
+                <select id="discharge-port-filter" class="form-select" data-finbalance-index-target="dischargePortFilter">
+                  <option value="">全て</option>
+                  <option value="TYO">TYO</option>
+                  <option value="OSA">OSA</option>
+                  <option value="YOK">YOK</option>
+                  <option value="NGO">NGO</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">請求先情報</label>
+                <input type="text" id="billing-filter" class="form-input" placeholder="会社名..." data-finbalance-index-target="billingFilter">
+              </div>
+              <div class="form-group">
+                <label class="form-label">計上月</label>
+                <select id="month-filter" class="form-select" data-finbalance-index-target="monthFilter">
+                  <option value="">全て</option>
+                  <option value="2025-01">2025年1月</option>
+                  <option value="2025-02">2025年2月</option>
+                  <option value="2025-03">2025年3月</option>
+                  <option value="2025-04">2025年4月</option>
+                  <option value="2025-05">2025年5月</option>
+                  <option value="2025-06">2025年6月</option>
+                  <option value="2025-07">2025年7月</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <button class="btn btn-primary" data-action="click->finbalance-index#applyFilters">
+                  <i class="fas fa-search"></i> 検索実行
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Table Section -->
+        <div class="table-section">
+          <div class="table-header">
+            <div class="table-title">
+              <div class="section-icon"><i class="fas fa-table"></i></div>
+              支払い・請求管理リスト（4件）
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>B/L NO. <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="bl"><i class="fas fa-sort"></i></button></th>
+                  <th>ID番号 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="id"><i class="fas fa-sort"></i></button></th>
+                  <th>輸出/輸入</th>
+                  <th>Method</th>
+                  <th>港</th>
+                  <th>請求先情報</th>
+                  <th>スケジュール</th>
+                  <th>コンテナ本数 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="containers"><i class="fas fa-sort"></i></button></th>
+                  <th>計上月 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="accounting"><i class="fas fa-sort"></i></button></th>
+                  <th>支払い・請求管理 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="profit"><i class="fas fa-sort"></i></button></th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="data-tbody" data-finbalance-index-target="dataTableBody">
+                <!-- JavaScriptで動的に生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,168 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "events/list" %>
+<% end %>
+<% content_for :title, "案件一覧" %>
+<div style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  
+  <div class="main-content">
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-list"></i> 案件一覧</h1>
+      </div>
+
+      <div class="content-container">
+        <!-- フィルター・検索セクション -->
+        <div class="filter-section">
+          <div class="filter-header">
+            <div class="filter-title">
+              <div class="section-icon"><i class="fas fa-search"></i></div>
+              検索・フィルター
+            </div>
+          </div>
+          <div class="filter-content">
+            <%= search_form_for @q, url: list_events_path, method: :get, local: true do |f| %>
+              <div class="filter-grid">
+                <div class="form-group">
+                  <label class="form-label">種別</label>
+                  <%= f.select :event_shipment_shipment_eq, 
+                      options_for_select([
+                        ['すべて', '']] + 
+                        EventShipment.shipments.map { |k,v| [I18n.t("activerecord.attributes.event_shipment.shipment.#{k}"), k,v] }, @q.event_shipment_shipment_eq), 
+                      {}, 
+                      { class: "form-select" } %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">ID番号</label>
+                  <%= f.search_field :id_string_cont, 
+                      placeholder: "ID番号で検索...", 
+                      class: "form-input",
+                      value: @q.id_string_cont %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">MBL</label>
+                  <%= f.search_field :mbl_cont, 
+                      placeholder: "BL-12345...", 
+                      class: "form-input",
+                      value: @q.mbl_cont %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">積み地</label>
+                  <%= f.search_field :event_shipment_port_of_loading_cont, 
+                      placeholder: "TYO, LAX...", 
+                      class: "form-input",
+                      value: @q.event_shipment_port_of_loading_cont %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">揚げ地</label>
+                  <%= f.search_field :event_shipment_port_of_discharge_cont, 
+                      placeholder: "TYO, LAX...", 
+                      class: "form-input",
+                      value: @q.event_shipment_port_of_discharge_cont %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Shipper名</label>
+                  <%= f.search_field :shipper_name_cont, 
+                      placeholder: "Shipper名で検索...", 
+                      class: "form-input",
+                      value: params[:q]&.[](:shipper_name_cont) %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Consignee名</label>
+                  <%= f.search_field :consignee_name_cont, 
+                      placeholder: "Consignee名で検索...", 
+                      class: "form-input",
+                      value: params[:q]&.[](:consignee_name_cont) %>
+                </div>
+                
+                <div class="form-group">
+                  <%= f.submit "検索実行", class: "btn btn-primary" %>
+                  <%= link_to "クリア", list_events_path, class: "btn btn-secondary" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- テーブルセクション -->
+        <div class="table-section">
+          <div class="table-header">
+            <div class="table-title">
+              <div class="section-icon"><i class="fas fa-table"></i></div>
+              案件リスト
+            </div>
+          </div>
+          <div class="event-table-container">
+            <table class="event-table">
+              <thead>
+                <tr>
+                  <th>種別</th>
+                  <th>ID番号</th>
+                  <th>MBL</th>
+                  <th>積み地</th>
+                  <th>揚げ地</th>
+                  <th>ETD</th>
+                  <th>ETA</th>
+                  <th>Shipper名</th>
+                  <th>Consignee名</th>
+                  <th>案件詳細</th>
+                  <th>進捗表示</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @events.each do |event| %>
+                  <tr>
+                    <td>
+                      <span class="type-badge <%= event_list_shipment(event) %>"><%= event&.shipment.blank? ? "" : I18n.t("activerecord.attributes.event_shipment.shipment.#{EventShipment.shipments.keys[event&.shipment]}") %></span>
+                    </td>
+                    <td class="text-sm"><%= event&.id_string %></td>
+                    <td class="text-sm"><%= event_list_item(event&.mbl) %></td>
+                    <td class="text-sm"><%= event_list_item(event&.pol) %></td>
+                    <td class="text-sm"><%= event_list_item(event&.pod) %></td>
+                    <td class="text-sm"><div class="datetime-display"><%= date_only(event_list_item(event&.etd)) %></div></td>
+                    <td class="text-sm"><div class="datetime-display"><%= date_only(event_list_item(event&.eta)) %></div></td>
+                    <td class="text-sm"><div class="truncate-text" title="<%= event_list_item(event&.shipper) %>"><%= event_list_item(event&.shipper) %></div></td>
+                    <td class="text-sm"><div class="truncate-text" title="<%= event_list_item(event&.consignee) %>"><%= event_list_item(event&.consignee) %></div></td>
+                    <td>
+                      <%= link_to edit_event_path(event.id), class: "action-link" do %>
+                        <i class="fas fa-edit"></i> 編集
+                      <% end %>
+                    </td>
+                    <td>
+                      <a href="#" class="action-link milestone-btn" data-action="click->event-list#showMilestone" data-event-id="<%= event.id%>">
+                        <i class="fas fa-tasks"></i> 進捗表示
+                      </a>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 進捗モーダル（JavaScript部分は残す） -->
+  <div class="modal-overlay" data-event-list-target="milestoneModalOverlay" data-action="click->event-list#modalOverlayClick">
+    <div class="modal_show" data-event-list-target="milestoneModal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-tasks"></i>
+          <span data-event-list-target="modaleventTitle">案件進捗状況</span>
+        </div>
+        <button class="modal-close" data-action="click->event-list#closeMilestoneModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-content" data-event-list-target="milestoneModalContent">
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">トラフィックカレンダー</div>
+  </div>
+  <ul class="sidebar-menu">
+    <li><%= link_to new_event_path, class: active_sidebar_class(["events/new", "events/edit"]) do %><span class="sidebar-icon"><i class="fas fa-plus"></i></span>新規案件登録<% end %></li>
+    <li><%= link_to events_path, class: active_sidebar_class("events/index") do %><span class="sidebar-icon"><i class="fas fa-calendar-alt"></i></span>カレンダー<% end %></li>
+    <li><%= link_to list_events_path, class: active_sidebar_class("events/list")   do %><span class="sidebar-icon"><i class="fas fa-list"></i></span>案件一覧<% end %></li>
+    <li><%= link_to favorites_path, class: active_sidebar_class("favorites/index") do %><span class="sidebar-icon"><i class="fas fa-star"></i></span>お気に入り一覧<% end %></li>
+    <li><%= link_to finbalances_path, class: active_sidebar_class("finbalances/index")   do %><span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>支払い・請求管理一覧<% end %></li>
+    <li><%= link_to systems_path, class: active_sidebar_class("systems/index") do %><span class="sidebar-icon"><i class="fas fa-cogs"></i></span>システム管理<% end %></li>
+    <li><%= link_to profiles_path, class: active_sidebar_class("profiles/index")   do %><span class="sidebar-icon"><i class="fas fa-users"></i></span>ユーザー管理<% end %></li>
+    <li><%= link_to contractors_path, class: active_sidebar_class("contractors/index") do %><span class="sidebar-icon"><i class="fas fa-building"></i></span>取引先一覧<% end %></li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="user-profile">
+      <div><%= link_to profile_path(current_user.id), class: "user-avatar" do %><%= current_user.name[0] %><% end %></div>
+      <div class="user-info">
+        <div><%= link_to profile_path(current_user), class: "user-name" do %><%= current_user.name %><% end %></div>
+        <%= button_to 'ログアウト', destroy_user_session_path, method: :delete, data: { confirm: 'ログアウトしますか?' }, class: "user-action" %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,203 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "finbalances/new" %>
+<% end %>
+<% content_for :title, "支払い・請求管理編集" %>
+
+<div data-controller="finbalance-new" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-calculator"></i> 支払い・請求管理編集</h1>
+        <div class="header-actions">
+          <button class="btn btn-secondary">
+            <i class="fas fa-file-invoice"></i> 請求書PDF
+          </button>
+          <button class="btn btn-secondary" data-action="click->finbalance-new#openFileListPanel">
+            <i class="fas fa-paperclip"></i> 添付ファイル一覧
+          </button>
+          <button class="btn btn-success" data-action="click->finbalance-new#saveRecord">
+            <i class="fas fa-save"></i> 保存
+          </button>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <!-- 案件情報セクション（表示のみ） -->
+        <div class="form-section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-file-invoice"></i></div>
+              案件情報
+            </div>
+          </div>
+          <div class="section-content">
+            <div class="form-grid grid-3">
+              <div class="form-group">
+                <label class="form-label">B/L番号</label>
+                <div class="display-value">ONEYJP0123456789</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ID番号</label>
+                <div class="display-value">BK-2508-001</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">コンテナ本数</label>
+                <div class="display-value">2</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">積み地</label>
+                <div class="display-value">BKK</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">揚げ地</label>
+                <div class="display-value">TYO</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">計上月</label>
+                <div class="display-value">2025年8月</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Shipper</label>
+                <div class="display-value">ABC Global Trading Co., Ltd.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Consignee</label>
+                <div class="display-value">XYZ Japan Corporation</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ATD</label>
+                <div class="display-value">2025/08/15</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ATA</label>
+                <div class="display-value">2025/08/25</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">収入</label>
+                <div class="display-value" style="color: #2e7d32; font-weight: 600;" data-finbalance-new-target="displayIncomeInfo">¥0</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">支出</label>
+                <div class="display-value" style="color: #c72c41; font-weight: 600;" data-finbalance-new-target="displayExpenseInfo">¥0</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">差引</label>
+                <div class="display-value" style="font-weight: 700;" data-finbalance-new-target="displayProfitInfo">¥0</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">支払い・請求管理利益率</label>
+                <div class="display-value" style="color: #17a2b8; font-weight: 600;" data-finbalance-new-target="displayMarginInfo">0%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 支払い・請求管理情報セクション（入力部分） -->
+        <div class="form-section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-yen-sign"></i></div>
+              支払い・請求管理情報
+            </div>
+          </div>
+          <div class="section-content">
+            <div class="cargo-table-container">
+              <table class="cargo-table" id="accountingTable">
+                <thead>
+                  <tr>
+                    <th>項目名</th>
+                    <th>収入 (円)</th>
+                    <th>支出 (円)</th>
+                    <th>差額 (円)</th>
+                    <th style="width: 50px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody data-finbalance-new-target="accountingTableBody">
+                  <!-- デフォルトで1行表示 -->
+                  <tr>
+                    <td>
+                      <select class="table-select item-select">
+                        <option value="">項目を選択してください</option>
+                        <option value="集荷費用">集荷費用</option>
+                        <option value="保管料">保管料</option>
+                        <option value="梱包費">梱包費</option>
+                        <option value="輸出通関手数料">輸出通関手数料</option>
+                        <option value="輸出税・関税">輸出税・関税</option>
+                        <option value="検査費用">検査費用</option>
+                        <option value="海上運賃">海上運賃</option>
+                        <option value="航空運賃">航空運賃</option>
+                        <option value="B/L発行手数料">B/L発行手数料</option>
+                        <option value="CAF">CAF</option>
+                        <option value="BAF">BAF</option>
+                        <option value="DO費用">DO費用</option>
+                        <option value="海上保険料">海上保険料</option>
+                        <option value="コンテナチャージ">コンテナチャージ</option>
+                        <option value="THC">THC</option>
+                        <option value="VGM申告費用">VGM申告費用</option>
+                        <option value="輸入通関費用">輸入通関費用</option>
+                        <option value="輸入関税">輸入関税</option>
+                        <option value="現地配送費（仕向地側配送費）">現地配送費（仕向地側配送費）</option>
+                      </select>
+                    </td>
+                    <td><input type="number" class="table-input income-input" placeholder="0" min="0" data-action="input->finbalance-new#calculateTotals"></td>
+                    <td><input type="number" class="table-input expense-input" placeholder="0" min="0" data-action="input->finbalance-new#calculateTotals"></td>
+                    <td><span class="balance-output">¥0</span></td>
+                    <td>
+                      <button class="delete-row-btn" title="行を削除" data-action="click->finbalance-new#deleteRow">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top: 15px;">
+              <button type="button" class="btn btn-secondary" data-action="click->finbalance-new#addAccountingRow">
+                <i class="fas fa-plus"></i> 行を追加
+              </button>
+            </div>
+            
+            <div class="totals-container">
+              <div class="total-item">
+                <div class="total-label">収入合計</div>
+                <div class="total-value" data-finbalance-new-target="totalIncome">¥0</div>
+              </div>
+              <div class="total-item">
+                <div class="total-label">支出合計</div>
+                <div class="total-value" data-finbalance-new-target="totalExpense">¥0</div>
+              </div>
+              <div class="total-item">
+                <div class="total-label">総差額</div>
+                <div class="total-value" data-finbalance-new-target="grandTotal">¥0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添付ファイル一覧パネル -->
+  <div class="file-panel-overlay" data-finbalance-new-target="fileListPanelOverlay" data-action="click->finbalance-new#closeFileListPanel"></div>
+  <div class="file-panel" data-finbalance-new-target="fileListPanel">
+    <div class="file-panel-header">
+      <div class="file-panel-title">
+        <i class="fas fa-paperclip"></i>
+        添付ファイル一覧
+      </div>
+      <button class="file-panel-close" data-action="click->finbalance-new#closeFileListPanel">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="file-panel-content">
+      <ul>
+        <li><i class="fas fa-file-pdf" style="color: #dc3545;"></i> <a href="#">Invoice_20250730.pdf</a></li>
+        <li><i class="fas fa-file-word" style="color: #0d6efd;"></i> <a href="#">PackingList.docx</a></li>
+        <li><i class="fas fa-file-excel" style="color: #198754;"></i> <a href="#">BL_Instructions.xlsx</a></li>
+        <li><i class="fas fa-file-image" style="color: #28a745;"></i> <a href="#">Cargo_Photo_1.jpg</a></li>
+      </ul>
+    </div>
+  </div>
+</div>

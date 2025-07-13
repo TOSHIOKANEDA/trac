@@ -1,0 +1,229 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "systems/index" %>
+<% end %>
+<% content_for :title, "システム管理" %>
+<%= render partial: "layouts/sidebar" %>
+<div class="main-content">
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-cogs"></i> システム管理</h1>
+    </div>
+
+    <div class="content-container">
+      <div class="port-management-grid">
+        <!-- 左側：港名登録 -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-plus"></i></div>
+              港名登録
+            </div>
+          </div>
+            <div class="section-content">
+              <div id="registration-message" class="hidden"></div>
+              <form id="port-registration-form" class="port-form">
+                <div class="port-input-row">
+                  <div class="port-input-group">
+                    <label class="form-label">港名</label>
+                    <input type="text" class="form-input" id="port-name" placeholder="Tokyo" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> 登録
+                  </button>
+                </div>
+              </form>
+            </div>
+        </div>
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-search"></i></div>
+              港名検索
+            </div>
+          </div>
+            <div class="section-content">
+              <div id="search-message" class="hidden"></div>
+              <form id="port-search-form" class="port-form">
+                <div class="port-input-row">
+                  <div class="port-input-group">
+                    <label class="form-label">港名</label>
+                    <input type="text" class="form-input" id="port-search-name" placeholder="Tokyo" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> 検索
+                  </button>
+                </div>
+              </form>
+            </div>
+        </div>
+      </div>
+      <!-- 統計カード -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-title">総API呼び出し数</div>
+            <div class="stat-icon" style="background: #4caf50;">
+              <i class="fas fa-chart-line"></i>
+            </div>
+          </div>
+          <div class="stat-value">2,847</div>
+        </div>
+      </div>
+
+      <!-- フィルター・検索セクション -->
+      <div class="filter-section">
+        <div class="filter-header">
+          <div class="filter-title">
+            <div class="section-icon"><i class="fas fa-filter"></i></div>
+            ログフィルター
+          </div>
+        </div>
+        <div class="filter-content">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label class="form-label">期間</label>
+              <select class="form-select">
+                <option value="">過去24時間</option>
+                <option value="">過去7日間</option>
+                <option value="">過去30日間</option>
+                <option value="">カスタム期間</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ステータス</label>
+              <select class="form-select">
+                <option value="">全てのステータス</option>
+                <option value="">成功のみ</option>
+                <option value="">エラーのみ</option>
+                <option value="">警告のみ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">APIエンドポイント</label>
+              <select class="form-select">
+                <option value="">全てのエンドポイント</option>
+                <option value="">/vessels/search</option>
+                <option value="">/ports/details</option>
+                <option value="">/vessel/track</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary">
+                <i class="fas fa-search"></i> フィルター適用
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API履歴テーブル -->
+      <div class="table-section">
+        <div class="table-header">
+          <div class="table-title">
+            <div class="section-icon"><i class="fas fa-ship"></i></div>
+            MarineTraffic API履歴
+          </div>
+          <div class="api-status">
+            <span class="status-badge status-active">API接続中</span>
+          </div>
+        </div>
+        <div class="user-table-container">
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th>リクエスト時刻</th>
+                <th>APIエンドポイント</th>
+                <th>ステータス</th>
+                <th>レスポンス時間</th>
+                <th>データ件数</th>
+                <th>エラー詳細</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-sm">2025-08-06 12:45:32</td>
+                <td class="text-sm font-medium">/vessels/search</td>
+                <td>
+                  <span class="status-badge status-success">200 OK</span>
+                </td>
+                <td class="text-sm">245ms</td>
+                <td class="text-sm">127件</td>
+                <td class="text-sm">-</td>
+              </tr>
+              <tr>
+                <td class="text-sm">2025-08-06 12:44:18</td>
+                <td class="text-sm font-medium">/ports/details</td>
+                <td>
+                  <span class="status-badge status-success">200 OK</span>
+                </td>
+                <td class="text-sm">189ms</td>
+                <td class="text-sm">45件</td>
+                <td class="text-sm">-</td>
+              </tr>
+              <tr>
+                <td class="text-sm">2025-08-06 12:43:05</td>
+                <td class="text-sm font-medium">/vessel/track</td>
+                <td>
+                  <span class="status-badge status-error">429 Rate Limit</span>
+                </td>
+                <td class="text-sm">102ms</td>
+                <td class="text-sm">0件</td>
+                <td class="text-sm">API制限に達しました</td>
+              </tr>
+              <tr>
+                <td class="text-sm">2025-08-06 12:42:41</td>
+                <td class="text-sm font-medium">/vessels/search</td>
+                <td>
+                  <span class="status-badge status-success">200 OK</span>
+                </td>
+                <td class="text-sm">312ms</td>
+                <td class="text-sm">89件</td>
+                <td class="text-sm">-</td>
+              </tr>
+              <tr>
+                <td class="text-sm">2025-08-06 12:41:27</td>
+                <td class="text-sm font-medium">/vessels/positions</td>
+                <td>
+                  <span class="status-badge status-warning">503 Service Unavailable</span>
+                </td>
+                <td class="text-sm">5000ms</td>
+                <td class="text-sm">0件</td>
+                <td class="text-sm">サーバーメンテナンス中</td>
+              </tr>
+              <tr>
+                <td class="text-sm">2025-08-06 12:40:15</td>
+                <td class="text-sm font-medium">/vessel/details/123456</td>
+                <td>
+                  <span class="status-badge status-success">200 OK</span>
+                </td>
+                <td class="text-sm">156ms</td>
+                <td class="text-sm">1件</td>
+                <td class="text-sm">-</td>
+              </tr>
+              <tr>
+                <td class="text-sm">2025-08-06 12:39:42</td>
+                <td class="text-sm font-medium">/ports/search</td>
+                <td>
+                  <span class="status-badge status-success">200 OK</span>
+                </td>
+                <td class="text-sm">223ms</td>
+                <td class="text-sm">78件</td>
+                <td class="text-sm">-</td>
+              </tr>
+              <tr>
+                <td class="text-sm">2025-08-06 12:38:29</td>
+                <td class="text-sm font-medium">/vessels/search</td>
+                <td>
+                  <span class="status-badge status-error">401 Unauthorized</span>
+                </td>
+                <td class="text-sm">89ms</td>
+                <td class="text-sm">0件</td>
+                <td class="text-sm">APIキーが無効です</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

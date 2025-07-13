@@ -1,0 +1,2 @@
+class KeplerLog < ApplicationRecord
+end
