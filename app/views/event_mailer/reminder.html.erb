@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-content="text/html; charset=UTF-8" />
+  </head>
+  <body>
+    <h1>案件「<%= @event.title %>」のリマインダー</h1>
+    <p>
+      <%= @user.email %>様
+    </p>
+    <p>
+      担当されている案件「<%= @event.title %>」がまもなく開始します。
+    </p>
+    <p>
+      <strong>開始日時:</strong> <%= l @event.start_time, format: :long %>
+    </p>
+    <p>
+      詳細はアプリケーションでご確認ください。
+    </p>
+  </body>
+</html>

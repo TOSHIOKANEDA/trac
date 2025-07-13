@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案件一覧 - 物流管理システム</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+            height: 100vh;
+            overflow-y: auto;
+            position: fixed;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            color: #2196F3;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover {
+            background: #f0f8ff;
+            color: #2196F3;
+        }
+
+        .sidebar-menu a.active {
+            background: #e3f2fd;
+            color: #2196F3;
+            border-right: 3px solid #2196F3;
+        }
+
+        .sidebar-icon {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            background: #f5f5f5;
+            margin-left: 250px;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: white;
+            color: #333;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .content-container {
+            padding: 0 30px 30px;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+            overflow: hidden;
+        }
+
+        .filter-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e8ed;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .filter-content {
+            padding: 25px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select {
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .table-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e8ed;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .project-table-container {
+            overflow-x: auto;
+        }
+
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 14px;
+        }
+
+        .project-table th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid #e1e8ed;
+            border-right: 1px solid #e1e8ed;
+            white-space: nowrap;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .project-table th:last-child {
+            border-right: none;
+        }
+
+        .project-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e1e8ed;
+            border-right: 1px solid #e1e8ed;
+            vertical-align: middle;
+        }
+
+        .project-table td:last-child {
+            border-right: none;
+        }
+
+        .project-table tbody tr {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .project-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .project-table tbody tr.selected-row {
+            background: #eef2ff;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .status-estimate { background: #fff3cd; color: #856404; }
+        .status-booking { background: #d1ecf1; color: #0c5460; }
+        .status-document { background: #e2e3f1; color: #383d41; }
+        .status-departure { background: #ffeeba; color: #856404; }
+        .status-voyage { background: #d4edda; color: #155724; }
+        .status-invoice { background: #d6f5f5; color: #0c5460; }
+        .status-complete { background: #e2e6ea; color: #495057; }
+
+        .truncate-text {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .action-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-link:hover {
+            color: #5a6fd8;
+            text-decoration: underline;
+        }
+
+        /* --- ここから変更 --- */
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal_show {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            max-width: 90%;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border-radius: 0;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal_show {
+            transform: translateX(0);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e1e8ed;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-content {
+            padding: 25px;
+            flex-grow: 1; /* ヘッダー以外の高さを埋める */
+            overflow-y: auto; /* コンテンツがはみ出た場合にスクロール */
+        }
+        
+        /* --- ここまで変更 --- */
+
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .modal-content {
+            padding: 25px;
+        }
+
+        .milestone-list {
+            list-style: none;
+            position: relative;
+        }
+
+        .milestone-list::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e1e8ed;
+        }
+
+        .milestone-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .milestone-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .milestone-icon.complete {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .milestone-icon.current {
+            background: #667eea;
+            color: white;
+        }
+
+        .milestone-icon.pending {
+            background: #e1e8ed;
+            color: #666;
+        }
+
+        .milestone-content {
+            flex: 1;
+        }
+
+        .milestone-name {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .milestone-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .user-info {
+            margin-left: 12px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .user-action {
+            font-size: 12px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .user-action:hover {
+            text-decoration: underline;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .modal {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">トラフィックカレンダー</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-plus"></i></span>新規案件登録</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-calendar-alt"></i></span>カレンダー</a></li>
+            <li><a href="#" class="active"><span class="sidebar-icon"><i class="fas fa-list"></i></span>案件一覧</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-users"></i></span>ユーザー管理</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>収支管理</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">田</div>
+                <div class="user-info">
+                    <div class="user-name">田中 太郎</div>
+                    <a href="#" class="user-action">ログアウト</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-list"></i> 案件一覧</h1>
+                <div class="header-actions">
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> 新規案件登録
+                    </a>
+                </div>
+            </div>
+
+            <div class="content-container">
+                <!-- フィルター・検索セクション -->
+                <div class="filter-section">
+                    <div class="filter-header">
+                        <div class="filter-title">
+                            <div class="section-icon"><i class="fas fa-search"></i></div>
+                            検索・フィルター
+                        </div>
+                    </div>
+                    <div class="filter-content">
+                        <div class="filter-grid">
+                            <div class="form-group">
+                                <label class="form-label">ステータス</label>
+                                <select id="status-filter" class="form-select">
+                                    <option value="">すべて</option>
+                                    <option value="見積もり作成中">見積もり作成中</option>
+                                    <option value="ブッキング依頼中">ブッキング依頼中</option>
+                                    <option value="書類準備中">書類準備中</option>
+                                    <option value="本船出航待ち">本船出航待ち</option>
+                                    <option value="航海中">航海中</option>
+                                    <option value="請求書発行待ち">請求書発行待ち</option>
+                                    <option value="完了">完了</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Shipper / Consignee</label>
+                                <input type="text" id="company-search" class="form-input" placeholder="会社名で検索...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">B/L番号</label>
+                                <input type="text" id="bl-search" class="form-input" placeholder="BL-12345...">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="filterProjects()">
+                                    <i class="fas fa-search"></i> 検索実行
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- テーブルセクション -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="table-title">
+                            <div class="section-icon"><i class="fas fa-table"></i></div>
+                            案件リスト
+                        </div>
+                    </div>
+                    <div class="project-table-container">
+                        <table class="project-table">
+                            <thead>
+                                <tr>
+                                    <th>ステータス</th>
+                                    <th>B/L番号</th>
+                                    <th>積み地</th>
+                                    <th>揚げ地</th>
+                                    <th>Shipper名</th>
+                                    <th>Consignee名</th>
+                                    <th>担当者</th>
+                                    <th>進捗状況</th>
+                                    <th>案件詳細</th>
+                                </tr>
+                            </thead>
+                            <tbody id="project-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 進捗モーダル -->
+    <div class="modal-overlay" id="milestone-modal-overlay">
+        <div class="modal_show" id="milestone-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-tasks"></i>
+                    <span id="modal-project-title">案件進捗状況</span>
+                </div>
+                <button class="modal-close" onclick="closeMilestoneModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content" id="milestone-modal-content">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // プロジェクトデータ
+        const projects = [
+            { 
+                id: 1, 
+                name: 'TYO→LAX (ABC社)', 
+                shipper: 'ABC Solutions Co., Ltd. Tokyo Branch', 
+                consignee: 'ABC Solutions USA, Inc. Los Angeles Office', 
+                bl_no: 'BL-12345', 
+                status: '航海中', 
+                assignee: '田中 太郎', 
+                loading_port: 'TYO', 
+                discharge_port: 'LAX', 
+                etd: '2025-07-20T18:00:00', 
+                eta: '2025-08-05T09:30:00',
+                milestone_dates: { 
+                    '見積収集': '2025/07/09', 
+                    '見積ご案内': '2025/07/10', 
+                    'ブッキングご案内': '2025/07/12', 
+                    '書類準備完了': '2025/07/18', 
+                    '出航': '2025/07/20' 
+                }
+            },
+            { 
+                id: 2, 
+                name: 'SHA→KOB (XYZ社)', 
+                shipper: 'XYZ Trading (Shanghai) Co., Ltd.', 
+                consignee: 'XYZ Japan Ltd. Kobe Branch', 
+                bl_no: 'BL-67890', 
+                status: 'ブッキング依頼中', 
+                assignee: '鈴木 花子', 
+                loading_port: 'SHA', 
+                discharge_port: 'KOB', 
+                etd: '2025-07-25T22:00:00', 
+                eta: '2025-07-28T10:00:00',
+                milestone_dates: { 
+                    '見積収集': '2025/07/19', 
+                    '見積ご案内': '2025/07/20' 
+                }
+            },
+            { 
+                id: 3, 
+                name: 'YOK→SIN (DEF社)', 
+                shipper: 'DEF Corporation', 
+                consignee: 'DEF Singapore Pte Ltd', 
+                bl_no: 'N/A', 
+                status: '見積もり作成中', 
+                assignee: '田中 太郎', 
+                loading_port: 'YOK', 
+                discharge_port: 'SIN', 
+                etd: '2025-07-23', 
+                eta: null,
+                milestone_dates: {}
+            },
+            { 
+                id: 4, 
+                name: 'BKK→OSA (GHI社)', 
+                shipper: 'GHI Logistics (Thailand)', 
+                consignee: 'GHI Japan Inc. Osaka', 
+                bl_no: 'BL-ABCDE', 
+                status: '完了', 
+                assignee: '佐藤 次郎', 
+                loading_port: 'BKK', 
+                discharge_port: 'OSA', 
+                etd: '2025-07-15T11:00:00', 
+                eta: '2025-07-23T14:00:00',
+                milestone_dates: { 
+                    '見積収集': '2025/07/01', 
+                    '見積ご案内': '2025/07/01', 
+                    'ブッキングご案内': '2025/07/03', 
+                    '書類準備完了': '2025/07/12', 
+                    '出航': '2025/07/15', 
+                    '到着': '2025/07/23', 
+                    '請求書発行': '2025/07/24' 
+                }
+            },
+            { 
+                id: 5, 
+                name: 'HKG→TYO (MNO社)', 
+                shipper: 'MNO International (Hong Kong)', 
+                consignee: 'MNO Japan Corporation Head Office', 
+                bl_no: 'BL-FGHIJ', 
+                status: '書類準備中', 
+                assignee: '鈴木 花子', 
+                loading_port: 'HKG', 
+                discharge_port: 'TYO', 
+                etd: '2025-08-01T10:00:00', 
+                eta: '2025-08-05T14:00:00',
+                milestone_dates: { 
+                    '見積収集': '2025/07/25', 
+                    '見積ご案内': '2025/07/26', 
+                    'ブッキングご案内': '2025/07/28' 
+                }
+            },
+            { 
+                id: 6, 
+                name: 'SIN→NGO (PQR社)', 
+                shipper: 'PQR Global Forwarding', 
+                consignee: 'PQR Japan Co. Nagoya', 
+                bl_no: 'BL-KLMNO', 
+                status: '本船出航待ち', 
+                assignee: '田中 太郎', 
+                loading_port: 'SIN', 
+                discharge_port: 'NGO', 
+                etd: '2025-08-10T20:00:00', 
+                eta: '2025-08-18T11:00:00',
+                milestone_dates: { 
+                    '見積収集': '2025/08/01', 
+                    '見積ご案内': '2025/08/02', 
+                    'ブッキングご案内': '2025/08/04', 
+                    '書類準備完了': '2025/08/08' 
+                }
+            },
+            { 
+                id: 7, 
+                name: 'LGB→YOK (STU社)', 
+                shipper: 'STU North America Inc.', 
+                consignee: 'STU Logistics Japan Ltd. Yokohama Branch', 
+                bl_no: 'BL-PQRST', 
+                status: '請求書発行待ち', 
+                assignee: '佐藤 次郎', 
+                loading_port: 'LGB', 
+                discharge_port: 'YOK', 
+                etd: '2025-07-10T15:00:00', 
+                eta: '2025-07-25T18:00:00',
+                milestone_dates: { 
+                    '見積収集': '2025/07/01', 
+                    '見積ご案内': '2025/07/02', 
+                    'ブッキングご案内': '2025/07/04', 
+                    '書類準備完了': '2025/07/08', 
+                    '出航': '2025/07/10', 
+                    '到着': '2025/07/25' 
+                }
+            }
+        ];
+
+        // ステータススタイル
+        const statusStyles = {
+            '見積もり作成中': 'status-estimate',
+            'ブッキング依頼中': 'status-booking',
+            '書類準備中': 'status-document',
+            '本船出航待ち': 'status-departure',
+            '航海中': 'status-voyage',
+            '請求書発行待ち': 'status-invoice',
+            '完了': 'status-complete'
+        };
+
+        // マイルストーンテンプレート
+        const MILESTONE_TEMPLATE = ['見積収集', '見積ご案内', 'ブッキングご案内', '書類準備完了', '出航', '到着', '請求書発行'];
+        const STATUS_ORDER = {
+            '見積もり作成中': 0,
+            'ブッキング依頼中': 1,
+            '書類準備中': 2,
+            '本船出航待ち': 3,
+            '航海中': 4,
+            '請求書発行待ち': 5,
+            '完了': 6 
+        };
+
+        let displayedProjects = [...projects];
+
+        // プロジェクトテーブルを描画
+        function renderProjectTable() {
+            const tableBody = document.getElementById('project-table-body');
+            tableBody.innerHTML = '';
+
+            displayedProjects.forEach(project => {
+                const row = document.createElement('tr');
+                row.dataset.projectId = project.id;
+                row.innerHTML = `
+                    <td>
+                        <span class="status-badge ${statusStyles[project.status] || ''}">${project.status}</span>
+                    </td>
+                    <td class="text-sm">${project.bl_no}</td>
+                    <td class="text-sm font-medium">${project.loading_port || 'N/A'}</td>
+                    <td class="text-sm font-medium">${project.discharge_port || 'N/A'}</td>
+                    <td class="text-sm">
+                        <div class="truncate-text" title="${project.shipper || ''}">${project.shipper || 'N/A'}</div>
+                    </td>
+                    <td class="text-sm">
+                        <div class="truncate-text" title="${project.consignee || ''}">${project.consignee || 'N/A'}</div>
+                    </td>
+                    <td class="text-sm font-medium">${project.assignee}</td>
+                    <td>
+                        <a href="#" class="action-link milestone-btn" data-project-id="${project.id}">
+                            <i class="fas fa-tasks"></i> 進捗表示
+                        </a>
+                    </td>
+                    <td>
+                        <a href="#" class="action-link">
+                            <i class="fas fa-edit"></i> 案件詳細
+                        </a>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // イベントリスナーを追加
+            addTableEventListeners();
+        }
+
+        // テーブルイベントリスナー
+        function addTableEventListeners() {
+            const tableBody = document.getElementById('project-table-body');
+            
+            tableBody.addEventListener('click', (e) => {
+                const target = e.target.closest('.milestone-btn');
+                if (!target) return;
+
+                e.preventDefault();
+                const projectId = parseInt(target.dataset.projectId);
+                const project = projects.find(p => p.id === projectId);
+                if (!project) return;
+
+                // 行をハイライト
+                const row = target.closest('tr');
+                document.querySelectorAll('#project-table-body tr').forEach(r => r.classList.remove('selected-row'));
+                if (row) row.classList.add('selected-row');
+
+                // モーダルを表示
+                showMilestoneModal(project);
+            });
+        }
+
+        // マイルストーン取得
+        function getMilestonesForProject(project) {
+            const currentStatusIndex = STATUS_ORDER[project.status];
+            return MILESTONE_TEMPLATE.map((name, index) => {
+                let status = 'pending';
+                if (index < currentStatusIndex) {
+                    status = 'complete';
+                } else if (index === currentStatusIndex) {
+                    status = 'current';
+                }
+                if (project.status === '完了') {
+                    status = 'complete';
+                }
+                
+                const date = project.milestone_dates[name] || null;
+                return { name, status, date };
+            });
+        }
+
+function showMilestoneModal(project) {
+    const overlay = document.getElementById('milestone-modal-overlay');
+    const title = document.getElementById('modal-project-title');
+    const content = document.getElementById('milestone-modal-content');
+
+    // モーダルコンテンツの更新
+    title.textContent = project.bl_no || '進捗状況';
+    
+    const milestones = getMilestonesForProject(project);
+    let html = '<ul class="milestone-list">';
+
+    milestones.forEach(milestone => {
+        const iconClass = milestone.status === 'complete' ? 'fas fa-check' : 
+                         milestone.status === 'current' ? 'fas fa-clock' : 'fas fa-circle';
+        
+        html += `
+            <li class="milestone-item">
+                <div class="milestone-icon ${milestone.status}">
+                    <i class="${iconClass}"></i>
+                </div>
+                <div class="milestone-content">
+                    <div class="milestone-name">${milestone.name}</div>
+                </div>
+            </li>
+        `;
+    });
+
+    html += '</ul>';
+    content.innerHTML = html;
+
+    // モーダル表示
+    document.body.style.overflow = 'hidden'; // 背景スクロール防止
+    overlay.classList.add('active');
+}
+
+function closeMilestoneModal() {
+    const overlay = document.getElementById('milestone-modal-overlay');
+    overlay.classList.remove('active');
+    document.body.style.overflow = ''; // スクロールを元に戻す
+    document.querySelectorAll('#project-table-body tr').forEach(r => r.classList.remove('selected-row'));
+}
+
+        // フィルター機能
+        function filterProjects() {
+            const statusFilter = document.getElementById('status-filter').value;
+            const companySearch = document.getElementById('company-search').value.toLowerCase();
+            const blSearch = document.getElementById('bl-search').value.toLowerCase();
+
+            displayedProjects = projects.filter(project => {
+                const statusMatch = !statusFilter || project.status === statusFilter;
+                const companyMatch = !companySearch || 
+                    project.shipper.toLowerCase().includes(companySearch) ||
+                    project.consignee.toLowerCase().includes(companySearch);
+                const blMatch = !blSearch || project.bl_no.toLowerCase().includes(blSearch);
+
+                return statusMatch && companyMatch && blMatch;
+            });
+
+            renderProjectTable();
+        }
+
+        // モーダルオーバーレイクリック時に閉じる
+        document.getElementById('milestone-modal-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeMilestoneModal();
+            }
+        });
+
+        // 初期描画
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProjectTable();
+        });
+    </script>
+</body>
+</html>

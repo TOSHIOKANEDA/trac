@@ -1,0 +1,5 @@
+<turbo-frame id="modal">
+  <%= render "shared/modal", title: @event.new_record? ? "新しい案件を登録" : "案件の編集" do %>
+    <%= render "events/form", event: @event %>
+  <% end %>
+</turbo-frame>

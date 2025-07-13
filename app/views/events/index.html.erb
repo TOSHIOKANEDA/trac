@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案件管理カレンダー画面</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ja.js"></script>
+
+    <!-- Font Awesome CDN (案件一覧と同じ) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+            height: 100vh;
+            overflow-y: auto;
+            position: fixed;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            color: #2196F3;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover {
+            background: #f0f8ff;
+            color: #2196F3;
+        }
+
+        .sidebar-menu a.active {
+            background: #e3f2fd;
+            color: #2196F3;
+            border-right: 3px solid #2196F3;
+        }
+
+        .sidebar-icon {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            background: #f5f5f5;
+            margin-left: 250px;
+            overflow-y: auto;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .user-info {
+            margin-left: 12px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .user-action {
+            font-size: 12px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .user-action:hover {
+            text-decoration: underline;
+        }
+
+        /* カレンダー関連のスタイル（既存のものを維持） */
+        .fc .fc-button-primary {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .fc .fc-button-primary:hover {
+            background-color: #4338ca;
+        }
+        .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #3730a3;
+            border-color: #3730a3;
+        }
+        .fc-daygrid-event {
+            padding: 0 !important;
+            background-color: transparent !important;
+            border: 1px solid #e5e7eb !important;
+            overflow: hidden;
+            height: 36px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .fc-daygrid-event .fc-event-main {
+            height: 100%;
+        }
+        .fc-daygrid-more-link {
+            font-weight: 600;
+            color: #4338ca;
+        }
+        .event-highlight-hover {
+            transform: scale(1.08);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+            z-index: 1000;
+            position: relative;
+        }
+        .event-pair-highlight {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+        #date-tooltip {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1001;
+            transition: opacity 0.2s;
+        }
+        .fc-list-event-dot,
+        .fc-daygrid-event-dot {
+            display: none !important;
+        }
+        tr[tabindex="-1"]:focus { outline: none; }
+        .force-truncate {
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">トラフィックカレンダー</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-plus"></i></span>新規案件登録</a></li>
+            <li><a href="#" class="active"><span class="sidebar-icon"><i class="fas fa-calendar-alt"></i></span>カレンダー</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-list"></i></span>案件一覧</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-users"></i></span>ユーザー管理</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>収支管理</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">田</div>
+                <div class="user-info">
+                    <div class="user-name">田中 太郎</div>
+                    <a href="#" class="user-action">ログアウト</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="flex-1 p-6 lg:p-8 overflow-y-auto relative">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">案件カレンダー</h2>
+            </div>
+            
+            <div id="calendar-view" class="relative">
+                <div id='calendar' class="bg-white p-6 rounded-lg shadow-sm"></div>
+                <div id="date-tooltip" class="hidden absolute bg-white text-indigo-700 text-xs px-3 py-2 rounded-md shadow-lg border border-indigo-200 font-semibold"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white mb-10">
+            <div id="details-modal-content" class="max-h-[80vh] overflow-y-auto pr-2">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusStyles = {
+            '見積もり作成中': 'bg-yellow-100 text-yellow-800', 'ブッキング依頼中': 'bg-blue-100 text-blue-800',
+            '書類準備中': 'bg-purple-100 text-purple-800', '本船出航待ち': 'bg-orange-100 text-orange-800',
+            '航海中': 'bg-green-100 text-green-800', '請求書発行待ち': 'bg-cyan-100 text-cyan-800',
+            '完了': 'bg-gray-100 text-gray-800'
+        };
+
+        const generateProjects = (count) => {
+            const projects = [];
+            const statuses = Object.keys(statusStyles);
+            const assignees = ['Taro Tanaka', 'Hanako Suzuki', 'Jiro Sato', 'Saburo Takahashi', 'Shiro Ito'];
+            // 40-character English company names
+            const longCompanies = [
+                'Global Shipping & Maritime Logistics Solutions Inc.',
+                'International Freight Forwarding and Customs Brokerage LLC',
+                'Trans-Pacific Consolidated Cargo Transport Services Co.',
+                'Universal Container & Bulk Cargo Logistics Network Ltd.'
+            ];
+            const ports = ['TYO', 'YOK', 'KOB', 'OSA', 'NGO', 'FUK', 'LAX', 'SHA', 'SIN', 'BKK', 'PUS', 'LGB', 'FRA', 'HAM', 'HKG'];
+            const vessels = ['OCEAN PIONEER', 'PACIFIC EXPLORER', 'ATLANTIC VOYAGER', 'ASIAN EXPRESS'];
+
+            for (let i = 1; i <= count; i++) {
+                const origin = ports[Math.floor(Math.random() * ports.length)];
+                let destination = ports[Math.floor(Math.random() * ports.length)];
+                while (origin === destination) {
+                    destination = ports[Math.floor(Math.random() * ports.length)];
+                }
+                
+                const shipperName = longCompanies[Math.floor(Math.random() * longCompanies.length)];
+                const cneeName = longCompanies[Math.floor(Math.random() * longCompanies.length)];
+                const company = ['ABC', 'XYZ', 'DEF', 'GHI'][i % 4];
+                
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const etdDate = new Date(2025, 6 + Math.floor(i/15), 1 + (i % 28));
+                etdDate.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 4) * 15);
+                const etaDate = new Date(etdDate.getTime() + (5 + Math.floor(Math.random() * 20)) * 24 * 60 * 60 * 1000);
+                etaDate.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 4) * 15);
+
+                projects.push({
+                    id: i, name: `${origin}→${destination} (${company} Co.)`, bl_no: `BL-${String(10000 + i).padStart(5, '0')}`,
+                    status: status, assignee: assignees[Math.floor(Math.random() * assignees.length)],
+                    origin: origin, destination: destination, 
+                    shipper: shipperName, cnee: cneeName,
+                    etd: etdDate.toISOString(), eta: etaDate.toISOString(),
+                    vessel1: vessels[Math.floor(Math.random() * vessels.length)], voyage1: `${String.fromCharCode(65 + Math.floor(i/26))}${String(100 + i).padStart(3, '0')}`,
+                    vessel1_etd: etdDate.toISOString(), vessel1_eta: etaDate.toISOString()
+                });
+            }
+            const lateNightEtd = new Date(2025, 7, 1, 23, 30);
+            const lateNightEta = new Date(2025, 7, 16, 10, 0);
+            projects.push({
+                id: count + 1, name: 'NRT→JFK (Late Co.)', bl_no: `BL-${String(10000 + count + 1).padStart(5, '0')}`,
+                status: 'Awaiting Vessel Departure', assignee: 'Taro Tanaka', origin: 'NRT', destination: 'JFK', 
+                shipper: 'Global Shipping & Maritime Logistics Solutions Inc.', 
+                cnee: 'International Freight Forwarding and Customs Brokerage LLC',
+                etd: lateNightEtd.toISOString(), eta: lateNightEta.toISOString(),
+                vessel1: 'MIDNIGHT EXPRESS', voyage1: 'N001', vessel1_etd: lateNightEtd.toISOString(), vessel1_eta: lateNightEta.toISOString()
+            });
+            return projects;
+        };
+
+        const projects = generateProjects(40);
+
+        window.addEventListener('load', () => {
+            lucide.createIcons();
+            const eventModal = document.getElementById('event-modal');
+            const calendarEl = document.getElementById('calendar');
+            const calendarEvents = [];
+            
+            projects.forEach(project => {
+                const extendedProps = { ...project };
+                const groupId = `project-${project.id}`;
+
+                if (project.etd) {
+                    calendarEvents.push({
+                        id: `${project.id}-etd`, groupId: groupId, start: project.etd,
+                        extendedProps: { ...extendedProps, type: '積み' },
+                        allDay: true
+                    });
+                }
+                if (project.eta) {
+                    calendarEvents.push({
+                        id: `${project.id}-eta`, groupId: groupId, start: project.eta,
+                        extendedProps: { ...extendedProps, type: '揚げ' },
+                        allDay: true
+                    });
+                }
+            });
+
+            const initialCalendarDate = new Date();
+            initialCalendarDate.setMonth(initialCalendarDate.getMonth() - 1);
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialDate: initialCalendarDate,
+                initialView: 'dayGridThreeMonth', // 1. 初期表示を3ヶ月ビューに変更
+                views: {
+                  dayGridThreeMonth: { // 2. 3ヶ月ビューを定義
+                    type: 'dayGrid',
+                    duration: { months: 3 }
+                  }
+                },
+                aspectRatio: 2.5, // 3. 高さを調整
+                locale: 'ja',
+                headerToolbar: { left: 'prev,next', center: 'title', right: '' },
+                buttonText: { },
+                dayMaxEvents: 3,
+                events: calendarEvents,
+                moreLinkText: (num) => `他${num}件`,
+                moreLinkClick: 'popover',
+                displayEventTime: false,
+                viewDidMount: function() {
+                    // 描画完了を待つために、引き続きsetTimeoutを使用します
+                    setTimeout(() => {
+                        const todayCell = document.querySelector('.fc-day-today');
+
+                        if (todayCell) {
+                            const todayRow = todayCell.closest('tr');
+                            if (todayRow) {
+                                todayRow.setAttribute('tabindex', -1);
+                                todayRow.focus({ preventScroll: false });
+                                todayRow.addEventListener('blur', () => {
+                                    todayRow.removeAttribute('tabindex');
+                                }, { once: true }); 
+                            }
+                        } else {
+                            console.error('フォーカス対象の .fc-day-today が見つかりませんでした。');
+                        }
+                    }, 100); // 念のため100ミリ秒の遅延を維持します
+                },
+                eventContent: function(arg) {
+                    const props = arg.event.extendedProps;
+                    const isTsumi = props.type === '積み';
+                    
+                    const tsumiPolClass = isTsumi ? 'bg-red-100 text-black font-bold' : 'bg-gray-200 text-white font-light';
+                    const agePodClass = isTsumi ? 'bg-gray-200 text-white font-light' : 'bg-blue-100 text-black font-bold';
+
+                    let html = `
+                        <div class="h-full w-full grid grid-cols-2 text-[10px] leading-tight" data-vessel-action="${isTsumi ? 'loading' : 'discharging'}">
+                            <div class="border-r border-gray-300">
+                                <div class="h-1/2 flex items-center justify-center p-0.5 ${tsumiPolClass}">${props.origin}</div>
+                                
+                                <div class="h-1/2 p-0.5 border-t border-gray-300 ${tsumiPolClass} force-truncate" title="${props.shipper || ''}">
+                                    ${props.shipper}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="h-1/2 flex items-center justify-center p-0.5 ${agePodClass}">${props.destination}</div>
+
+                                <div class="h-1/2 p-0.5 border-t border-gray-300 ${agePodClass} force-truncate" title="${props.cnee || ''}">
+                                    ${props.cnee}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    return { html: html };
+                },
+                eventDidMount: (info) => {
+                    if (info.event.groupId) {
+                        info.el.setAttribute('data-group-id', info.event.groupId);
+                    }
+                },
+                eventMouseEnter: (info) => {
+                    const groupId = info.event.groupId;
+                    if (!groupId) return;
+                    
+                    const isSingleEvent = !info.event.extendedProps.eta;
+                    if (isSingleEvent) return;
+
+                    document.querySelectorAll(`[data-group-id="${groupId}"]`).forEach(el => el.classList.add('event-highlight-hover'));
+
+                    const pairOnScreen = document.querySelectorAll(`[data-group-id="${groupId}"]`).length === 2;
+
+                    if (!pairOnScreen) {
+                        const tooltip = document.getElementById('date-tooltip');
+                        const calendarRect = calendarEl.getBoundingClientRect();
+                        const hoveredRect = info.el.getBoundingClientRect();
+                        
+                        const x = hoveredRect.left + hoveredRect.width / 2 - calendarRect.left;
+                        
+                        const isTsumi = info.event.extendedProps.type === '積み';
+                        const otherDate = new Date(isTsumi ? info.event.extendedProps.eta : info.event.extendedProps.etd);
+                        
+                        const y = isTsumi ? (hoveredRect.bottom - calendarRect.top + 15) : (hoveredRect.top - calendarRect.top - 15);
+
+                        const otherType = isTsumi ? '[揚]' : '[積]';
+                        const tooltipText = `${otherDate.getMonth() + 1}/${otherDate.getDate()} ${otherType}`;
+                        
+                        tooltip.innerHTML = tooltipText;
+                        tooltip.classList.remove('hidden');
+                        const tooltipRect = tooltip.getBoundingClientRect();
+                        
+                        tooltip.style.left = `${x - tooltipRect.width / 2}px`;
+                        tooltip.style.top = `${isTsumi ? y : y - tooltipRect.height}px`;
+                    }
+                },
+                eventMouseLeave: (info) => {
+                    const groupId = info.event.groupId;
+                    if (groupId) {
+                        document.querySelectorAll(`[data-group-id="${groupId}"]`).forEach(el => el.classList.remove('event-highlight-hover'));
+                    }
+                    document.getElementById('date-tooltip').classList.add('hidden');
+                },
+                eventClick: (info) => {
+                    const props = info.event.extendedProps;
+                    const contentEl = document.getElementById('details-modal-content');
+                    
+                    const formatDateTime = (dateTimeString) => {
+                        if (!dateTimeString) return 'N/A';
+                        const date = new Date(dateTimeString);
+                        return date.toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\//g, '/');
+                    };
+
+                    const calculateLayover = (start, end) => {
+                        if (!start || !end) return 'N/A';
+                        const startDate = new Date(start);
+                        const endDate = new Date(end);
+                        let diff = endDate.getTime() - startDate.getTime();
+                        if (isNaN(diff) || diff < 0) return '計算不可';
+                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        diff -= days * (1000 * 60 * 60 * 24);
+                        const hours = Math.floor(diff / (1000 * 60 * 60));
+                        let result = '';
+                        if (days > 0) result += `${days}日と`;
+                        if (hours > 0) result += `${hours}時間`;
+                        return result || '0時間';
+                    };
+                    
+                    let html = `
+                        <div class="relative">
+                            <button class="close-modal-btn absolute top-0 right-0 p-1 rounded-full hover:bg-gray-200 z-10"><i data-lucide="x" class="h-6 w-6"></i></button>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-800 border-b pb-2 mb-3">基本情報</h4>
+                                    <dl class="space-y-2 text-sm">
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">B/L No.</dt><dd>${props.bl_no}</dd></div>
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">担当者</dt><dd>${props.assignee}</dd></div>
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">Shipper</dt><dd>${props.shipper || 'N/A'}</dd></div>
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">Consignee</dt><dd>${props.cnee || 'N/A'}</dd></div>
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">出発地</dt><dd>${props.origin || 'N/A'}</dd></div>
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">到着地</dt><dd>${props.destination || 'N/A'}</dd></div>
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">ETD</dt><dd>${formatDateTime(props.etd)}</dd></div>
+                                        <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">ETA</dt><dd>${formatDateTime(props.eta)}</dd></div>
+                                    </dl>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-800 border-b pb-2 mb-3">本船情報</h4>
+                                    <div class="text-sm bg-gray-50 p-4 rounded-lg space-y-3">
+                                        <div>
+                                            <p class="font-medium text-gray-800">1st Vessel</p>
+                                            <dl class="mt-1 space-y-1 pl-2">
+                                                <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">本船名</dt><dd>${props.vessel1 || 'N/A'}</dd></div>
+                                                <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">Voyage</dt><dd>${props.voyage1 || 'N/A'}</dd></div>
+                                                <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">出航日時</dt><dd>${formatDateTime(props.vessel1_etd)}</dd></div>
+                                                <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">到着日時</dt><dd>${formatDateTime(props.vessel1_eta)}</dd></div>
+                                            </dl>
+                                        </div>
+                                        ${props.vessel2 ? `
+                                        <div>
+                                            <div class="my-3 p-3 bg-indigo-50 border-l-4 border-indigo-400 rounded-md">
+                                                <div class="flex items-center text-sm font-semibold text-indigo-800">
+                                                    <i data-lucide="anchor" class="w-4 h-4 mr-2"></i>
+                                                    <span>積み替え at ${props.ts_location || ''}</span>
+                                                </div>
+                                                <div class="mt-2 pl-6 text-sm">
+                                                    <p class="text-gray-600">積み替え時間: <span class="font-bold text-gray-900">${calculateLayover(props.vessel1_eta, props.vessel2_etd)}</span></p>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-gray-800">2nd Vessel</p>
+                                                <dl class="mt-1 space-y-1 pl-2">
+                                                    <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">本船名</dt><dd>${props.vessel2 || 'N/A'}</dd></div>
+                                                    <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">Voyage</dt><dd>${props.voyage2 || 'N/A'}</dd></div>
+                                                    <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">出航日時</dt><dd>${formatDateTime(props.vessel2_etd)}</dd></div>
+                                                    <div class="flex"><dt class="w-24 font-medium text-gray-500 shrink-0">到着日時</dt><dd>${formatDateTime(props.vessel2_eta)}</dd></div>
+                                                </dl>
+                                            </div>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 pt-4 border-t border-gray-200 flex justify-end items-center">
+                            <button class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                                <i data-lucide="message-square" class="mr-2 h-5 w-5"></i>
+                                案件詳細＆チャット
+                            </button>
+                        </div>`;
+                    
+                    contentEl.innerHTML = html;
+                    lucide.createIcons();
+                    eventModal.classList.remove('hidden');
+                }
+            });
+            calendar.render();
+
+            eventModal.addEventListener('click', (e) => {
+                if (e.target === eventModal || e.target.closest('.close-modal-btn')) {
+                    eventModal.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<%# app/views/events/_modal.html.erb %>
+
+<div class="modal fade" id="event-modal" tabindex="-1" data-controller="modal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <%# 1. 案件の登録・編集フォーム %>
+      <%# turbo:submit-end->modal#handleSuccess を追加して、送信完了時にコントローラーのアクションを呼び出す %>
+      <%= form_with model: @event, data: { action: "turbo:submit-end->modal#handleSuccess" } do |form| %>
+        <div class="modal-header">
+          <h5 class="modal-title"><%= @event.new_record? ? "案件登録" : "案件編集" %></h5>
+          <button type="button" class="btn-close" data-action="click->modal#close" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <%# バリデーションエラーメッセージ %>
+          <% if event.errors.any? %>
+            <div class="alert alert-danger" role="alert">
+              <h4 class="alert-heading"><%= pluralize(event.errors.count, "error") %> found:</h4>
+              <ul class="mb-0">
+                <% event.errors.each do |error| %>
+                  <li><%= error.full_message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%# 案件の入力フィールド群 %>
+          <div class="mb-3">
+            <%= form.label :title, '案件名', class: "form-label" %>
+            <%= form.text_field :title, class: "form-control", required: true %>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <%= form.label :start_time, '開始日時', class: "form-label" %>
+              <div>
+                <%= form.datetime_select :start_time, {}, { class: "form-select d-inline-block w-auto" } %>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <%= form.label :end_time, '終了日時', class: "form-label" %>
+              <div>
+                <%= form.datetime_select :end_time, {}, { class: "form-select d-inline-block w-auto" } %>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <%= form.label :status, 'ステータス', class: "form-label" %>
+            <%= form.select :status, Event.statuses.keys.map { |k| [t("activerecord.attributes.event.statuses.#{k}"), k] }, {}, { class: "form-select" } %>
+          </div>
+          <div class="mb-3">
+            <%= form.label :files, '添付ファイル', class: "form-label" %>
+            <%= form.file_field :files, multiple: true, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-action="click->modal#close">キャンセル</button>
+          <%= form.submit "保存する", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+
+      <%# 2. 案件チャット（編集時のみ表示） %>
+      <%# 案件フォームの外に分離し、独立したコンポーネントとして配置 %>
+      <% if event.persisted? %>
+        <div class="modal-body border-top">
+          <h4 class="h5">案件チャット</h4>
+          <%= turbo_stream_from event %>
+          <div id="messages" class="card mb-3" style="height: 200px; overflow-y: auto;">
+            <div class="card-body">
+              <% @messages&.each do |message| %>
+                <%= render "messages/message", message: message %>
+              <% end %>
+            </div>
+          </div>
+          
+          <%# メッセージ送信フォーム %>
+          <%= form_with(model: [event, Message.new], id: "new_message") do |f| %>
+            <div class="input-group">
+              <%= f.text_field :content, class: "form-control", autocomplete: "off", placeholder: "メッセージを入力..." %>
+              <%= f.submit "送信", class: "btn btn-outline-primary" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</div>

@@ -1,38 +1,81 @@
-// app/javascript/controllers/hello_controller.js
-
 import { Controller } from "@hotwired/stimulus"
-import { Calendar } from '@fullcalendar/core'
+import { Calendar } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import multiMonthPlugin from '@fullcalendar/multimonth'
+import interactionPlugin from '@fullcalendar/interaction';
 
-// 必要なプラグインをインポート
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid' // ← 週表示プラグインをインポート
-import listPlugin from '@fullcalendar/list'       // ← リスト表示プラグインをインポート
 
 export default class extends Controller {
   connect() {
-    const calendar = new Calendar(this.element, {
-      // ↓ ここからオプションを更新
-      plugins: [ dayGridPlugin, timeGridPlugin, listPlugin ], // 配列にプラグインを追加
+    this.renderCalendar();
+    document.addEventListener('refresh-calendar', () => {
+      this.calendar.refetchEvents();
+    });
+  }
 
-      // ヘッダーにボタンなどを配置
+  renderCalendar() {
+    this.calendar = new Calendar(this.element, {
+      plugins: [dayGridPlugin, timeGridPlugin, multiMonthPlugin, interactionPlugin],
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,listWeek' // 月・週・リスト表示の切り替えボタン
+        right: 'multiMonthYear,dayGridMonth,timeGridWeek'
       },
-
-      initialView: 'dayGridMonth', // 初期表示を月表示に設定
-      // ↑ ここまで更新
-
-      // 日本語化したい場合は以下のオプションも追加
+      initialView: 'dayGridMonth',
       locale: 'ja',
       buttonText: {
-       today: '今日',
-       month: '月',
-       week: '週',
-       list: 'リスト'
+          today: '今日',
+          month: '月',
+          week: '週',
+          day: '日',
+          multiMonthYear: '年'
       },
+      navLinks: true,
+      editable: true,
+      dayMaxEvents: true,
+      events: '/events.json',
+      eventContent: function(arg) {
+        return { html: `<div class="p-1">${arg.event.title}</div>` };
+      },
+      eventClick: (info) => {
+        info.jsEvent.preventDefault();
+        if (info.event.url) {
+          const frame = document.getElementById('modal');
+          frame.src = info.event.url;
+        }
+      },
+      eventDrop: (info) => {
+        this.updateEvent(info.event);
+      },
+      eventResize: (info) => {
+        this.updateEvent(info.event);
+      }
     });
-    calendar.render();
+    this.calendar.render();
+  }
+
+  updateEvent(event) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    let formData = new URLSearchParams();
+    formData.append('event[start_time]', event.start.toISOString());
+    if (event.end) {
+      formData.append('event[end_time]', event.end.toISOString());
+    }
+
+    fetch(`/events/${event.id}`, {
+      method: 'PATCH',
+      headers: {
+        'X-CSRF-Token': csrfToken,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: formData
+    }).then(response => {
+      if (!response.ok) {
+        console.error("Event update failed");
+        info.revert();
+      }
+    });
   }
 }

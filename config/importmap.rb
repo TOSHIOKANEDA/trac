@@ -20,4 +20,7 @@ pin "@fullcalendar/core/preact.js", to: "https://ga.jspm.io/npm:@fullcalendar/co
 pin "@fullcalendar/daygrid", to: "https://ga.jspm.io/npm:@fullcalendar/daygrid@6.1.11/index.js"
 pin "@fullcalendar/timegrid", to: "https://ga.jspm.io/npm:@fullcalendar/timegrid@6.1.11/index.js"
 pin "@fullcalendar/daygrid/internal.js", to: "https://ga.jspm.io/npm:@fullcalendar/daygrid@6.1.11/internal.js"
+pin "@fullcalendar/multimonth", to: "https://ga.jspm.io/npm:@fullcalendar/multimonth@6.1.11/index.js"
 pin "@fullcalendar/list", to: "https://ga.jspm.io/npm:@fullcalendar/list@6.1.11/index.js"
+pin "bootstrap", to: "bootstrap.bundle.min.js"
+pin "jquery", to: "/javascripts/jquery.js"

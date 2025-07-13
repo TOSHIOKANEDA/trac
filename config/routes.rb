@@ -1,15 +1,25 @@
+require "sidekiq/web"
+
 Rails.application.routes.draw do
-  get "calendars/index"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  devise_for :users
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  resources :events do
+    resources :messages, only: :create
+    member do
+      delete :purge_file
+    end
+    collection do
+      get "list"
+      get "expense_list"
+      get "expense_new"
+    end
+  end
 
-  # Render dynamic PWA files from app/views/pwa/*
-  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  authenticated :user do
+    root "events#index", as: :authenticated_root
+  end
 
-  # Defines the root path route ("/")
-  root "calendars#index"
+  root to: redirect("/users/sign_in")
+  mount Sidekiq::Web => "/sidekiq" if Rails.env.development?
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 end

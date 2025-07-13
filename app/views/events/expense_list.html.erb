@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>収支管理 - 物流管理システム</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+            height: 100vh;
+            overflow-y: auto;
+            position: fixed;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            color: #2196F3;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover {
+            background: #f0f8ff;
+            color: #2196F3;
+        }
+
+        .sidebar-menu a.active {
+            background: #e3f2fd;
+            color: #2196F3;
+            border-right: 3px solid #2196F3;
+        }
+
+        .sidebar-icon {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            background: #f5f5f5;
+            margin-left: 250px;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: white;
+            color: #333;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        .content-container {
+            padding: 0 30px 30px;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+            overflow: hidden;
+        }
+
+        .filter-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e8ed;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .filter-content {
+            padding: 25px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select {
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* ----- Start: Updated Table Styles ----- */
+        .table-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e1e8ed;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .project-table-container {
+            overflow-x: auto;
+        }
+
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 14px;
+        }
+
+        .project-table th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid #e1e8ed;
+            border-right: 1px solid #e1e8ed;
+            white-space: nowrap;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .project-table th:last-child {
+            border-right: none;
+        }
+        
+        .project-table th:first-child {
+            width: 40px;
+        }
+
+        .project-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e1e8ed;
+            border-right: 1px solid #e1e8ed;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .project-table td:last-child {
+            border-right: none;
+        }
+
+        .project-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .project-table tbody .main-row:hover {
+            background: #f8f9fa;
+        }
+
+        .action-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-link:hover {
+            color: #5a6fd8;
+            text-decoration: underline;
+        }
+        /* ----- End: Updated Table Styles ----- */
+
+        /* ----- Start: Accordion Specific Styles ----- */
+        .accordion-toggle {
+            background-color: #e9ecef;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #555;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .accordion-toggle .fa-chevron-down {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .accordion-toggle.open {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .accordion-toggle.open .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        .main-row.active {
+            background: #eef2ff;
+            /* Reference design for selection highlight */
+            border-left: 4px solid #667eea;
+        }
+
+        .details-row {
+            display: none;
+        }
+
+        .details-row.active {
+            display: table-row;
+            background-color: #eef2ff; /* Match active row background */
+        }
+        
+        .details-cell {
+            padding: 0 !important;
+            border-right: none !important;
+        }
+
+        .details-content {
+            padding: 20px 30px;
+            display: flex;
+            gap: 40px;
+            border-top: 1px dashed #ccc;
+        }
+        
+        .details-group {
+            font-size: 14px;
+        }
+
+        .details-group strong {
+            display: block;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .details-group span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .text-income { color: #2e7d32; font-weight: 500; }
+        .text-expense { color: #c72c41; font-weight: 500; }
+        .text-profit { font-weight: 600; color: #333; }
+        .text-profit-margin { font-weight: 600; color: #17a2b8; }
+        /* ----- End: Accordion Specific Styles ----- */
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; }
+            .header { flex-direction: column; gap: 15px; text-align: center; }
+            .header-actions { flex-wrap: wrap; justify-content: center; }
+            .filter-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">トラフィックカレンダー</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-plus"></i></span>新規案件登録</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-calendar-alt"></i></span>カレンダー</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-list"></i></span>案件一覧</a></li>
+            <li><a href="#"><span class="sidebar-icon"><i class="fas fa-users"></i></span>ユーザー管理</a></li>
+            <li><a href="#" class="active"><span class="sidebar-icon"><i class="fas fa-chart-bar"></i></span>収支管理</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-chart-line"></i> 収支管理</h1>
+                <div class="header-actions">
+                    </div>
+            </div>
+
+            <div class="content-container">
+                <div class="filter-section">
+                    <div class="filter-header">
+                        <div class="filter-title">
+                            <div class="section-icon"><i class="fas fa-search"></i></div>
+                            検索・フィルター
+                        </div>
+                    </div>
+                    <div class="filter-content">
+                        <div class="filter-grid">
+                            <div class="form-group">
+                                <label class="form-label">B/L番号</label>
+                                <input type="text" id="bl-search" class="form-input" placeholder="BL-12345...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">積み地</label>
+                                <input type="text" id="loading-port-search" class="form-input" placeholder="TYO, SHA...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">揚げ地</label>
+                                <input type="text" id="discharge-port-search" class="form-input" placeholder="OSA, YOK...">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-search"></i> 検索実行
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-section">
+                    <div class="table-header">
+                        <div class="table-title">
+                            <div class="section-icon"><i class="fas fa-table"></i></div>
+                            収支リスト
+                        </div>
+                    </div>
+                    <div class="project-table-container">
+                        <table class="project-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>B/L NO.</th>
+                                    <th>収入</th>
+                                    <th>支出</th>
+                                    <th>差引収支</th>
+                                    <th>利益率</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="main-row">
+                                    <td><button class="accordion-toggle" title="詳細を表示/非表示"><i class="fas fa-chevron-down"></i></button></td>
+                                    <td>SHATYO250701</td>
+                                    <td class="text-income">¥ 250,000</td>
+                                    <td class="text-expense">¥ 180,000</td>
+                                    <td class="text-profit">¥ 70,000</td>
+                                    <td class="text-profit-margin">28.0%</td>
+                                    <td><a href="#" class="action-link"><i class="fas fa-edit"></i> 詳細</a></td>
+                                </tr>
+                                <tr class="details-row">
+                                    <td colspan="7" class="details-cell">
+                                        <div class="details-content">
+                                            <div class="details-group"><strong>積地:</strong> <span>SHA</span></div>
+                                            <div class="details-group"><strong>揚地:</strong> <span>TYO</span></div>
+                                            <div class="details-group"><strong>Shipper:</strong> <span>ABC Trading Co.</span></div>
+                                            <div class="details-group"><strong>Consignee:</strong> <span>Tokyo Import Co.</span></div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="main-row">
+                                    <td><button class="accordion-toggle" title="詳細を表示/非表示"><i class="fas fa-chevron-down"></i></button></td>
+                                    <td>QINGOSA250702</td>
+                                    <td class="text-income">¥ 480,000</td>
+                                    <td class="text-expense">¥ 410,000</td>
+                                    <td class="text-profit">¥ 70,000</td>
+                                    <td class="text-profit-margin">14.6%</td>
+                                    <td><a href="#" class="action-link"><i class="fas fa-edit"></i> 詳細</a></td>
+                                </tr>
+                                <tr class="details-row">
+                                    <td colspan="7" class="details-cell">
+                                        <div class="details-content">
+                                            <div class="details-group"><strong>積地:</strong> <span>TAO</span></div>
+                                            <div class="details-group"><strong>揚地:</strong> <span>OSA</span></div>
+                                            <div class="details-group"><strong>Shipper:</strong> <span>Global Logistics</span></div>
+                                            <div class="details-group"><strong>Consignee:</strong> <span>Osaka Trading Co.</span></div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="main-row">
+                                    <td><button class="accordion-toggle" title="詳細を表示/非表示"><i class="fas fa-chevron-down"></i></button></td>
+                                    <td>LAXYOK250615</td>
+                                    <td class="text-income">¥ 1,200,000</td>
+                                    <td class="text-expense">¥ 950,000</td>
+                                    <td class="text-profit">¥ 250,000</td>
+                                    <td class="text-profit-margin">20.8%</td>
+                                    <td><a href="#" class="action-link"><i class="fas fa-edit"></i> 詳細</a></td>
+                                </tr>
+                                <tr class="details-row">
+                                    <td colspan="7" class="details-cell">
+                                        <div class="details-content">
+                                            <div class="details-group"><strong>積地:</strong> <span>LAX</span></div>
+                                            <div class="details-group"><strong>揚地:</strong> <span>YOK</span></div>
+                                            <div class="details-group"><strong>Shipper:</strong> <span>USA Exporter Inc.</span></div>
+                                            <div class="details-group"><strong>Consignee:</strong> <span>Yokohama Trade Co.</span></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr class="main-row">
+                                    <td><button class="accordion-toggle" title="詳細を表示/非表示"><i class="fas fa-chevron-down"></i></button></td>
+                                    <td>BKKNGO250611</td>
+                                    <td class="text-income">¥ 320,000</td>
+                                    <td class="text-expense">¥ 350,000</td>
+                                    <td class="text-profit text-expense">(¥ 30,000)</td>
+                                    <td class="text-profit-margin text-expense">-9.4%</td>
+                                    <td><a href="#" class="action-link"><i class="fas fa-edit"></i> 詳細</a></td>
+                                </tr>
+                                <tr class="details-row">
+                                    <td colspan="7" class="details-cell">
+                                        <div class="details-content">
+                                            <div class="details-group"><strong>積地:</strong> <span>BKK</span></div>
+                                            <div class="details-group"><strong>揚地:</strong> <span>NGO</span></div>
+                                            <div class="details-group"><strong>Shipper:</strong> <span>Thai Foods Export</span></div>
+                                            <div class="details-group"><strong>Consignee:</strong> <span>Chubu Foods Co.</span></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggles = document.querySelectorAll('.accordion-toggle');
+
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const mainRow = this.closest('.main-row');
+            const detailsRow = mainRow.nextElementSibling;
+            const isActive = detailsRow.classList.contains('active');
+
+            // Close all currently open accordions
+            document.querySelectorAll('.main-row.active').forEach(row => {
+                if (row !== mainRow) {
+                    row.classList.remove('active');
+                    row.nextElementSibling.classList.remove('active');
+                    row.querySelector('.accordion-toggle').classList.remove('open');
+                }
+            });
+
+            // Toggle the clicked accordion
+            mainRow.classList.toggle('active');
+            detailsRow.classList.toggle('active');
+            this.classList.toggle('open');
+        });
+    });
+});
+</script>
+
+</body>
+</html>
