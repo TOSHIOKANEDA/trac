@@ -3,7 +3,7 @@
     <span data-action="click->event-new#closePortSearchModal" class="port-modal-close">×</span>
 
     <!-- Railsから渡す港データ -->
-    <%= tag.div '', id: "port-data", data: { ports: @ports.to_json }, style: "display:none;" %>
+    <%= tag.div '', id: "port-data", data: { ports: @ports.to_json } %>
 
     <input type="text"
            data-event-new-target="portSearchModalInput"

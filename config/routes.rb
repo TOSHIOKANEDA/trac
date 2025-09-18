@@ -8,14 +8,18 @@ Rails.application.routes.draw do
   resources :finbalances
   resources :profiles
   resources :contractors
-  resources :event_files
   resources :favorites
 
   resources :events do
+    resources :event_files do
+      member do
+        get :download
+      end
+    end
     collection do
       get "list"
     end
-    resources :chats, only: [:show] do
+    resources :chats, only: [:show, :update] do
       resources :messages, only: [:create]
     end
   end
@@ -26,4 +30,5 @@ Rails.application.routes.draw do
 
   root to: redirect("/users/sign_in")
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+  mount ActionCable.server => '/cable'
 end

@@ -65,3 +65,4 @@ gem "cancancan"
 gem 'discard'
 gem 'rails-i18n'
 gem 'ransack'
+gem 'audited', '~> 5.0'

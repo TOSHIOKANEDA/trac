@@ -63,9 +63,17 @@ class EventsController < ApplicationController
   def edit
     @id_string = @event.id_string
     @event.ac_year = @event.accounting_month&.year
-    @event.ac_year = @event.accounting_month&.month
+    @event.ac_month = @event.accounting_month&.month
+    @chats = @event.chats
+    @other_chat = @chats.where(chat_type: "other").first
+    @chat_participatnts = @other_chat.users.joins(:company).select("users.id as id", "users.name as name", "companies.japanese_name as company_name")
+
     @chat_users = EventCompany.where(event_id: @event.id).joins(company: :users).
-                  select("users.id as user_id", "users.name as name", "companies.japanese_name as company", "CONCAT(users.name, '（', companies.japanese_name, '）') AS user_and_company")
+                  select("users.id as user_id", "users.name as name", "companies.japanese_name as company_name", "CONCAT(users.name, '（', companies.japanese_name, '）') AS user_and_company")
+    # 各 role ごとに必ず event_companies が用意されるように build
+    EventCompany.roles.keys.each do |role|
+      @event.event_companies.find_or_initialize_by(role: role)
+    end
   end
 
   def update

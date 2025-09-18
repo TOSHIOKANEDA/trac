@@ -1,5 +1,5 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "events/index" %>
+  <%= stylesheet_link_tag "events/index", "data-turbo-track": "reload" %>
 <% end %>
 <% content_for :title, "案件カレンダー" %>
 <%= render partial: "layouts/sidebar" %>

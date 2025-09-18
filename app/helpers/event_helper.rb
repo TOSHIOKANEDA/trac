@@ -7,6 +7,20 @@ module EventHelper
     end
   end
 
+  def event_list_shipment(event)
+    return "" if event&.shipment.blank?
+    "type-#{EventShipment.shipments.keys[event.shipment]}"
+  end
+
+  def event_list_item(item)
+    return "N/A" if item.blank?
+    item
+  end
+
+  def event_edit_chat_hidden(chat)
+    chat.other? && !chat.visible 
+  end
+
   def event_new_shipper_docs 
     [
       ["Commercial Invoice", "invoice"], 
@@ -44,15 +58,4 @@ module EventHelper
       ["D/R（Dock Receipt）", "dock_receipt"]
     ]
   end
-
-  def event_list_shipment(event)
-    return "" if event&.shipment.blank?
-    "type-#{EventShipment.shipments.keys[event.shipment]}"
-  end
-
-  def event_list_item(item)
-    return "N/A" if item.blank?
-    item
-  end
-
 end

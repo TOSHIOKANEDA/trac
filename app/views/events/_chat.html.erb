@@ -1,22 +1,25 @@
 <!-- チャットウィジェット -->
 <div class="chat-widgets">
-  <% @event.chats.each do |chat| %>
-    <div class="chat-widget" id="<%= dom_id(chat) %>" 
-         data-controller="event-new"
-         data-event-new-chat-id-value="<%= chat.id %>">
-      
+  <% @chats.each do |chat| %>
+    <div class="chat-widget minimized" id="<%= dom_id(chat) %>" 
+      data-controller="event-new"
+      data-event-new-chat-id-value="<%= chat.id %>"
+      data-event-new-event-id-value="<%= @event.id %>"
+      <%= 'style="display: none;"'.html_safe if event_edit_chat_hidden(chat) %>>
+
       <!-- ヘッダー -->
       <div class="chat-header <%= chat.chat_type %>"
-           data-action="click->event-new#toggleChat">
+          data-chat-id="<%= dom_id(chat) %>"
+          data-action="click->event-new#toggleChat">
         <span>
           <i class="fas fa-comments"></i>
           <%= chat.name %>
         </span>
-        <button class="chat-toggle">−</button>
+        <button class="chat-toggle" data-event-new-target="toggleButton"></button>
       </div>
 
       <!-- メッセージ一覧 -->
-      <div class="chat-content" id="<%= dom_id(chat, :messages) %>">
+      <div class="chat-content" id="<%= dom_id(chat, :messages) %>" data-event-new-target="chatContent">
         <%= turbo_frame_tag dom_id(chat, :messages) do %>
           <% chat.messages.order(:created_at).each do |message| %>
             <div class="chat-message">
@@ -28,7 +31,7 @@
       </div>
 
       <!-- メッセージ入力 -->
-      <div class="chat-input">
+      <div class="chat-input" data-event-new-target="chatInput">
         <%= form_with model: Message.new,
                       url: event_chat_messages_path(@event, chat),
                       data: { turbo_frame: dom_id(chat, :messages) },
@@ -41,4 +44,86 @@
       </div>
     </div>
   <% end %>
+</div>
+
+
+<!-- チャット作成モーダル -->
+<div class="modal-overlay" data-event-new-target="chatModalOverlay" data-action="click->event-new#closeChatModal">
+  <div class="modal_show" data-event-new-target="chatModalContent">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fas fa-plus"></i>
+        <span><%= @other_chat.visible? ? "追加したチャット編集" : "チャット追加" %></span>
+      </div>
+      <button class="modal-close" data-action="click->event-new#closeChatCreation">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+  <div class="modal-content">
+    <%= form_with model: [@event, @other_chat], 
+                  url: event_chat_path(@event, @other_chat), 
+                  method: :patch,
+                  local: true,
+                  data: { 
+                    "event-new-target": "chatForm",
+                    "action": "submit->event-new#createChat"
+                  } do |form| %>
+      
+      <div class="form-group">
+        <%= form.label :name, "チャット名", class: "form-label" %>
+        <%= form.text_field :name, 
+                            class: "form-input", 
+                            placeholder: "チャット名を入力してください",
+                            data: { "event-new-target": "chatNameInput" },
+                            required: true %>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">参加者</label>
+        
+        <div id="participants-container">
+          <!-- 既存の参加者をfields_forで表示 -->
+          <%= form.fields_for :chat_users do |chat_user_form| %>
+            <div class="participant-item">
+              <%= chat_user_form.hidden_field :user_id %>
+              <%= chat_user_form.hidden_field :id %> <!-- 既存レコードの場合 -->
+              <div class="participant-info">
+                <div class="participant-avatar">テ</div>
+                <div class="participant-details">
+                  <div class="participant-name"><%= chat_user_form.object.user.name %></div>
+                  <div class="participant-company"><%= chat_user_form.object.user.company.japanese_name %></div>
+                </div>
+              </div>
+              <button type="button" class="remove-participant" data-action="click->event-new#removeExistingParticipant">
+                <i class="fas fa-times"></i>
+              </button>
+              <%= chat_user_form.hidden_field :_destroy, value: false, class: "destroy-field" %>
+            </div>
+          <% end %>
+          
+          <!-- 新規参加者もここに動的に追加される -->
+        </div>
+        
+        <!-- 新しい参加者追加用 -->
+        <select data-event-new-target="participantSelect" class="form-select">
+          <option value="">参加者を選択してください</option>
+          <% @chat_users.each do |chat_user| %>
+            <option value="<%= chat_user.user_id %>" data-name="<%= chat_user.name %>" data-company="<%= chat_user.company_name %>"><%= chat_user.user_and_company %></option>
+          <% end %>
+        </select>
+        <button type="button" class="btn btn-secondary" data-action="click->event-new#addParticipant">参加者を追加</button>
+      </div>
+
+      <div class="modal-actions">
+        <%= form.submit "保存", 
+            class: "btn btn-primary", 
+            data: { 
+              disable_with: "処理中...",
+              "action": "click->event-new#handleSubmitClick"
+            } %>
+      </div>
+    <% end %>
+  </div>
+  </div>
 </div>

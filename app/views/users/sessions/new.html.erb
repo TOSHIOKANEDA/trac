@@ -1,5 +1,5 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "users/sessions" %>
+  <%= stylesheet_link_tag "users/sessions", "data-turbo-track": "reload" %>
 <% end %>
 <% content_for :title, "トラフィックカレンダー" %>
 <div class="auth-container">

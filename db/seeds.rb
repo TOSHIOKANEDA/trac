@@ -1,71 +1,98 @@
 # db/seeds/users_companies_roles.rb
 
+# フォワーダー
 forwarder = Company.create!(
-  japanese_name: "ABCフォワーダー株式会社",
-  english_name: "ABC Forwarder Co., Ltd.",
-  address: "Tokyo",
+  japanese_name: "東京海運物流株式会社",
+  english_name: "Tokyo Marine Logistics Co., Ltd.",
+  address: "東京都港区",
   is_forwarder: true
 )
 
-# Agent
-agents = 5.times.map do |i|
+# Agent（代理店）
+agents = [
+  { jp: "関西総合エージェンシー株式会社", en: "Kansai General Agency Co., Ltd.", addr: "大阪府大阪市" },
+  { jp: "九州国際サービス株式会社", en: "Kyushu International Service Co., Ltd.", addr: "福岡県福岡市" },
+  { jp: "北海道ロジスティクス株式会社", en: "Hokkaido Logistics Co., Ltd.", addr: "北海道札幌市" },
+  { jp: "中部通商代理店株式会社", en: "Chubu Trading Agency Co., Ltd.", addr: "愛知県名古屋市" },
+  { jp: "東北マリンサービス株式会社", en: "Tohoku Marine Service Co., Ltd.", addr: "宮城県仙台市" }
+].map do |company_data|
   Company.create!(
-    japanese_name: "代理店#{i+1}株式会社",
-    english_name: "Agent #{i+1} Co., Ltd.",
-    address: "CityA#{i}",
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
     is_forwarder: false
   )
 end
 
-# Shipper
-shippers = 5.times.map do |i|
+# Shipper（荷主）
+shippers = [
+  { jp: "三栄工業株式会社", en: "Sanei Industries Co., Ltd.", addr: "神奈川県横浜市" },
+  { jp: "日本精密機器株式会社", en: "Japan Precision Equipment Co., Ltd.", addr: "静岡県浜松市" },
+  { jp: "関東電子部品株式会社", en: "Kanto Electronic Components Co., Ltd.", addr: "埼玉県さいたま市" },
+  { jp: "大和製作所株式会社", en: "Yamato Manufacturing Co., Ltd.", addr: "兵庫県神戸市" },
+  { jp: "富士商事株式会社", en: "Fuji Trading Co., Ltd.", addr: "東京都千代田区" }
+].map do |company_data|
   Company.create!(
-    japanese_name: "シッパー商事#{i+1}株式会社",
-    english_name: "Shipper Trading #{i+1} Inc.",
-    address: "CityB#{i}",
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
     is_forwarder: false
   )
 end
 
-# Consignee
-consignees = 5.times.map do |i|
+# Consignee（荷受人）
+consignees = [
+  { jp: "太平洋トレーディング株式会社", en: "Pacific Trading Co., Ltd.", addr: "東京都品川区" },
+  { jp: "日本輸入商事株式会社", en: "Japan Import Trading Co., Ltd.", addr: "大阪府堺市" },
+  { jp: "アジア流通株式会社", en: "Asia Distribution Co., Ltd.", addr: "神奈川県川崎市" },
+  { jp: "グローバル商材株式会社", en: "Global Materials Co., Ltd.", addr: "千葉県千葉市" },
+  { jp: "東日本インターナショナル株式会社", en: "East Japan International Co., Ltd.", addr: "茨城県つくば市" }
+].map do |company_data|
   Company.create!(
-    japanese_name: "コンサイニー物流#{i+1}株式会社",
-    english_name: "Consignee Logistics #{i+1} Ltd.",
-    address: "CityC#{i}",
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
     is_forwarder: false
   )
 end
 
-# Custom (通関業者)
-customs = 5.times.map do |i|
+# Custom（通関業者）
+customs = [
+  { jp: "東京通関サービス株式会社", en: "Tokyo Customs Service Co., Ltd.", addr: "東京都江東区" },
+  { jp: "横浜港通関株式会社", en: "Yokohama Port Customs Co., Ltd.", addr: "神奈川県横浜市" },
+  { jp: "関西通関ブローカー株式会社", en: "Kansai Customs Broker Co., Ltd.", addr: "大阪府大阪市" },
+  { jp: "神戸関税代理株式会社", en: "Kobe Customs Agency Co., Ltd.", addr: "兵庫県神戸市" },
+  { jp: "中部通関業務株式会社", en: "Chubu Customs Operations Co., Ltd.", addr: "愛知県名古屋市" }
+].map do |company_data|
   Company.create!(
-    japanese_name: "税関通関#{i+1}株式会社",
-    english_name: "Customs Broker #{i+1} Co., Ltd.",
-    address: "CityD#{i}",
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
     is_forwarder: false
   )
 end
 
 # 複数役割兼務の会社例
 agent_and_consignee = Company.create!(
-  japanese_name: "エーシー商事株式会社",
-  english_name: "AC Corporation",
-  address: "CityE1",
+  japanese_name: "総合物流ソリューションズ株式会社",
+  english_name: "Integrated Logistics Solutions Co., Ltd.",
+  address: "東京都中央区",
   is_forwarder: false
 )
 
 shipper_and_custom = Company.create!(
-  japanese_name: "エスシー物流株式会社",
-  english_name: "SC Logistics Ltd.",
-  address: "CityE2",
+  japanese_name: "国際貿易コンサルティング株式会社",
+  english_name: "International Trade Consulting Co., Ltd.",
+  address: "大阪府大阪市",
   is_forwarder: false
 )
 
-0.upto(5) do |num|
+# BusinessCategory作成
+0.upto(6) do |num|
   BusinessCategory.create!(category: num)
 end
 
+# 複数役割の関連付け
 CompanyBusinessCategory.create!(company_id: agent_and_consignee.id, business_category_id: BusinessCategory.find_by(category: :agent).id)
 CompanyBusinessCategory.create!(company_id: agent_and_consignee.id, business_category_id: BusinessCategory.find_by(category: :consignee).id)
 CompanyBusinessCategory.create!(company_id: shipper_and_custom.id, business_category_id: BusinessCategory.find_by(category: :shipper).id)
@@ -76,75 +103,85 @@ users = []
 
 # Forwarder Users
 users << User.create!(
-  email: "forwarder_admin@example.com",
+  email: "admin@tokyomarine-logistics.co.jp",
   password: "password",
   company: forwarder,
   role: 0,
-  name: "Forwarder Admin"
+  name: "田中 太郎"
 )
 users << User.create!(
-  email: "forwarder_editor@example.com",
+  email: "manager@tokyomarine-logistics.co.jp",
   password: "password",
   company: forwarder,
   role: 0,
-  name: "Forwarder Editor"
+  name: "佐藤 花子"
 )
 users << User.create!(
-  email: "forwarder_viewer@example.com",
+  email: "staff@tokyomarine-logistics.co.jp",
   password: "password",
   company: forwarder,
   role: 0,
-  name: "Forwarder Viewer"
+  name: "鈴木 次郎"
 )
 
 # 他会社 Users
+japanese_names = [
+  ["山田 一郎", "高橋 美穂", "渡辺 健太", "中村 みさき", "小林 達也"],
+  ["伊藤 雅子", "加藤 真一", "吉田 由紀", "木村 裕介", "林 さくら"],
+  ["森 和也", "清水 美香", "池田 聡", "石川 恵子", "前田 健二"],
+  ["藤田 智子", "岡田 浩司", "長谷川 理恵", "村上 直樹", "近藤 麻衣"]
+]
+
 [agents, shippers, consignees, customs].each_with_index do |company_list, i|
-  email = case i
-  when 0
-    "agent"
-  when 1
-    "shipper"
-  when 2
-    "consignee"
-  when 3
-    "custom"
-  end
+  email_prefix = %w[agent shipper consignee custom][i]
+  
   company_list.each_with_index do |c, si|
     users << User.create!(
-      email: "#{email}#{si}_editor@example.com",
+      email: "manager#{si+1}@#{email_prefix}#{si+1}.co.jp",
       password: "password",
       company: c,
       role: 1,
-      name: "#{email}#{si} Editor"
+      name: japanese_names[i][si]
     )
     users << User.create!(
-      email: "#{email}#{si}_viewer@example.com",
+      email: "staff#{si+1}@#{email_prefix}#{si+1}.co.jp",
       password: "password",
       company: c,
       role: 1,
-      name: "#{email}#{si} Viewer"
+      name: japanese_names[i][si] + "（スタッフ）"
     )
   end
 end
 
 # 兼務会社 Users
-[agent_and_consignee, shipper_and_custom].each_with_index do |c, i|
-  email = i.zero? ? "agent_and_consignee" : "shipper_and_custom"
-  users << User.create!(
-    email: "#{email}_editor@example.com",
-    password: "password",
-    company: c,
-    role: 2,
-    name: "#{email}#{i} Editor"
-  )
-  users << User.create!(
-    email: "#{email}_viewer@example.com",
-    password: "password",
-    company: c,
-    role: 2,
-    name: "#{email}#{i} Viewer"
-  )
-end
+users << User.create!(
+  email: "manager@integrated-logistics.co.jp",
+  password: "password",
+  company: agent_and_consignee,
+  role: 2,
+  name: "橋本 和彦"
+)
+users << User.create!(
+  email: "staff@integrated-logistics.co.jp",
+  password: "password",
+  company: agent_and_consignee,
+  role: 2,
+  name: "松本 優子"
+)
+users << User.create!(
+  email: "manager@intl-trade-consulting.co.jp",
+  password: "password",
+  company: shipper_and_custom,
+  role: 2,
+  name: "福田 俊介"
+)
+users << User.create!(
+  email: "staff@intl-trade-consulting.co.jp",
+  password: "password",
+  company: shipper_and_custom,
+  role: 2,
+  name: "井上 千恵"
+)
 
 User.update_all confirmed_at: DateTime.now
 puts "Seeded #{Company.count} companies, #{User.count} users"

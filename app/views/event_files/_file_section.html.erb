@@ -1,0 +1,68 @@
+<div class="file-section" id="<%= section[:id] %>" data-event-file-index-target="section">
+  <div class="section-header" data-action="click->event-file-index#toggleSection" data-section-id="<%= section[:id] %>">
+    <div class="section-title">
+      <div class="section-icon">
+        <i class="<%= section[:icon] %>"></i>
+      </div>
+      <div>
+        <strong><%= section[:title] %></strong>
+      </div>
+      <span class="section-badge" data-event-file-index-target="badge" id="<%= section[:id].gsub('Docs', 'Badge') %>">
+        <%= section[:files].count %>/<%= section[:docs].length %>
+      </span>
+    </div>
+    <i class="fas fa-chevron-down collapse-icon"></i>
+  </div>
+  <div class="section-content">
+    <div class="section-layout">
+      <div class="checklist-sidebar">
+        <div class="checklist-header">
+          <h4><i class="fas fa-list-check"></i> 必要書類一覧</h4>
+        </div>
+        <div class="checklist-items" id="<%= section[:id].gsub('Docs', 'Checklist') %>">
+          <% section[:docs].each do |doc_name| %>
+            <div class="checklist-item" data-file-type="<%= doc_name[1] %>">
+              <i class="fas fa-square checklist-icon"></i>
+              <span class="checklist-label"><%= doc_name[0] %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="main-area">
+        <div class="upload-area">
+          <%= form_with model: [@event, @event.event_files.build], 
+              local: true, 
+              class: "upload-form" do |form| %>
+            <%= form.hidden_field :business_category_id, value: section[:category_id] %>
+            <div class="upload-section" data-event-file-index-target="uploadSection">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <div class="upload-text">ファイルをアップロード</div>
+              <div class="upload-subtext">複数ファイル同時選択可能</div>
+              <%= form.file_field :file %>
+            </div>
+            <%= form.submit "アップロード", class: "btn btn-primary upload-btn" %>
+          <% end %>
+        </div>
+        <div class="files-area">
+          <div class="files-tabs">
+            <button class="tab-button active" data-action="click->event-file-index#switchTab" data-target-tab="<%= section[:id].gsub('Docs', 'Files') %>">
+              アップロード済みファイル (<span data-count-target="<%= section[:id].gsub('Docs', 'Files') %>"><%= section[:files].count %></span>)
+            </button>
+          </div>
+          <div id="<%= section[:id].gsub('Docs', 'Files') %>" class="tab-content active" data-event-file-index-target="filesList">
+            <% if section[:files].any? %>
+              <% section[:files].each do |event_file| %>
+                <%= render 'file_item', event_file: event_file, section: section %>
+              <% end %>
+            <% else %>
+              <div class="empty-state">
+                <i class="fas fa-file-circle-plus"></i>
+                <p>アップロード済みファイルがありません</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

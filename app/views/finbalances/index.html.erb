@@ -1,5 +1,5 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "finbalances/index" %>
+  <%= stylesheet_link_tag "finbalances/index", "data-turbo-track": "reload" %>
 <% end %>
 <% content_for :title, "支払い・請求管理一覧" %>
 <div data-controller="finbalance-index" style="width:100%;">

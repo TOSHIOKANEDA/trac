@@ -1,6 +1,6 @@
 class ApplicationRecord < ActiveRecord::Base
   primary_abstract_class
-  include Stampable  # Stampable 内で create_id / update_id チェック済み
+  include Auditable
 
   def self.inherited(subclass)
     super

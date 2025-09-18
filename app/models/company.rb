@@ -1,11 +1,12 @@
 class Company < ApplicationRecord
-  has_many :users, dependent: :destroy
-  has_many :organized_events, class_name: "Event", foreign_key: :forwarder_id
-  has_many :event_companies, dependent: :destroy
-  has_many :participated_events, through: :event_companies, source: :event
-  has_many :company_business_categories, dependent: :destroy
-  has_many :business_categories, through: :company_business_categories
+  has_many :users, -> { kept }, dependent: :destroy
+  has_many :organized_events, -> { kept }, class_name: "Event", foreign_key: :forwarder_id
+  has_many :event_companies, -> { kept }, dependent: :destroy
+  has_many :participated_events, -> { kept }, through: :event_companies, source: :event
+  has_many :company_business_categories, -> { kept }, dependent: :destroy
+  has_many :business_categories, -> { kept }, through: :company_business_categories
   accepts_nested_attributes_for :users, allow_destroy: true, reject_if: :all_blank
+  include Discard::Model
 
   scope :with_categories, -> {
     select("companies.id,

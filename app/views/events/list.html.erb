@@ -1,5 +1,5 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "events/list" %>
+  <%= stylesheet_link_tag "events/list", "data-turbo-track": "reload" %>
 <% end %>
 <% content_for :title, "案件一覧" %>
 <div style="width:100%;">

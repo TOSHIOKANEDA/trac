@@ -1,28 +1,28 @@
 class Event < ApplicationRecord
-  belongs_to :forwarder, -> { where(is_forwarder: true) }, class_name: "Company"
-  has_many :containers, dependent: :destroy
+  belongs_to :forwarder, -> { where(is_forwarder: true).kept }, class_name: "Company"
+  has_many :containers, -> { kept }, dependent: :destroy
   accepts_nested_attributes_for :containers, allow_destroy: true
-  has_many :event_files, dependent: :destroy
-  has_many :event_goods, dependent: :destroy
+  has_many :event_files, -> { kept }, dependent: :destroy
+  has_many :event_goods, -> { kept }, dependent: :destroy
   accepts_nested_attributes_for :event_goods, allow_destroy: true
-  has_one :event_schedule, dependent: :destroy
+  has_one :event_schedule, -> { kept }, dependent: :destroy
   accepts_nested_attributes_for :event_schedule, allow_destroy: true
-  has_many :event_shipment_histories, dependent: :destroy
-  has_many :event_steps, dependent: :destroy
-  has_many :chats, dependent: :destroy
-  has_many :event_companies, dependent: :destroy
+  has_many :event_shipment_histories, -> { kept }, dependent: :destroy
+  has_many :event_steps, -> { kept }, dependent: :destroy
+  has_many :chats, -> { kept }, dependent: :destroy
+  has_many :event_companies, -> { kept }, dependent: :destroy
   accepts_nested_attributes_for :event_companies, allow_destroy: true, reject_if: ->(attrs) { attrs['company_id'].blank? }
-  has_one :finbalance, dependent: :destroy
-  has_one :event_shipment, dependent: :destroy
+  has_one :finbalance, -> { kept }, dependent: :destroy
+  has_one :event_shipment, -> { kept }, dependent: :destroy
   accepts_nested_attributes_for :event_shipment, allow_destroy: true
-  has_one :event_doc, dependent: :destroy
+  has_one :event_doc, -> { kept }, dependent: :destroy
   accepts_nested_attributes_for :event_doc, allow_destroy: true
-  has_one :user
+  has_one :user, -> { kept }
 
   attr_accessor :ac_month, :ac_year
 
   after_create :create_default_chats
-
+  include Discard::Model
   # Ransack設定
   def self.ransackable_attributes(auth_object = nil)
     %w[id_string mbl]
@@ -92,5 +92,6 @@ class Event < ApplicationRecord
   def create_default_chats
     chats.create!(chat_type: :customer, name: "取引先連絡")
     chats.create!(chat_type: :internal, name: "社内連絡")
+    chats.create!(chat_type: :other, visible: false, name: "Temporary")
   end
 end

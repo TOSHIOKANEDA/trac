@@ -5,6 +5,7 @@ class CreateChats < ActiveRecord::Migration[7.2]
       t.string :name, null: false
       t.integer :chat_type, null: false
       t.datetime :discarded_at
+      t.boolean :visible, default: true
       t.references :create, foreign_key: { to_table: :users }
       t.references :update, foreign_key: { to_table: :users }
       t.timestamps

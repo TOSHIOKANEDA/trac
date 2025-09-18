@@ -1,6 +1,6 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "events/new" %>
-  <%= stylesheet_link_tag "commons/port" %>
+  <%= stylesheet_link_tag "events/new", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "commons/port", "data-turbo-track": "reload" %>
 <% end %>
 
 <% content_for :title, "案件編集" %>
@@ -13,6 +13,4 @@
       <% end %>
     </div>   
   </div>
-  <%= render "chat" %>
-  <%= render "status" %>
 </div>

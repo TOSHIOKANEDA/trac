@@ -103,4 +103,55 @@ export default class extends Controller {
     })
   }
 
+  // 通知表示（拡張版）
+  showNotification(message, type = 'success') {
+    const colors = {
+      success: '#28a745',
+      warning: '#ffc107',
+      info: '#17a2b8',
+      error: '#dc3545'
+    };
+
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${colors[type] || colors.success};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 10000;
+      font-size: 14px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      animation: slideIn 0.3s ease;
+      max-width: 300px;
+    `;
+    notification.textContent = message;
+    
+    // CSS アニメーションを追加（一時的）
+    if (!document.querySelector('#notification-style')) {
+      const style = document.createElement('style');
+      style.id = 'notification-style';
+      style.textContent = `
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // 3秒後に削除
+    setTimeout(() => {
+      notification.style.animation = 'slideIn 0.3s ease reverse';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  }
 }

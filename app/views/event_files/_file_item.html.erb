@@ -1,0 +1,94 @@
+<div class="file-item uploaded" data-file-id="<%= event_file || 0%>">
+  <%= form_with model: [@event, event_file], local: true, data: { "event-file-index-target": "fileForm" } do |form| %>
+    <div class="file-item-header">
+      <%= form.select :file_type, 
+              options_for_select(
+                [['ファイル種類を選択', '']] + section[:docs],
+                event_file.file_type
+              ),
+              {}, 
+              { 
+                class: "file-type-select", 
+                data: { action: "change->event-file-index#onFileTypeChange" }
+              } %>
+        <span class="required-mark">*必須</span>
+        <%= link_to event_event_file_path(@event, event_file), 
+            method: :delete, 
+            class: "delete-file-btn", 
+            title: "ファイルを削除",
+            data: { 
+              confirm: "このファイルを削除してもよろしいですか？",
+              "turbo-method": :delete 
+            } do %>
+          <i class="fas fa-trash"></i>
+        <% end %>
+      <span class="status-indicator uploaded"></span>
+    </div>
+
+    <div class="file-info-section">
+      <div class="uploaded-file-info">
+        <div class="file-name-display">
+          <i class="<%= file_icon_class(event_file.file_type) %>"></i>
+          <%= link_to download_event_event_file_path(@event, event_file), 
+              class: "file-name", 
+              target: "_blank" do %>
+            <%= event_file.file_name %>
+          <% end %>
+        </div>
+        <div class="file-size"><%= number_to_human_size(event_file.file_size) %></div>
+        <div class="file-meta">
+          <span class="upload-date">
+            <%= event_file.created_at.strftime('%Y/%m/%d %H:%M') %>
+          </span>
+          <span class="uploader">
+            by <%= event_file.creator.name %>
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="access-control">
+      <div class="access-label">アクセス権限</div>
+      <div class="access-chips">
+        <label class="access-chip <%= 'active' if event_file.custom_view %>" 
+               data-action="click->event-file-index#toggleAccessChip">
+          <%= form.check_box :custom_view, 
+              { checked: event_file.custom_view },
+              { style: "display: none;" } %>
+          <span>通関業者</span>
+        </label>
+        <label class="access-chip <%= 'active' if event_file.shipper_view %>" 
+               data-action="click->event-file-index#toggleAccessChip">
+          <%= form.check_box :shipper_view, 
+              { checked: event_file.shipper_view },
+              { style: "display: none;" } %>
+          <span>荷主</span>
+        </label>
+        <label class="access-chip <%= 'active' if event_file.consignee_view %>" 
+               data-action="click->event-file-index#toggleAccessChip">
+          <%= form.check_box :consignee_view, 
+              { checked: event_file.consignee_view },
+              { style: "display: none;" } %>
+          <span>荷受人</span>
+        </label>
+        <label class="access-chip <%= 'active' if event_file.agent_view %>" 
+               data-action="click->event-file-index#toggleAccessChip">
+          <%= form.check_box :agent_view, 
+              { checked: event_file.agent_view },
+              { style: "display: none;" } %>
+          <span>Agent</span>
+        </label>
+      </div>
+    </div>
+    
+    <% if event_file.is_verified? %>
+      <div class="verification-info">
+        <i class="fas fa-check-circle verified-icon"></i>
+        <span>検証済み by <%= event_file.verified_name %></span>
+      </div>
+    <% end %>    
+    <%= form.submit "更新", 
+        class: "btn btn-sm btn-primary file-update-btn", 
+        data: { "event-file-index-target": "updateBtn" } %>
+  <% end %>
+</div>

@@ -1,5 +1,5 @@
 <% content_for :stylesheets do %>
-  <%= stylesheet_link_tag "profiles/index" %>
+  <%= stylesheet_link_tag "profiles/index", "data-turbo-track": "reload" %>
 <% end %>
 <% content_for :title, "ユーザー管理" %>
 <%= render partial: "layouts/sidebar" %>

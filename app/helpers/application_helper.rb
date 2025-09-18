@@ -18,7 +18,6 @@ module ApplicationHelper
     end
   end
 
-
   def date_with_time(date_time)
     return "N/A" if date_time.blank?
     

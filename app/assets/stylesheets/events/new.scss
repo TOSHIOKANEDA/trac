@@ -471,18 +471,39 @@
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     width: 300px;
-    max-height: 400px;
     overflow: hidden;
     z-index: 1000;
+    transition: all 0.3s ease-in-out;
 }
 
+/* 初期状態（最小化） */
 .chat-widget.minimized {
-    max-height: 50px;
+    max-height: 60px;
+    width: 300px;
 }
 
 .chat-widget.minimized .chat-content,
 .chat-widget.minimized .chat-input {
     display: none;
+}
+
+.chat-widget.minimized .chat-toggle::before {
+    content: "＋";
+}
+
+/* 展開状態（画面の半分程度） */
+.chat-widget.expanded {
+    max-height: 70vh;
+    height: 70vh; /* max-heightと同じ値に統一 */
+    width: 50vw;
+}
+
+.chat-widget.expanded .chat-content {
+    height: calc(70vh - 120px); /* 全体高さ - (ヘッダー60px + 入力欄60px) */
+}
+
+.chat-widget.expanded .chat-toggle::before {
+    content: "−";
 }
 
 .chat-header {
@@ -495,6 +516,8 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+    height: 60px; /* 固定高さを指定 */
+    box-sizing: border-box;
 }
 
 .chat-header.business {
@@ -508,33 +531,71 @@
     font-size: 16px;
     cursor: pointer;
     padding: 2px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-toggle::before {
+    content: "＋";
 }
 
 .chat-content {
     padding: 15px;
-    height: 200px;
     overflow-y: auto;
+    background: #f8f9fb;
+    box-sizing: border-box;
 }
 
 .chat-message {
-    background: #f8f9fa;
+    background: white;
     padding: 10px;
     border-radius: 10px;
     margin-bottom: 10px;
     font-size: 13px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* chat-inputを綺麗に整える */
 .chat-input {
-    padding: 15px;
+    padding: 12px 15px;
     border-top: 1px solid #eee;
+    background: white;
+    height: 60px; /* ヘッダーと同じ高さに統一 */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.chat-input form { 
+    width: 100%;
+    margin: 0; /* フォームのデフォルトマージンをリセット */
 }
 
 .chat-input input {
     width: 100%;
-    padding: 8px 12px;
+    padding: 8px 15px;
     border: 1px solid #ddd;
-    border-radius: 20px;
+    border-radius: 25px; /* 丸みを付けて見た目を良く */
     outline: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    height: 36px; /* 適切な高さに調整 */
+    box-sizing: border-box;
+    background: #f8f9fa;
+}
+
+.chat-input input:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.chat-input input::placeholder {
+    color: #999;
+    font-size: 13px;
 }
 
 /* 参加者リスト */

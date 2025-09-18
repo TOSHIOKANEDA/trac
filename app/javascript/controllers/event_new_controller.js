@@ -1,4 +1,6 @@
 import BaseController from "./base_controller"
+import ChatAjaxController from "./chat_ajax_controller"
+import consumer from "../channels/consumer"
 
 export default class extends BaseController {
   static targets = [
@@ -6,9 +8,13 @@ export default class extends BaseController {
     "milestoneModalOverlay", "milestoneModal", "milestoneContent", "soaInput",
     "operationsDropdown", "operationsDropdownContent",
     "chatModal", "chatModalOverlay", "chatForm", "chatNameInput","chatModalContent",
-    "participantInput", "participantsList", "participantSelect",
-    "portSearchInputBox", "portSearchModal", "portSearchModalInput", "portSearchResults"
+    "participantInput", "participantsList", "participantSelect"
   ]
+
+  static values = { 
+    chatId: Number,
+    eventId: Number 
+  }
 
   connect() {
     this.setupDropdownClickOutside();
@@ -17,17 +23,125 @@ export default class extends BaseController {
     this.initializeFlatpickr();
     const portDataEl = document.getElementById("port-data"); // 港検索を表示
     this.portDataList = portDataEl ? JSON.parse(portDataEl.dataset.ports) : []
-    // chatId がある場合のみ購読
-    const chatId = this.hasChatIdValue ? this.chatIdValue : this.element.dataset.chatId
-    if (chatId) {
-      subscribeToChat(chatId)
+
+    if (this.hasChatIdValue && this.hasEventIdValue) {
+      this.setupChatChannel()
     }
+    if (this.hasParticipantSelectTarget){
+      this.updateChatParticipantSelectOptions();
+    }
+    this.chatAjax = new ChatAjaxController(this);
   }
 
   disconnect() {
     if (this.clickOutsideHandler) {
       document.removeEventListener('click', this.clickOutsideHandler);
     }
+    // ページを離れる時にAction Cable接続を切断
+    if (this.chatChannel) {
+      this.chatChannel.unsubscribe()
+    }
+  }
+
+  setupChatChannel() {
+    this.chatChannel = consumer.subscriptions.create({
+      channel: "ChatChannel",
+      event_id: this.eventIdValue,  // data-event-new-event-id-value
+      chat_id: this.chatIdValue     // data-event-new-chat-id-value
+    }, {
+      connected() {
+        console.log(`Chat channel connected: event_${this.eventIdValue}_chat_${this.chatIdValue}`)
+      },
+
+      disconnected() {
+        console.log("Chat channel disconnected")  
+      },
+
+      received: (data) => {        
+        // メッセージをチャット画面に追加
+        this.addMessageToChat(data)
+      }
+    })
+  }
+
+  sendChatMessage(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      const content = event.target.value.trim()
+      
+      if (content) {
+        // Action Cable経由でメッセージ送信（usernameを削除）
+        this.chatChannel.send({
+          message: content,
+          event_id: this.eventIdValue,
+          chat_id: this.chatIdValue
+        })
+        
+        // 入力欄をクリア
+        event.target.value = ''
+      }
+    }
+  }
+
+  addMessageToChat(data) {
+    // 現在のチャットコントローラーのelement内でのみ検索
+    const chatContent = this.element.querySelector('.chat-content');
+    
+    if (chatContent) {
+      // チャットが閉じている場合は開く
+      if (chatContent.style.display === 'none') {
+        chatContent.style.display = 'block';
+        const toggleButton = this.element.querySelector('.chat-toggle');
+        if (toggleButton) {
+          toggleButton.textContent = '−';
+        }
+        this.element.classList.remove('collapsed');
+      }
+      
+      // 新しいメッセージ要素を作成
+      const messageElement = document.createElement('div');
+      messageElement.className = 'chat-message';
+      
+      // データから時刻を使用（サーバーから送信される）
+      const timeString = data.created_at || this.getCurrentTime();
+      
+      // メッセージの中身を設定（リンク対応）
+      messageElement.innerHTML = `
+        <strong>${this.escapeHtml(data.username)} ${timeString}</strong><br>
+        ${this.linkify(this.escapeHtml(data.message))}
+      `;
+      
+      // チャット画面に追加
+      chatContent.appendChild(messageElement);
+      
+      // 一番下にスクロール
+      chatContent.scrollTop = chatContent.scrollHeight;
+    }
+  }
+
+  // 現在時刻を取得するヘルパーメソッドを追加
+  getCurrentTime() {
+    const now = new Date();
+    return now.getHours().toString().padStart(2, '0') + ':' + 
+          now.getMinutes().toString().padStart(2, '0');
+  }
+
+
+  // HTMLエスケープ用のメソッドを追加（セキュリティ対策）
+  escapeHtml(text) {
+    const div = document.createElement('div')
+    div.textContent = text
+    return div.innerHTML
+  }
+
+  // linkifyメソッドも修正（改行対応）
+  linkify(text) {
+    // まず改行を<br>に変換
+    let processedText = text.replace(/\n/g, '<br>');
+    
+    // 次にURLをリンクに変換
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return processedText.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
   }
 
   // Flatpickrの初期化
@@ -85,27 +199,6 @@ export default class extends BaseController {
     content.classList.remove('show');
   }
 
-  // チャット追加
-  addChat(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.closeOperationsDropdown();
-    this.participants = []; // 参加者リストをリセット
-    this.showChatCreationModal();
-  }
-
-  showChatCreationModal(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    // モーダルを表示
-    this.chatModalOverlayTarget.classList.add('active');
-    // モーダルコンテンツにアニメーションクラスを追加
-    this.chatModalContentTarget.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
   // チャット作成モーダルを閉じる
   closeChatCreation() {
     // モーダルコンテンツからアニメーションクラスを削除
@@ -130,114 +223,157 @@ export default class extends BaseController {
     }
   }
 
-  // 参加者を追加（select対応版）
+  // 選択肢の表示/非表示を更新
+  updateChatParticipantSelectOptions() {
+    const select = this.participantSelectTarget;
+    if (!select) return;
+
+    // 現在選択済みのuser_idを取得
+    const selectedUserIds = this.getSelectedUserIds();
+
+    // 全てのオプションをリセット（最初のプロンプトは除く）
+    Array.from(select.options).slice(1).forEach(option => {
+      if (selectedUserIds.includes(option.value)) {
+        option.style.display = 'none';
+      } else {
+        option.style.display = 'block';
+      }
+    });
+  }
+
+  getSelectedUserIds() {
+  const selectedIds = [];
+  
+  // fields_forの既存参加者（削除されていないもの）
+  const existingParticipants = document.querySelectorAll('input[name*="[chat_users_attributes]"][name*="[user_id]"]');
+  existingParticipants.forEach(input => {
+    const participantItem = input.closest('.participant-item');
+    const destroyField = participantItem.querySelector('input[name*="[_destroy]"]');
+    
+    // _destroyがfalseまたは存在しない場合のみ選択済みとみなす
+    if (!destroyField || destroyField.value !== 'true') {
+      selectedIds.push(input.value);
+    }
+  });
+  
+  return selectedIds;
+  }
+
+  // 新規参加者用のインデックスを管理
+  get newParticipantIndex() {
+    if (!this._newParticipantIndex) {
+      this._newParticipantIndex = 1000; // 既存レコードと重複しないように大きな数から開始
+    }
+    return this._newParticipantIndex++;
+  }
+
   addParticipant() {
-    if (this.hasParticipantSelectTarget) {
-      const select = this.participantSelectTarget;
-      const selectedOption = select.options[select.selectedIndex];
+    const select = this.participantSelectTarget;
+    const userId = select.value;
+    const selectedOption = select.options[select.selectedIndex];
 
-      if (!selectedOption || !selectedOption.value) {
-        this.showNotification('参加者を選択してください', 'warning');
-        return;
-      }
-
-      const userId = selectedOption.value;
-      const name = selectedOption.dataset.name;
-      const company = selectedOption.dataset.company;
-
-      // 既に追加済みかチェック
-      const isDuplicate = this.participants.some(p => p.id === userId);
-      if (isDuplicate) {
-        this.showNotification('この参加者は既に追加されています', 'warning');
-        return;
-      }
-
-      // 参加者を追加
-      const participant = {
-        id: userId,
-        name: name,
-        company: company
-      };
-
-      this.participants.push(participant);
-      this.updateParticipantsList();
-      select.value = '';
-
-      this.showNotification('参加者を追加しました', 'success');
-      return;
-    }
-  }
-
-  // 参加者を削除
-  removeParticipant(event) {
-    const index = parseInt(event.currentTarget.dataset.removeIndex);
-    if (isNaN(index) || index < 0 || index >= this.participants.length) {
-      this.showNotification('削除できませんでした', 'error');
+    if (!userId) {
+      this.showNotification('参加者を選択してください', 'warning');
       return;
     }
 
-    this.participants.splice(index, 1);
-    this.updateParticipantsList();
-    this.showNotification('参加者を削除しました', 'info');
-  }
+    const name = selectedOption.dataset.name;
+    const company = selectedOption.dataset.company;
 
-  // 参加者リストを更新
-  updateParticipantsList() {
-    const container = this.participantsListTarget;
-
-    if (this.participants.length === 0) {
-      container.innerHTML = `
-        <div class="empty-participants">
-          参加者が追加されていません
-        </div>
-      `;
+    // 重複チェック
+    const existingParticipant = document.querySelector(`input[name*="[chat_users_attributes]"][value="${userId}"]`);
+    if (existingParticipant) {
+      this.showNotification('この参加者は既に追加されています', 'warning');
       return;
     }
 
-    const participantHTML = this.participants.map((participant, index) => {
-      const initial = participant.name.charAt(0).toUpperCase();
-      return `
-        <div class="participant-item">
-          <div class="participant-info">
-            <div class="participant-avatar">${initial}</div>
-            <div class="participant-details">
-              <div class="participant-name">${participant.name}</div>
-              <div class="participant-company">${participant.company}</div>
-            </div>
+    // 新しいfields_for形式のフィールドを動的に作成
+    const container = document.getElementById('participants-container');
+    const index = this.newParticipantIndex;
+    
+    const participantHTML = `
+      <div class="participant-item" data-new-participant="true">
+        <input type="hidden" name="chat[chat_users_attributes][${index}][user_id]" value="${userId}">
+        <div class="participant-info">
+          <div class="participant-avatar">${name.charAt(0).toUpperCase()}</div>
+          <div class="participant-details">
+            <div class="participant-name">${name}</div>
+            <div class="participant-company">${company}</div>
           </div>
-          <button type="button" class="remove-participant" data-remove-index="${index}" data-action="click->event-new#removeParticipant">
-            <i class="fas fa-times"></i>
-          </button>
         </div>
-      `;
-    }).join('');
+        <button type="button" class="remove-participant" data-action="click->event-new#removeNewParticipant">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
 
-    container.innerHTML = participantHTML;
+    container.insertAdjacentHTML('beforeend', participantHTML);
+    
+    // セレクトボックスをリセット
+    select.selectedIndex = 0;
+    this.updateChatParticipantSelectOptions();
+    this.showNotification(`${name}を参加者に追加しました`, 'success');
   }
 
-  // チャット作成
+  // 既存参加者の削除
+  removeExistingParticipant(event) {
+    const button = event.currentTarget;
+    const participantItem = button.closest('.participant-item');
+    const destroyField = participantItem.querySelector('.destroy-field');
+    
+    // _destroyフィールドをtrueに設定（削除マーク）
+    destroyField.value = true;
+    participantItem.style.display = 'none';
+    this.updateChatParticipantSelectOptions();
+    this.showNotification('参加者を削除しました', 'success');
+  }
+
+  // 新規参加者の削除
+  removeNewParticipant(event) {
+    const button = event.currentTarget;
+    const participantItem = button.closest('.participant-item');
+    
+    // 要素を完全に削除
+    participantItem.remove();
+    this.updateChatParticipantSelectOptions();
+    this.showNotification('参加者を削除しました', 'success');
+  }
+
+  handleSubmitClick(event) {
+    // 既に処理中なら無視
+    if (this.isSubmitting) {
+      event.preventDefault();
+      return;
+    }
+
+    // 処理中フラグを設定
+    this.isSubmitting = true;
+    
+    // 3秒後にフラグをリセット（エラー時の保険）
+    setTimeout(() => {
+      this.isSubmitting = false;
+      // ボタンを再有効化
+      event.target.disabled = false;
+      event.target.value = "作成";
+    }, 3000);
+  }
+
   createChat(event) {
     event.preventDefault();
-
-    const chatName = this.chatNameInputTarget.value.trim();
-
-    if (!chatName) {
-      this.showNotification('チャット名を入力してください', 'warning');
+    this.chatAjax.cleanupInvalidDOMElements();
+    // バリデーション
+    if (!this.chatAjax.validateChatForm()) {
       return;
     }
-
-    if (this.participants.length === 0) {
-      this.showNotification('少なくとも1人の参加者を追加してください', 'warning');
+    
+    // データの準備
+    const chatData = this.chatAjax.prepareChatData(event);
+    if (!chatData) {
       return;
     }
-
-    // チャットウィジェットを作成
-    this.createChatWidget(chatName, 'customer', this.participants);
-
-    // モーダルを閉じる
-    this.closeChatCreation();
-
-    this.showNotification(`「${chatName}」チャットを作成しました`, 'success');
+    
+    // フォーム送信
+    this.chatAjax.submitChatForm(chatData);
   }
 
   // チャットウィジェットを作成
@@ -248,103 +384,115 @@ export default class extends BaseController {
       return;
     }
 
-    const chatId = `chat-${Date.now()}`;
-    const headerClass = chatType === 'business' ? 'business' : '';
+    // event_idを確実に取得する
+    let eventId = this.eventIdValue;
+    
+    // もしeventIdが取得できない場合は、既存のチャットから取得
+    if (!eventId || eventId === 0) {
+      const existingChat = document.querySelector('[data-event-new-event-id-value]');
+      if (existingChat) {
+        eventId = existingChat.dataset.eventNewEventIdValue;
+      }
+    }
+    
+    // それでも取得できない場合はURLから推測
+    if (!eventId || eventId === 0) {
+      const urlMatch = window.location.pathname.match(/\/events\/(\d+)/);
+      if (urlMatch) {
+        eventId = urlMatch[1];
+      }
+    }
+
+    const tempChatId = Date.now();
+    const chatId = `chat-${tempChatId}`;
+    const headerClass = chatType === 'business' ? 'business' : 'customer';
     const icon = chatType === 'business' ? 'fas fa-building' : 'fas fa-comments';
 
     const participantNames = participants.map(p => `${p.name}（${p.company}）`).join(', ');
 
     const newChatHTML = `
-      <div class="chat-widget" id="${chatId}">
-        <div class="chat-header ${headerClass}" data-action="click->event-new#toggleChat" data-chat-id="${chatId}">
+      <div class="chat-widget" id="${chatId}" 
+          data-controller="event-new"
+          data-event-new-chat-id-value="${tempChatId}"
+          data-event-new-event-id-value="${eventId}">
+        
+        <div class="chat-header ${headerClass}" data-action="click->event-new#toggleChat">
           <span><i class="${icon}"></i> ${chatName}</span>
           <button class="chat-toggle">−</button>
         </div>
-        <div class="chat-content">
+        
+        <div class="chat-content" data-event-new-target="chatContent">
           <div class="chat-message">
             <strong>システム</strong><br>
             ${chatName}が作成されました。<br>
             参加者: ${participantNames}
           </div>
         </div>
+        
         <div class="chat-input">
-          <input type="text" placeholder="メッセージを入力..." data-action="keypress->event-new#sendChatMessage">
+          <input type="text" 
+                placeholder="メッセージを入力..." 
+                data-action="keypress->event-new#sendChatMessage"
+                data-event-new-target="messageInput"
+                class="form-input"
+                autocomplete="off">
         </div>
       </div>
     `;
 
     chatWidgets.insertAdjacentHTML('beforeend', newChatHTML);
   }
+  // addChatメソッドを以下のように修正
+  addChat(event) {
+    if (event) {
+      event.preventDefault();
+    }
 
+    const modalOverlay = document.querySelector('[data-event-new-target="chatModalOverlay"]');
+    const modalContent = document.querySelector('[data-event-new-target="chatModalContent"]');
 
-  // チャットフォームをクリア
-  clearChatForm() {
-    if (this.hasChatNameInputTarget) {
-      this.chatNameInputTarget.value = '';
+    // 現在のインスタンスにモーダル要素がない場合、DOM操作で直接開く
+    if (!this.hasChatModalOverlayTarget || !this.hasChatModalContentTarget) {
+      if (modalOverlay && modalContent) {
+        console.log('DOM操作でモーダルを開く');
+        modalOverlay.classList.add('active');
+        modalContent.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        
+        // 操作ドロップダウンを閉じる
+        const dropdown = document.querySelector('[data-event-new-target="operationsDropdown"]');
+        const dropdownContent = document.querySelector('[data-event-new-target="operationsDropdownContent"]');
+        if (dropdown && dropdownContent) {
+          dropdown.classList.remove('show');
+          dropdownContent.classList.remove('show');
+        }
+      } else {
+        console.log('モーダル要素が見つかりません');
+      }
+      return;
     }
-    if (this.hasParticipantInputTarget) {
-      this.participantInputTarget.value = '';
-    }
-    if (this.hasParticipantSelectTarget) {
-      this.participantSelectTarget.value = '';
-    }
-    
-    // 参加者リストをクリア
+
+    this.closeOperationsDropdown();
     this.participants = [];
-    this.updateParticipantsList();
+    this.showChatCreationModal();
   }
-
-
-  // 通知表示（拡張版）
-  showNotification(message, type = 'success') {
-    const colors = {
-      success: '#28a745',
-      warning: '#ffc107',
-      info: '#17a2b8',
-      error: '#dc3545'
-    };
-
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: ${colors[type] || colors.success};
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 10000;
-      font-size: 14px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      animation: slideIn 0.3s ease;
-      max-width: 300px;
-    `;
-    notification.textContent = message;
-    
-    // CSS アニメーションを追加（一時的）
-    if (!document.querySelector('#notification-style')) {
-      const style = document.createElement('style');
-      style.id = 'notification-style';
-      style.textContent = `
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-      `;
-      document.head.appendChild(style);
+  // showChatCreationModalメソッドも同様に修正
+  showChatCreationModal(event) {
+    if (event) {
+      event.preventDefault();
     }
     
-    document.body.appendChild(notification);
+    // 必要なターゲット要素が存在するかチェック
+    if (!this.hasChatModalOverlayTarget || !this.hasChatModalContentTarget) {
+      console.log('Modal targets not found');
+      return;
+    }
     
-    // 3秒後に削除
-    setTimeout(() => {
-      notification.style.animation = 'slideIn 0.3s ease reverse';
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 300);
-    }, 3000);
+    // モーダルを表示
+    this.chatModalOverlayTarget.classList.add('active');
+    // モーダルコンテンツにアニメーションクラスを追加
+    this.chatModalContentTarget.classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   // アコーディオン機能
@@ -358,13 +506,25 @@ export default class extends BaseController {
 
   // チャット最小化/最大化機能
   toggleChat(event) {
-    const chatId = event.currentTarget.dataset.chatId;
-    const chatWidget = document.getElementById(chatId);
-    const toggleButton = chatWidget.querySelector('.chat-toggle');
+    const chatWidget = event.currentTarget.closest('.chat-widget')
     
-    if (chatWidget && toggleButton) {
-      chatWidget.classList.toggle('minimized');
-      toggleButton.textContent = chatWidget.classList.contains('minimized') ? '+' : '−';
+    if (chatWidget.classList.contains('minimized')) {
+      // 展開
+      chatWidget.classList.remove('minimized')
+      chatWidget.classList.add('expanded')
+      
+      // チャット内容を最下部にスクロール
+      setTimeout(() => {
+        const chatContent = chatWidget.querySelector('.chat-content')
+        if (chatContent) {
+          chatContent.scrollTop = chatContent.scrollHeight
+        }
+      }, 300)
+      
+    } else {
+      // 最小化
+      chatWidget.classList.remove('expanded')
+      chatWidget.classList.add('minimized')
     }
   }
 
@@ -414,36 +574,6 @@ export default class extends BaseController {
     // オーバーレイ自体がクリックされた場合のみモーダルを閉じる
     if (event.target === this.milestoneModalOverlayTarget) {
       this.closeMilestoneModal();
-    }
-  }
-
-  // Enter キーで送信
-  sendChatMessage(event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault()
-      const form = event.target.form
-      if (!form) return
-
-      const chatId = form.dataset.chatId
-      const messagesContainer = document.getElementById(`chat_${chatId}_messages`)
-      if (!chatId || !messagesContainer) return
-
-      const formData = new FormData(form)
-
-      fetch(form.action, {
-        method: form.method,
-        body: formData,
-        headers: { "Accept": "text/vnd.turbo-stream.html" }
-      })
-        .then(response => {
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-          return response.text()
-        })
-        .then(html => {
-          messagesContainer.insertAdjacentHTML("beforeend", html)
-          event.target.value = ""
-        })
-        .catch(err => console.error("Chat send error:", err))
     }
   }
 
