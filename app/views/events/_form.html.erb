@@ -5,48 +5,12 @@
   </div>
   <div class="header-right">
     <div class="header-actions-right">
-      <button class="btn btn-secondary" data-action="click->event-new#showMilestone">
-        <i class="fas fa-clipboard-list"></i> 進捗表示
-      </button>
-      
-      <div class="dropdown" data-event-new-target="operationsDropdown">
-        <button class="btn btn-secondary dropdown-toggle" data-action="click->event-new#toggleOperations">
-          <i class="fas fa-cogs"></i> 操作
-        </button>
-        <div class="dropdown-content" data-event-new-target="operationsDropdownContent">
-          <%= link_to new_event_file_path, class: "action-link" do %>
-            <i class="fas fa-edit"></i> 添付ファイル
-          <% end %>
-          <button type="button" class="dropdown-item">
-            <i class="fas fa-calculator"></i>
-            <span>支払い・請求管理編集</span>
-          </button>
-          <button type="button" class="dropdown-item">
-            <i class="fas fa-ship"></i>
-            <span>B/L発行</span>
-          </button>
-          <button type="button" class="dropdown-item" data-action="click->event-new#addChat">
-            <i class="fas fa-plus"></i>
-            <span>チャット追加</span>
-          </button>
-          <button type="button" class="dropdown-item">
-            <i class="fas fa-sync-alt"></i>
-            <span>MarineTraffic連携</span>
-          </button>
-          <% if action_name == "edit" %>
-            <%= link_to event_path(@event),
-                        method: :delete,
-                        data: { confirm: "本当に削除しますか？" },
-                        class: "dropdown-item text-danger" do %>
-              <i class="fas fa-trash-alt"></i> 削除
-            <% end %>
-          <% end %>
-        </div>
-      </div>
-
+      <% if action_name == "edit" %>
+        <%= render "header" %>
+      <% end %>
       <%= f.submit "登録", class: "btn btn-primary" do %>
         <i class="fas fa-save"></i> 登録
-      <% end %>           
+      <% end %>
     </div>
   </div>
 </div>

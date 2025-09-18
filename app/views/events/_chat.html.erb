@@ -1,13 +1,16 @@
 <!-- チャットウィジェット -->
 <div class="chat-widgets">
-  <% @event.chats.each do |chat| %>
+  <% @chats.each do |chat| %>
     <div class="chat-widget" id="<%= dom_id(chat) %>" 
-         data-controller="event-new"
-         data-event-new-chat-id-value="<%= chat.id %>">
-      
+      data-controller="event-new"
+      data-event-new-chat-id-value="<%= chat.id %>"
+      data-event-new-event-id-value="<%= @event.id %>"
+      <%= 'style="display: none;" id="temporary-chat"'.html_safe if chat.other? && chat.messages.blank? %>>
+
       <!-- ヘッダー -->
       <div class="chat-header <%= chat.chat_type %>"
-           data-action="click->event-new#toggleChat">
+          data-chat-id="<%= dom_id(chat) %>"
+          data-action="click->event-new#toggleChat">
         <span>
           <i class="fas fa-comments"></i>
           <%= chat.name %>
@@ -41,4 +44,47 @@
       </div>
     </div>
   <% end %>
+</div>
+
+<!-- チャット作成モーダル -->
+<div class="modal-overlay" data-event-new-target="chatModalOverlay" data-action="click->event-new#closeChatModal">
+  <div class="modal_show" data-event-new-target="chatModalContent">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fas fa-plus"></i>
+        <span>新しいチャット作成</span>
+      </div>
+      <button class="modal-close" data-action="click->event-new#closeChatCreation">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-content">
+      <form data-event-new-target="chatForm" data-action="submit->event-new#createChat">
+        <div class="form-group">
+          <label class="form-label">チャット名</label>
+          <input type="text" data-event-new-target="chatNameInput" class="form-input" placeholder="チャット名を入力してください" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">参加者</label>
+          <select data-event-new-target="participantSelect" class="form-select">
+            <option value="">参加者を選択してください</option>
+            <option value="1" data-name="テストユーザー1" data-company="テスト会社A">テストユーザー1 (テスト会社A)</option>
+            <option value="2" data-name="テストユーザー2" data-company="テスト会社B">テストユーザー2 (テスト会社B)</option>
+          </select>
+          <button type="button" class="btn btn-secondary" data-action="click->event-new#addParticipant">参加者を追加</button>
+        </div>
+        
+        <div data-event-new-target="participantsList" class="participants-list">
+          <div class="empty-participants">参加者が追加されていません</div>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-action="click->event-new#closeChatCreation">キャンセル</button>
+          <button type="submit" class="btn btn-primary">作成</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

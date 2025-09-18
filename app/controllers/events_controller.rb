@@ -63,7 +63,8 @@ class EventsController < ApplicationController
   def edit
     @id_string = @event.id_string
     @event.ac_year = @event.accounting_month&.year
-    @event.ac_year = @event.accounting_month&.month
+    @event.ac_month = @event.accounting_month&.month
+    @chats = @event.chats
     @chat_users = EventCompany.where(event_id: @event.id).joins(company: :users).
                   select("users.id as user_id", "users.name as name", "companies.japanese_name as company", "CONCAT(users.name, '（', companies.japanese_name, '）') AS user_and_company")
   end

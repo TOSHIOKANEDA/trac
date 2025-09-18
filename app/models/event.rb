@@ -92,5 +92,6 @@ class Event < ApplicationRecord
   def create_default_chats
     chats.create!(chat_type: :customer, name: "取引先連絡")
     chats.create!(chat_type: :internal, name: "社内連絡")
+    chats.create!(chat_type: :other, name: "Temporary")
   end
 end

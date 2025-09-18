@@ -2,7 +2,10 @@
 import consumer from "./consumer"
 
 const subscribeToChat = (chatId, callback) => {
-  return consumer.subscriptions.create(
+  return consumer.subscriptions.create({
+    channel: "ChatChannel", 
+    event_id: this.eventIdValue,
+    chat_id: this.chatIdValue},
     { channel: "ChatChannel", chat_id: chatId },
     {
       connected() {},

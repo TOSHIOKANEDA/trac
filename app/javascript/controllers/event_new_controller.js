@@ -1,4 +1,5 @@
 import BaseController from "./base_controller"
+import consumer from "../channels/consumer"
 
 export default class extends BaseController {
   static targets = [
@@ -10,6 +11,11 @@ export default class extends BaseController {
     "portSearchInputBox", "portSearchModal", "portSearchModalInput", "portSearchResults"
   ]
 
+  static values = { 
+    chatId: Number,
+    eventId: Number 
+  }
+
   connect() {
     this.setupDropdownClickOutside();
     this.fileCount = 3;
@@ -17,10 +23,8 @@ export default class extends BaseController {
     this.initializeFlatpickr();
     const portDataEl = document.getElementById("port-data"); // 港検索を表示
     this.portDataList = portDataEl ? JSON.parse(portDataEl.dataset.ports) : []
-    // chatId がある場合のみ購読
-    const chatId = this.hasChatIdValue ? this.chatIdValue : this.element.dataset.chatId
-    if (chatId) {
-      subscribeToChat(chatId)
+    if (this.hasChatIdValue && this.hasEventIdValue) {
+      this.setupChatChannel()
     }
   }
 
@@ -28,6 +32,117 @@ export default class extends BaseController {
     if (this.clickOutsideHandler) {
       document.removeEventListener('click', this.clickOutsideHandler);
     }
+    // ページを離れる時にAction Cable接続を切断
+    if (this.chatChannel) {
+      this.chatChannel.unsubscribe()
+    }
+  }
+
+  setupChatChannel() {
+    this.chatChannel = consumer.subscriptions.create({
+      channel: "ChatChannel",
+      event_id: this.eventIdValue,  // data-event-new-event-id-value
+      chat_id: this.chatIdValue     // data-event-new-chat-id-value
+    }, {
+      connected() {
+        console.log(`Chat channel connected: event_${this.eventIdValue}_chat_${this.chatIdValue}`)
+      },
+
+      disconnected() {
+        console.log("Chat channel disconnected")  
+      },
+
+      received: (data) => {
+  console.log("=== Message received ===")
+  console.log("Received data:", data)
+  console.log("Current controller element:", this.element)
+  console.log("Chat content element:", this.element.querySelector('.chat-content'))
+  
+        
+        // メッセージをチャット画面に追加
+        this.addMessageToChat(data)
+      }
+    })
+  }
+
+  sendChatMessage(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      const content = event.target.value.trim()
+      
+      if (content) {
+        // Action Cable経由でメッセージ送信（usernameを削除）
+        this.chatChannel.send({
+          message: content,
+          event_id: this.eventIdValue,
+          chat_id: this.chatIdValue
+        })
+        
+        // 入力欄をクリア
+        event.target.value = ''
+      }
+    }
+  }
+
+  addMessageToChat(data) {
+    // 現在のチャットコントローラーのelement内でのみ検索
+    const chatContent = this.element.querySelector('.chat-content');
+    
+    if (chatContent) {
+      // チャットが閉じている場合は開く
+      if (chatContent.style.display === 'none') {
+        chatContent.style.display = 'block';
+        const toggleButton = this.element.querySelector('.chat-toggle');
+        if (toggleButton) {
+          toggleButton.textContent = '−';
+        }
+        this.element.classList.remove('collapsed');
+      }
+      
+      // 新しいメッセージ要素を作成
+      const messageElement = document.createElement('div');
+      messageElement.className = 'chat-message';
+      
+      // データから時刻を使用（サーバーから送信される）
+      const timeString = data.created_at || this.getCurrentTime();
+      
+      // メッセージの中身を設定（リンク対応）
+      messageElement.innerHTML = `
+        <strong>${this.escapeHtml(data.username)} ${timeString}</strong><br>
+        ${this.linkify(this.escapeHtml(data.message))}
+      `;
+      
+      // チャット画面に追加
+      chatContent.appendChild(messageElement);
+      
+      // 一番下にスクロール
+      chatContent.scrollTop = chatContent.scrollHeight;
+    }
+  }
+
+  // 現在時刻を取得するヘルパーメソッドを追加
+  getCurrentTime() {
+    const now = new Date();
+    return now.getHours().toString().padStart(2, '0') + ':' + 
+          now.getMinutes().toString().padStart(2, '0');
+  }
+
+
+  // HTMLエスケープ用のメソッドを追加（セキュリティ対策）
+  escapeHtml(text) {
+    const div = document.createElement('div')
+    div.textContent = text
+    return div.innerHTML
+  }
+
+  // linkifyメソッドも修正（改行対応）
+  linkify(text) {
+    // まず改行を<br>に変換
+    let processedText = text.replace(/\n/g, '<br>');
+    
+    // 次にURLをリンクに変換
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return processedText.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
   }
 
   // Flatpickrの初期化
@@ -83,27 +198,6 @@ export default class extends BaseController {
     
     dropdown.classList.remove('show');
     content.classList.remove('show');
-  }
-
-  // チャット追加
-  addChat(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.closeOperationsDropdown();
-    this.participants = []; // 参加者リストをリセット
-    this.showChatCreationModal();
-  }
-
-  showChatCreationModal(event) {
-    if (event) {
-      event.preventDefault();
-    }
-    // モーダルを表示
-    this.chatModalOverlayTarget.classList.add('active');
-    // モーダルコンテンツにアニメーションクラスを追加
-    this.chatModalContentTarget.classList.add('open');
-    document.body.style.overflow = 'hidden';
   }
 
   // チャット作成モーダルを閉じる
@@ -231,13 +325,43 @@ export default class extends BaseController {
       return;
     }
 
-    // チャットウィジェットを作成
-    this.createChatWidget(chatName, 'customer', this.participants);
+    // ID指定で3つ目のチャット（other）を取得
+    const otherChat = document.getElementById('temporary-chat');
+    
+    if (otherChat) {
+      // チャット名を更新
+      const chatHeader = otherChat.querySelector('.chat-header span');
+      if (chatHeader) {
+        chatHeader.innerHTML = `<i class="fas fa-comments"></i> ${chatName}`;
+      }
+      
+      // 参加者情報を準備
+      const participantNames = this.participants.map(p => `${p.name}（${p.company}）`).join(', ');
+      const chatId = otherChat.dataset.eventNewChatIdValue;
+      
+      // システムメッセージをAction Cable経由で送信（これによりメッセージが存在することになる）
+      // まず適切なコントローラーインスタンスを見つける
+      const chatController = this.application.getControllerForElementAndIdentifier(otherChat, 'event-new');
+      
+      if (chatController && chatController.chatChannel) {
+        chatController.chatChannel.send({
+          message: `${chatName}が作成されました。\n参加者: ${participantNames}`,
+          chat_name: chatName,  // これを追加
+          event_id: this.eventIdValue,
+          chat_id: chatId
+        });
+      }
+      
+      // チャットを表示し、temporary-chat IDを削除
+      otherChat.style.display = 'block';
+      otherChat.removeAttribute('id');
+      
+      this.showNotification(`「${chatName}」チャットを作成しました`, 'success');
+    } else {
+      this.showNotification('利用可能なチャットが見つかりません', 'error');
+    }
 
-    // モーダルを閉じる
     this.closeChatCreation();
-
-    this.showNotification(`「${chatName}」チャットを作成しました`, 'success');
   }
 
   // チャットウィジェットを作成
@@ -248,34 +372,116 @@ export default class extends BaseController {
       return;
     }
 
-    const chatId = `chat-${Date.now()}`;
-    const headerClass = chatType === 'business' ? 'business' : '';
+    // event_idを確実に取得する
+    let eventId = this.eventIdValue;
+    
+    // もしeventIdが取得できない場合は、既存のチャットから取得
+    if (!eventId || eventId === 0) {
+      const existingChat = document.querySelector('[data-event-new-event-id-value]');
+      if (existingChat) {
+        eventId = existingChat.dataset.eventNewEventIdValue;
+      }
+    }
+    
+    // それでも取得できない場合はURLから推測
+    if (!eventId || eventId === 0) {
+      const urlMatch = window.location.pathname.match(/\/events\/(\d+)/);
+      if (urlMatch) {
+        eventId = urlMatch[1];
+      }
+    }
+
+    const tempChatId = Date.now();
+    const chatId = `chat-${tempChatId}`;
+    const headerClass = chatType === 'business' ? 'business' : 'customer';
     const icon = chatType === 'business' ? 'fas fa-building' : 'fas fa-comments';
 
     const participantNames = participants.map(p => `${p.name}（${p.company}）`).join(', ');
 
     const newChatHTML = `
-      <div class="chat-widget" id="${chatId}">
-        <div class="chat-header ${headerClass}" data-action="click->event-new#toggleChat" data-chat-id="${chatId}">
+      <div class="chat-widget" id="${chatId}" 
+          data-controller="event-new"
+          data-event-new-chat-id-value="${tempChatId}"
+          data-event-new-event-id-value="${eventId}">
+        
+        <div class="chat-header ${headerClass}" data-action="click->event-new#toggleChat">
           <span><i class="${icon}"></i> ${chatName}</span>
           <button class="chat-toggle">−</button>
         </div>
-        <div class="chat-content">
+        
+        <div class="chat-content" data-event-new-target="chatContent">
           <div class="chat-message">
             <strong>システム</strong><br>
             ${chatName}が作成されました。<br>
             参加者: ${participantNames}
           </div>
         </div>
+        
         <div class="chat-input">
-          <input type="text" placeholder="メッセージを入力..." data-action="keypress->event-new#sendChatMessage">
+          <input type="text" 
+                placeholder="メッセージを入力..." 
+                data-action="keypress->event-new#sendChatMessage"
+                data-event-new-target="messageInput"
+                class="form-input"
+                autocomplete="off">
         </div>
       </div>
     `;
 
     chatWidgets.insertAdjacentHTML('beforeend', newChatHTML);
   }
+  // addChatメソッドを以下のように修正
+  addChat(event) {
+    if (event) {
+      event.preventDefault();
+    }
 
+    const modalOverlay = document.querySelector('[data-event-new-target="chatModalOverlay"]');
+    const modalContent = document.querySelector('[data-event-new-target="chatModalContent"]');
+
+    // 現在のインスタンスにモーダル要素がない場合、DOM操作で直接開く
+    if (!this.hasChatModalOverlayTarget || !this.hasChatModalContentTarget) {
+      if (modalOverlay && modalContent) {
+        console.log('DOM操作でモーダルを開く');
+        modalOverlay.classList.add('active');
+        modalContent.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        
+        // 操作ドロップダウンを閉じる
+        const dropdown = document.querySelector('[data-event-new-target="operationsDropdown"]');
+        const dropdownContent = document.querySelector('[data-event-new-target="operationsDropdownContent"]');
+        if (dropdown && dropdownContent) {
+          dropdown.classList.remove('show');
+          dropdownContent.classList.remove('show');
+        }
+      } else {
+        console.log('モーダル要素が見つかりません');
+      }
+      return;
+    }
+
+    this.closeOperationsDropdown();
+    this.participants = [];
+    this.showChatCreationModal();
+  }
+  // showChatCreationModalメソッドも同様に修正
+  showChatCreationModal(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    
+    // 必要なターゲット要素が存在するかチェック
+    if (!this.hasChatModalOverlayTarget || !this.hasChatModalContentTarget) {
+      console.log('Modal targets not found');
+      return;
+    }
+    
+    // モーダルを表示
+    this.chatModalOverlayTarget.classList.add('active');
+    // モーダルコンテンツにアニメーションクラスを追加
+    this.chatModalContentTarget.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 
   // チャットフォームをクリア
   clearChatForm() {
@@ -358,13 +564,20 @@ export default class extends BaseController {
 
   // チャット最小化/最大化機能
   toggleChat(event) {
-    const chatId = event.currentTarget.dataset.chatId;
-    const chatWidget = document.getElementById(chatId);
+    const chatWidget = this.element; // このコントローラーの要素
+    const chatContent = chatWidget.querySelector('.chat-content');
     const toggleButton = chatWidget.querySelector('.chat-toggle');
     
-    if (chatWidget && toggleButton) {
-      chatWidget.classList.toggle('minimized');
-      toggleButton.textContent = chatWidget.classList.contains('minimized') ? '+' : '−';
+    if (chatContent && toggleButton) {
+      if (chatContent.style.display === 'none') {
+        chatContent.style.display = 'block';
+        toggleButton.textContent = '−';
+        chatWidget.classList.remove('collapsed');
+      } else {
+        chatContent.style.display = 'none';
+        toggleButton.textContent = '+';
+        chatWidget.classList.add('collapsed');
+      }
     }
   }
 
@@ -414,36 +627,6 @@ export default class extends BaseController {
     // オーバーレイ自体がクリックされた場合のみモーダルを閉じる
     if (event.target === this.milestoneModalOverlayTarget) {
       this.closeMilestoneModal();
-    }
-  }
-
-  // Enter キーで送信
-  sendChatMessage(event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault()
-      const form = event.target.form
-      if (!form) return
-
-      const chatId = form.dataset.chatId
-      const messagesContainer = document.getElementById(`chat_${chatId}_messages`)
-      if (!chatId || !messagesContainer) return
-
-      const formData = new FormData(form)
-
-      fetch(form.action, {
-        method: form.method,
-        body: formData,
-        headers: { "Accept": "text/vnd.turbo-stream.html" }
-      })
-        .then(response => {
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-          return response.text()
-        })
-        .then(html => {
-          messagesContainer.insertAdjacentHTML("beforeend", html)
-          event.target.value = ""
-        })
-        .catch(err => console.error("Chat send error:", err))
     }
   }
 
