@@ -19,4 +19,17 @@ module EventFilesHelper
       'fas fa-file text-muted'
     end
   end
+
+  def file_icon_style(file_type)
+    case file_type&.downcase
+    when 'application/pdf'
+      "color: #dc3545;"
+    when 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      "color: #0d6efd;"
+    when 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      "color: #198754;"
+    else
+      "color: #28a745;"
+    end
+  end
 end

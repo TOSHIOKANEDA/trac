@@ -9,5 +9,6 @@ class CreateChatUsers < ActiveRecord::Migration[7.2]
       t.timestamps
       t.index ["chat_id", "user_id"], unique: true
     end
+    add_index :chat_users, :discarded_at
   end
 end

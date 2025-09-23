@@ -10,6 +10,54 @@
     </div>
 
     <div class="content-container">
+      <div class="finbalance-management-grid">
+        <!-- 左側：支払い・請求項目登録 -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-plus"></i></div>
+              支払い・請求項目登録
+            </div>
+          </div>
+            <div class="section-content">
+              <div id="registration-message" class="hidden"></div>
+              <form id="finbalance-registration-form" class="finbalance-form">
+                <div class="finbalance-input-row">
+                  <div class="finbalance-input-group">
+                    <label class="form-label">項目名</label>
+                    <input type="text" class="form-input" id="finbalance-name" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> 登録
+                  </button>
+                </div>
+              </form>
+            </div>
+        </div>
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="section-icon"><i class="fas fa-search"></i></div>
+              項目名検索
+            </div>
+          </div>
+            <div class="section-content">
+              <div id="search-message" class="hidden"></div>
+              <form id="finbalance-search-form" class="finbalance-form">
+                <div class="finbalance-input-row">
+                  <div class="finbalance-input-group">
+                    <label class="form-label">項目名</label>
+                    <input type="text" class="form-input" id="finbalance-search-name" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> 検索
+                  </button>
+                </div>
+              </form>
+            </div>
+        </div>
+      </div>
+
       <div class="port-management-grid">
         <!-- 左側：港名登録 -->
         <div class="section">
@@ -57,6 +105,7 @@
             </div>
         </div>
       </div>
+
       <!-- 統計カード -->
       <div class="stats-grid">
         <div class="stat-card">

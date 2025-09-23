@@ -4,7 +4,7 @@ class ContractorsController < ApplicationController
   before_action :has_events, only: [:destroy, :edit]
 
   def index
-    @companies = Company.with_categories
+    @companies = Company.with_categories(current_user.company.id)
   end
 
   def new
@@ -31,10 +31,23 @@ class ContractorsController < ApplicationController
 
     if @company.save
       # 保存後にカテゴリを設定
-      @company.category_ids = company_params[:category_ids] if company_params[:category_ids]
+      forwarder_id = current_user.company.id
+      if company_params[:category_ids]
+        @company.send(:create_business_category, company_params[:category_ids], forwarder_id)
+      end
+
       redirect_to contractors_path, notice: '取引先が正常に作成されました。'
     else
       @company.users.build if @company.users.empty?
+      set_attributes
+      messages = []
+      messages += @company.users.flat_map do |u|
+        u.errors.details.flat_map { |attr, ds|
+          ds.map { |d| "ユーザー #{u.name.presence || u.email} の #{u.class.human_attribute_name(attr)} #{User.new.errors.generate_message(attr, d[:error])}" } 
+        }
+      end
+
+      flash[:alert] = messages.join(',')
       render :new, status: :unprocessable_entity
     end
   end
@@ -43,8 +56,11 @@ class ContractorsController < ApplicationController
   end
 
   def update
+    category_ids = params[:company].delete(:business_category_ids)
+    forwarder_id = current_user.company.id
     if @company.update(company_params)
-      redirect_to edit_contractor_path(@company.id), notice: '更新しました'
+        @company.create_business_category(category_ids, forwarder_id) if category_ids.present?
+        redirect_to edit_contractor_path(@company.id), notice: '更新しました'
     else
       render :edit
     end
@@ -55,7 +71,7 @@ class ContractorsController < ApplicationController
   def company_params
     params.require(:company).permit(
       :english_name, :japanese_name, :address, :company_memo, :status, :deal_memo,
-      category_ids: [],
+      business_category_ids: [],
       users_attributes: [:id, :name, :role, :dept, :email, :phone, :_destroy, :password, :password_confirmation]
     )
   end
@@ -65,7 +81,7 @@ class ContractorsController < ApplicationController
   end
 
   def set_attributes
-    @business_categories = BusinessCategory.all
+    @business_categories = BusinessCategory.where.not(category: 0)
   end
 
   def find_company

@@ -3,7 +3,7 @@ class CreateEventShipments < ActiveRecord::Migration[7.2]
     create_table :event_shipments do |t|
       t.references :event, null: false, foreign_key: true
       t.integer :shipment
-      t.integer :med
+      t.integer :mode
       t.integer :term
       t.string :place_of_receipt
       t.string :port_of_loading

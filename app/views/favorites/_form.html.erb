@@ -1,0 +1,310 @@
+<!-- メインヘッダー -->
+<div class="main-header">
+  <div class="header-left">
+    <h1><i class="fas fa-box"></i> お気に入り編集</h1>
+  </div>
+  <div class="header-right">
+    <div class="header-actions-right">
+      <% if action_name == "edit" %>
+        <%= render "header" %>
+      <% end %>
+      <%= f.submit "登録", class: "btn btn-primary" do %>
+        <i class="fas fa-save"></i> 登録
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="form-container">
+  <!-- 基本情報セクション -->
+  <div class="form-section" id="basicInfo">
+    <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="basicInfo">
+      <div class="section-title">
+        <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+        基本情報
+      </div>
+      <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="section-content">
+      <div class="form-grid grid-4">
+        <div class="form-group">
+          <label class="form-label">お気に入り名</label>
+          <%= f.text_field :name, class: "form-input", required: true %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 荷主・業者情報セクション -->
+  <div class="form-section" id="stakeholderInfo">
+    <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="stakeholderInfo">
+      <div class="section-title">
+        <div class="section-icon"><i class="fas fa-users"></i></div>
+        荷主・業者情報
+      </div>
+      <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+    </div>
+
+    <div class="section-content">
+      <div class="form-grid grid-2">
+        <%= f.fields_for :favorite_companies do |company_form| %>
+          <div class="form-group">
+            <label class="form-label"><%= company_form.object.role.humanize %></label>
+            <%= company_form.hidden_field :role %>
+            <%= company_form.collection_select :company_id, @company_groups[new_company_fields(company_form.object.role)] || [], :id, :name,
+                  { prompt: "選択してください" },
+                  { class: "form-select" } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 輸送情報セクション -->
+  <div class="form-section" id="transportInfo">
+    <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="transportInfo">
+      <div class="section-title">
+        <div class="section-icon"><i class="fas fa-ship"></i></div>
+        輸送情報
+      </div>
+      <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="section-content">
+      <%= f.fields_for :favorite_shipment do |shipment_form| %>
+        <div class="form-grid grid-2">
+          <div class="form-group">
+            <label class="form-label">SHIPMENT</label>
+            <%= shipment_form.select :shipment,
+                  FavoriteShipment.shipments.keys.map { |k| [I18n.t("activerecord.attributes.favorite_shipment.shipment.#{k}"), k] },
+                  { prompt: "選択してください" },
+                  { class: "form-select" } %>
+          </div>
+          <div class="form-group">
+            <label class="form-label">METHOD</label>
+            <%= shipment_form.select :mode,
+                  FavoriteShipment.modes.keys.map { |k| [I18n.t("activerecord.attributes.favorite_shipment.mode.#{k}"), k] },
+                  { prompt: "選択してください" },
+                  { class: "form-select" } %>
+          </div>
+        </div>
+        <div class="form-grid grid-1" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label">TERM</label>
+            <%= shipment_form.select :term,
+                  FavoriteShipment.terms.keys.map { |k| [I18n.t("activerecord.attributes.favorite_shipment.term.#{k}"), k] },
+                  { prompt: "選択してください" },
+                  { class: "form-select" } %>
+          </div>
+        </div>
+        <div class="form-grid grid-4" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label">PLACE OF RECIEPT</label>
+            <%= shipment_form.text_field :place_of_receipt,
+                  class: "form-input",
+                  data: {
+                    action: "click->favorite-new#showPortSearchModal",
+                    port_field: "place_of_receipt"
+                  } %>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">PORT OF LOADING</label>
+            <%= shipment_form.text_field :port_of_loading,
+                  class: "form-input",
+                  data: {
+                    action: "click->favorite-new#showPortSearchModal",
+                    port_field: "port_of_loading"
+                  } %>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">PORT OF DISCHARGE</label>
+            <%= shipment_form.text_field :port_of_discharge,
+                  class: "form-input",
+                  data: {
+                    action: "click->favorite-new#showPortSearchModal",
+                    port_field: "port_of_discharge"
+                  } %>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">PLACE OF DELIVERY</label>
+            <%= shipment_form.text_field :port_of_delivery,
+                  class: "form-input",
+                  data: {
+                    action: "click->favorite-new#showPortSearchModal",
+                    port_field: "port_of_delivery"
+                  } %>
+          </div>
+        </div>
+        <div class="form-grid grid-2" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label">PICK UP</label>
+            <%= shipment_form.text_area :pick_up, class: "form-input"%>
+          </div>
+          <div class="form-group">
+            <label class="form-label">DELIVERY</label>
+            <%= shipment_form.text_area :delivery, class: "form-input"%>
+          </div>
+        </div>
+        <div class="form-grid grid-4" style="margin-top: 20px;">
+          <div class="form-group">
+            <label class="form-label">CARRIER</label>
+            <%= shipment_form.text_field :carrier, class: "form-input"%>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 貨物情報セクション -->
+  <div class="form-section collapsed" id="productInfo">
+    <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="productInfo">
+      <div class="section-title">
+        <div class="section-icon"><i class="fas fa-boxes"></i></div>
+        貨物情報
+      </div>
+      <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="section-content">
+      <div class="cargo-table-container">
+        <table class="cargo-table">
+          <thead>
+            <tr>
+              <th>PKGS</th>
+              <th>TYPE OF PKG</th>
+              <th>N/W (kg)</th>
+              <th>G/W (kg)</th>
+              <th>M3</th>
+              <th>削除</th>
+            </tr>
+          </thead>
+          <tbody data-favorite-new-target="cargoTableBody">
+            <%= f.fields_for :favorite_goods do |good_form|%>
+              <tr>
+                <% if good_form.object.persisted? %>
+                  <%= good_form.hidden_field :_destroy, value: false, class: "destroy-flag" %>
+                <% end %>
+                <td><%= good_form.text_field :pkg, class: "table-input"%></td>
+                <td><%= good_form.text_field :type_of_pkg, class: "table-input"%></td>
+                <td><%= good_form.text_field :n_w, class: "table-input"%></td>
+                <td><%= good_form.text_field :g_w, class: "table-input"%></td>
+                <td><%= good_form.text_field :three_m, class: "table-input"%></td>
+                <td>
+                  <button type="button" class="delete-good-btn" title="コンテナを削除" data-action="click->favorite-new#deleteRow" data-target-name="cargoTableBody">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 15px;">
+        <button type="button" class="btn btn-secondary" data-action="click->favorite-new#addCargoRow">
+          <i class="fas fa-plus"></i> 行を追加
+        </button>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group" style="margin-top:20px;">
+        <%= f.label :description, "DESCRIPTION", class: "form-label" %>
+        <%= f.text_area :description, class: "form-textarea", style: "min-height: 100px;" %>
+      </div>
+      <!-- 備考 -->
+      <div class="form-group" style="margin-top:20px;">
+        <%= f.label :remark, "備考", class: "form-label" %>
+        <%= f.text_area :remark, class: "form-textarea", style: "min-height: 100px;" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 必要書類セクション -->
+  <div class="form-section collapsed" id="documentsInfo">
+    <div class="section-header" data-action="click->favorite-new#toggleSection" data-section="documentsInfo">
+      <div class="section-title">
+        <div class="section-icon"><i class="fas fa-file-alt"></i></div>
+        必要書類
+      </div>
+      <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
+    </div>
+    <div class="section-content">
+      <!-- 輸出書類一覧 -->
+      <div id="exportDocuments">                
+      <%= f.fields_for :favorite_doc do |doc_form| %>
+        <div class="cargo-table-container">
+          <table class="cargo-table" style="width:100%; border-collapse: collapse; margin-bottom: 25px;">
+            <thead>
+              <tr>
+                <th colspan="2" style="text-align:left; padding:8px; background-color:#f0f0f0; font-weight:bold;">
+                  荷主が提出する書類
+                </th>
+                <th colspan="2" style="text-align:left; padding:8px; background-color:#f0f0f0; font-weight:bold;">
+                  フォワーダーが提出する書類
+                </th>
+                <th colspan="2" style="text-align:left; padding:8px; background-color:#f0f0f0; font-weight:bold;">
+                  通関業者が提出する書類
+                </th>
+              </tr>
+              <tr>
+                <th style="text-align:center; padding:5px;">提出</th>
+                <th style="text-align:left; padding:5px;">書類名</th>
+                <th style="text-align:center; padding:5px;">提出</th>
+                <th style="text-align:left; padding:5px;">書類名</th>
+                <th style="text-align:center; padding:5px;">提出</th>
+                <th style="text-align:left; padding:5px;">書類名</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% (0...[shipper_docs_select.size, forwarder_docs_select.size, custom_docs_select.size].max).each do |i| %>
+                <tr>
+                  <!-- 荷主 -->
+                  <% if shipper_docs_select[i] %>
+                    <% name = shipper_docs_select[i][1] %>
+                    <td style="text-align:center; padding:5px;">
+                      <%= doc_form.check_box name.to_sym, {}, true, false %>
+                    </td>
+                    <td style="text-align:left; padding:5px;">
+                      <%= doc_form.label name.to_sym, shipper_docs_select[i][0] %>
+                    </td>
+                  <% else %>
+                    <td style="text-align:center; padding:5px;"></td>
+                    <td style="text-align:left; padding:5px;"></td>
+                  <% end %>
+
+                  <!-- フォワーダー -->
+                  <% if forwarder_docs_select[i] %>
+                    <% name = forwarder_docs_select[i][1] %>
+                    <td style="text-align:center; padding:5px;">
+                      <%= doc_form.check_box name.to_sym, {}, true, false %>
+                    </td>
+                    <td style="text-align:left; padding:5px;">
+                      <%= doc_form.label name.to_sym, forwarder_docs_select[i][0] %>
+                    </td>
+                  <% else %>
+                    <td style="text-align:center; padding:5px;"></td>
+                    <td style="text-align:left; padding:5px;"></td>
+                  <% end %>
+
+                  <!-- 通関 -->
+                  <% if custom_docs_select[i] %>
+                    <% name = custom_docs_select[i][1] %>
+                    <td style="text-align:center; padding:5px;">
+                      <%= doc_form.check_box name.to_sym, {}, true, false %>
+                    </td>
+                    <td style="text-align:left; padding:5px;">
+                      <%= doc_form.label name.to_sym, custom_docs_select[i][0] %>
+                    </td>
+                  <% else %>
+                    <td style="text-align:center; padding:5px;"></td>
+                    <td style="text-align:left; padding:5px;"></td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

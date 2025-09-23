@@ -34,13 +34,22 @@
               local: true, 
               class: "upload-form" do |form| %>
             <%= form.hidden_field :business_category_id, value: section[:category_id] %>
-            <div class="upload-section" data-event-file-index-target="uploadSection">
+            <div class="upload-section" 
+                data-event-file-index-target="uploadSection"
+                data-action="click->event-file-index#uploadFile">
               <i class="fas fa-cloud-upload-alt"></i>
-              <div class="upload-text">ファイルをアップロード</div>
-              <div class="upload-subtext">複数ファイル同時選択可能</div>
-              <%= form.file_field :file %>
+              <div class="upload-text">ファイルをドラッグ&ドロップ</div>
+              <div class="upload-subtext">またはクリックして選択（複数ファイル可）</div>
+              <%= form.file_field :file, 
+                  multiple: true,
+                  style: "display: none;",
+                  data: { 
+                    action: "change->event-file-index#handleFileSelect" 
+                  } %>
             </div>
-            <%= form.submit "アップロード", class: "btn btn-primary upload-btn" %>
+            <%= form.submit "アップロード", 
+                class: "btn btn-primary upload-btn",
+                style: "display: none;" %>
           <% end %>
         </div>
         <div class="files-area">

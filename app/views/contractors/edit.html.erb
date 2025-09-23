@@ -10,12 +10,12 @@
         <div class="header">
           <h1><i class="fas fa-plus"></i> 取引先編集</h1>
           <div class="header-actions">
-<% unless @has_events %>
-  <%= link_to "削除", contractor_path(@company),
-              method: :delete,
-              data: { confirm: "本当に削除しますか？" },
-              class: "btn btn-danger"%>
-<% end %>
+            <% unless @has_events %>
+              <%= link_to "削除", contractor_path(@company),
+                          method: :delete,
+                          data: { confirm: "本当に削除しますか？" },
+                          class: "btn btn-danger"%>
+            <% end %>
             <%= f.submit "登録", class: "btn btn-primary"%>
           </div>
         </div>

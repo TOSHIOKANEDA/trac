@@ -8,7 +8,29 @@ Rails.application.routes.draw do
   resources :finbalances
   resources :profiles
   resources :contractors
-  resources :favorites
+  resources :favorites, except: [:show] do
+    collection do
+      post "paste"
+    end
+    resources :favorite_files do
+      member do
+        get :download
+      end
+    end
+    collection do
+      post "search"
+    end
+  end
+  resources :favorite_finbalances
+
+  resources :quotations do
+    collection do
+      post "search"
+    end
+    member do
+      post :copy
+    end
+  end
 
   resources :events do
     resources :event_files do
@@ -17,7 +39,8 @@ Rails.application.routes.draw do
       end
     end
     collection do
-      get "list"
+      post "paste"
+      match "list", via: [:get, :post]
     end
     resources :chats, only: [:show, :update] do
       resources :messages, only: [:create]

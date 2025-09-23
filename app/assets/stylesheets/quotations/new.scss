@@ -1,0 +1,518 @@
+/* ===== ボタンスタイル ===== */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: #2196F3;
+    color: white;
+}
+.btn-primary:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background-color: #4CAF50;
+    color: white;
+}
+.btn-success:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+}
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+/* ===== フォームコンテナ ===== */
+.form-container {
+    padding: 0 30px 30px;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #667eea;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.section-content {
+    padding: 25px;
+}
+
+.section-icon {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+}
+
+/* ===== 見積り情報レイアウト ===== */
+.quotation-info-left {
+    width: 100%;
+    border: 2px solid #333;
+    padding: 20px;
+    background: white;
+}
+
+/* 会社名セクション */
+.company-name-section {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #333;
+}
+
+.company-name-select {
+    width: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+.company-name-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* 担当者名セクション */
+.pic-name-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+.pic-name-section label {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.pic-name-input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.pic-name-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* 見積り詳細グリッド */
+.quotation-details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    min-height: 40px;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    padding: 8px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    background: #f8f9fa;
+    border-right: 1px solid #ddd;
+}
+
+.detail-value {
+    padding: 4px 10px;
+}
+
+.detail-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #e1e8ed;
+    border-radius: 3px;
+    font-size: 14px;
+    background: white;
+}
+
+/* readonly フィールドの背景色 */
+.detail-input[readonly] {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+
+.detail-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* ===== 明細テーブルスタイル（エクセル風） ===== */
+.items-table-container {
+    border: 2px solid #333;
+    background: white;
+    overflow-x: auto;
+}
+
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 14px;
+    table-layout: fixed; /* 追加 */
+}
+
+/* テーブルヘッダー */
+.items-table thead {
+    background: #f0f0f0;
+}
+
+.items-table th {
+    background: #f0f0f0;
+    color: #333;
+    font-weight: 600;
+    padding: 12px 10px;
+    text-align: center;
+    border: 1px solid #333;
+    white-space: nowrap;
+}
+
+/* 各カラムの幅指定 */
+.items-table th:nth-child(1),
+.items-table td:nth-child(1) {
+    width: 11%; /* 項目名 */
+}
+
+.items-table th:nth-child(2),
+.items-table td:nth-child(2) {
+    width: 5%; /* 単位 */
+}
+
+.items-table th:nth-child(3),
+.items-table td:nth-child(3) {
+    width: 4%; /* 課税 */
+}
+
+.items-table th:nth-child(4),
+.items-table td:nth-child(4) {
+    width: 5%; /* 通貨 */
+}
+
+.items-table th:nth-child(5),
+.items-table td:nth-child(5) {
+    width: 6%; /* 換算レート */
+}
+
+.items-table th:nth-child(6),
+.items-table td:nth-child(6) {
+    width: 6%; /* 数量 */
+}
+
+.items-table th:nth-child(7),
+.items-table td:nth-child(7) {
+    width: 7%; /* 仕入単価 */
+}
+
+.items-table th:nth-child(8),
+.items-table td:nth-child(8) {
+    width: 7%; /* 仕入金額 */
+}
+
+.items-table th:nth-child(9),
+.items-table td:nth-child(9) {
+    width: 7%; /* 売上単価 */
+}
+
+.items-table th:nth-child(10),
+.items-table td:nth-child(10) {
+    width: 7%; /* 売上金額 */
+}
+
+.items-table th:nth-child(11),
+.items-table td:nth-child(11) {
+    width: 7%; /* 粗利 */
+}
+
+.items-table th:nth-child(12),
+.items-table td:nth-child(12) {
+    width: 6%; /* 粗利率 */
+}
+
+.items-table th:nth-child(13),
+.items-table td:nth-child(13) {
+    width: 11%; /* 備考 */
+}
+
+.items-table th:nth-child(14),
+.items-table td:nth-child(14) {
+    width: 5%; /* 削除 */
+}
+
+/* セクションヘッダー行 */
+.items-table tbody tr.section-header-row {
+    background: #e0e0e0;
+}
+
+.items-table tbody tr.section-header-row td {
+    font-weight: bold;
+    background: #e0e0e0;
+    padding: 10px 15px;
+    border: 1px solid #333;
+    text-align: left;
+}
+
+.section-header-cell {
+    font-size: 14px;
+    letter-spacing: 0.3px;
+}
+
+/* テーブルデータ */
+.items-table td {
+    padding: 8px 10px;
+    border: 1px solid #999;
+    vertical-align: middle;
+    background: white;
+    overflow: hidden; /* 追加 */
+    text-overflow: ellipsis; /* 追加 */
+}
+
+.items-table tbody tr.item-row {
+    background: white;
+}
+
+.items-table tbody tr.item-row:hover {
+    background-color: #f8f9fa;
+}
+
+/* 項目名セル */
+.item-name-cell {
+    /* min-width: 250px; 削除 */
+}
+
+.item-name-select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+    background: white;
+}
+
+.item-name-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* 通常の入力フィールド */
+.item-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+    background: white;
+    /* min-width: 80px; 削除 */
+    box-sizing: border-box; /* 追加 */
+}
+
+.item-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* 数値入力フィールドは右寄せ */
+.item-input[type="number"] {
+    text-align: right;
+}
+
+/* readonly フィールドの背景色 */
+.item-input[readonly] {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* 課税セル */
+.tax-cell {
+    text-align: center;
+    /* min-width: 60px; 削除 */
+}
+
+.tax-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.tax-check {
+    cursor: pointer;
+    margin: 0;
+}
+
+/* 削除ボタンセル */
+.delete-cell {
+    text-align: center;
+    /* width: 60px; 削除（nth-childで指定） */
+}
+
+.delete-item-btn {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-item-btn:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+/* ===== チェックボタングループ ===== */
+.check-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.check-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* 合計金額表示エリア */
+.totals-container {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e1e8ed;
+    display: flex;
+    justify-content: flex-end;
+    gap: 30px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.total-item {
+    text-align: right;
+}
+
+.total-label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.total-value {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+}
+#grandTotal.negative {
+    color: #dc3545;
+}
+
+// フォーム要素
+.form-group {
+  display: flex;
+  flex-direction: row; // 横並びに変更
+  align-items: center;
+  gap: 10px;
+  width: 60%; // 全体の6割
+  margin-bottom: 15px;
+}
+
+.form-select {
+  flex: 9; // 9割の比率
+  padding: 12px 15px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+}
+
+// 削除ボタン用のスタイル
+.btn-danger.btn-sm {
+  flex: 1; // 1割の比率
+  padding: 8px 12px;
+  white-space: nowrap;
+  min-width: 60px; // 最小幅を確保
+}

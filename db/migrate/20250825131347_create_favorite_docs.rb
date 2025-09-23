@@ -11,6 +11,7 @@ class CreateFavoriteDocs < ActiveRecord::Migration[7.2]
       t.boolean :van_repo, default: false
       t.boolean :quarantine, default: false
       t.boolean :slip, default: false
+      t.boolean :quotation, default: false
       t.boolean :s_i, default: false
       t.boolean :hbl_awb, default: false
       t.boolean :dg_declaration, default: false
@@ -25,6 +26,7 @@ class CreateFavoriteDocs < ActiveRecord::Migration[7.2]
       t.boolean :house_arrival_notice, default: false
       t.boolean :master_arrival_notice, default: false
       t.boolean :pod, default: false
+      t.boolean :completed, default: false
       t.datetime :discarded_at
       t.references :create, foreign_key: { to_table: :users }
       t.references :update, foreign_key: { to_table: :users }

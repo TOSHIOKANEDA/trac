@@ -4,8 +4,8 @@ import consumer from "../channels/consumer"
 
 export default class extends BaseController {
   static targets = [
-    "containerTableBody", "cargoTableBody", "fileCounter", 
-    "milestoneModalOverlay", "milestoneModal", "milestoneContent", "soaInput",
+    "containerTableBody", "cargoTableBody",
+    "milestoneModalOverlay", "milestoneModal", "milestoneContent",
     "operationsDropdown", "operationsDropdownContent",
     "chatModal", "chatModalOverlay", "chatForm", "chatNameInput","chatModalContent",
     "participantInput", "participantsList", "participantSelect"
@@ -20,7 +20,6 @@ export default class extends BaseController {
     this.setupDropdownClickOutside();
     this.fileCount = 3;
     this.participants = []; // チャット参加者を管理
-    this.initializeFlatpickr();
     const portDataEl = document.getElementById("port-data"); // 港検索を表示
     this.portDataList = portDataEl ? JSON.parse(portDataEl.dataset.ports) : []
 
@@ -142,25 +141,6 @@ export default class extends BaseController {
     // 次にURLをリンクに変換
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return processedText.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-  }
-
-  // Flatpickrの初期化
-  initializeFlatpickr() {
-    if (this.hasSoaInputTarget && window.flatpickr) {
-      flatpickr(this.soaInputTarget, {
-        mode: "single",
-        dateFormat: "Y-m",
-        defaultDate: "2025-08",
-        locale: "ja",
-        plugins: [
-          new window.monthSelectPlugin({
-            shorthand: true,
-            dateFormat: "Y-m",
-            altFormat: "Y年m月"
-          })
-        ]
-      });
-    }
   }
 
   // ドロップダウン外部クリックの設定
@@ -533,50 +513,6 @@ export default class extends BaseController {
     event.stopPropagation();
   }
 
-  // 進捗表示（案件一覧スタイルに統一）
-  showMilestone(event) {
-    event.preventDefault();
-    if (!this.hasMilestoneModalOverlayTarget) {
-      console.error('milestoneModalOverlay target not found');
-      return;
-    }
-
-    const modalOverlay = this.milestoneModalOverlayTarget;
-    const modal = this.milestoneModalTarget;
-    
-    // モーダルオーバーレイを表示
-    modalOverlay.classList.add('active');
-    
-    // スクロールを無効化
-    document.body.style.overflow = 'hidden';
-  }
-
-  // 進捗モーダルを閉じる（案件一覧スタイルに統一）
-  closeMilestoneModal(event) {
-    event.preventDefault();
-    if (!this.hasMilestoneModalOverlayTarget) {
-      return;
-    }
-
-    const modalOverlay = this.milestoneModalOverlayTarget;
-    
-    // アクティブクラスを削除（アニメーションで非表示）
-    modalOverlay.classList.remove('active');
-    
-    // スクロールを有効化
-    setTimeout(() => {
-      document.body.style.overflow = '';
-    }, 300); // CSSアニメーション時間に合わせる
-  }
-
-  // モーダルオーバーレイクリック時の処理
-  modalOverlayClick(event) {
-    // オーバーレイ自体がクリックされた場合のみモーダルを閉じる
-    if (event.target === this.milestoneModalOverlayTarget) {
-      this.closeMilestoneModal();
-    }
-  }
-
   // コンテナ行を追加
   addContainerRow() {
     if (!this.hasContainerTableBodyTarget) return;
@@ -620,9 +556,9 @@ export default class extends BaseController {
     newRow.innerHTML = `
       <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][pkg]" id="event_event_goods_attributes_${newIndex}_pkg"></td>
       <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][type_of_pkg]" id="event_event_goods_attributes_${newIndex}_type_of_pkg"></td>
-      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][n_w]" id="event_event_goods_attributes_${newIndex}_"></td>
-      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][g_w]" id="event_event_goods_attributes_${newIndex}_"></td>
-      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][three_m]" id="event_event_goods_attributes_${newIndex}_"></td>
+      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][n_w]" id="event_event_goods_attributes_${newIndex}_n_w"></td>
+      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][g_w]" id="event_event_goods_attributes_${newIndex}_g_w"></td>
+      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][three_m]" id="event_event_goods_attributes_${newIndex}_three_m"></td>
       <td>
         <button type="button" class="delete-good-btn" title="貨物を削除" data-action="click->event-new#deleteRow" data-target-name="cargoTableBody">
           <i class="fas fa-trash-alt"></i>

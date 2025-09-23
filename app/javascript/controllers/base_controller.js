@@ -154,4 +154,49 @@ export default class extends Controller {
       }, 300);
     }, 3000);
   }
+
+  // 進捗表示（案件一覧スタイルに統一）
+  showMilestone(event) {
+    console.log("hoge")
+    event.preventDefault();
+    if (!this.hasMilestoneModalOverlayTarget) {
+      console.error('milestoneModalOverlay target not found');
+      return;
+    }
+
+    const modalOverlay = this.milestoneModalOverlayTarget;
+    const modal = this.milestoneModalTarget;
+    
+    // モーダルオーバーレイを表示
+    modalOverlay.classList.add('active');
+    
+    // スクロールを無効化
+    document.body.style.overflow = 'hidden';
+  }
+
+  // 進捗モーダルを閉じる（案件一覧スタイルに統一）
+  closeMilestoneModal(event) {
+    event.preventDefault();
+    if (!this.hasMilestoneModalOverlayTarget) {
+      return;
+    }
+
+    const modalOverlay = this.milestoneModalOverlayTarget;
+    
+    // アクティブクラスを削除（アニメーションで非表示）
+    modalOverlay.classList.remove('active');
+    
+    // スクロールを有効化
+    setTimeout(() => {
+      document.body.style.overflow = '';
+    }, 300); // CSSアニメーション時間に合わせる
+  }
+
+  // モーダルオーバーレイクリック時の処理
+  modalOverlayClick(event) {
+    // オーバーレイ自体がクリックされた場合のみモーダルを閉じる
+    if (event.target === this.milestoneModalOverlayTarget) {
+      this.closeMilestoneModal();
+    }
+  }
 }

@@ -9,13 +9,14 @@ class CreateEventFiles < ActiveRecord::Migration[7.2]
       t.string :file_name
       t.string :file_type
       t.integer :file_size
+      t.string :verified_doc
       t.string :verified_name
       t.boolean :is_estimate, default: false
       t.boolean :is_verified, default: false
-      t.boolean :shipper_view, null: false
-      t.boolean :consignee_view, null: false
-      t.boolean :custom_view, null: false
-      t.boolean :agent_view, null: false
+      t.boolean :shipper_view, default: false
+      t.boolean :consignee_view, default: false
+      t.boolean :custom_view, default: false
+      t.boolean :agent_view, default: false
       t.datetime :discarded_at
       t.timestamps
     end

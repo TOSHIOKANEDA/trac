@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_21_115327) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -80,6 +80,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.datetime "updated_at", null: false
     t.index ["chat_id", "user_id"], name: "index_chat_users_on_chat_id_and_user_id", unique: true
     t.index ["create_id"], name: "index_chat_users_on_create_id"
+    t.index ["discarded_at"], name: "index_chat_users_on_discarded_at"
     t.index ["update_id"], name: "index_chat_users_on_update_id"
   end
 
@@ -115,6 +116,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
 
   create_table "company_business_categories", force: :cascade do |t|
     t.datetime "discarded_at"
+    t.integer "forwarder_id", null: false
     t.integer "company_id", null: false
     t.integer "business_category_id", null: false
     t.datetime "created_at", null: false
@@ -122,6 +124,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.index ["business_category_id"], name: "index_company_business_categories_on_business_category_id"
     t.index ["company_id"], name: "index_company_business_categories_on_company_id"
     t.index ["discarded_at"], name: "index_company_business_categories_on_discarded_at"
+    t.index ["forwarder_id"], name: "index_company_business_categories_on_forwarder_id"
   end
 
   create_table "containers", force: :cascade do |t|
@@ -184,6 +187,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.boolean "house_arrival_notice", default: false
     t.boolean "master_arrival_notice", default: false
     t.boolean "pod", default: false
+    t.boolean "completed", default: false
     t.datetime "discarded_at"
     t.integer "create_id"
     t.integer "update_id"
@@ -203,13 +207,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.string "file_name"
     t.string "file_type"
     t.integer "file_size"
+    t.string "verified_doc"
     t.string "verified_name"
     t.boolean "is_estimate", default: false
     t.boolean "is_verified", default: false
-    t.boolean "shipper_view", null: false
-    t.boolean "consignee_view", null: false
-    t.boolean "custom_view", null: false
-    t.boolean "agent_view", null: false
+    t.boolean "shipper_view", default: false
+    t.boolean "consignee_view", default: false
+    t.boolean "custom_view", default: false
+    t.boolean "agent_view", default: false
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -239,6 +244,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["create_id"], name: "index_event_goods_on_create_id"
+    t.index ["discarded_at"], name: "index_event_goods_on_discarded_at"
     t.index ["event_id"], name: "index_event_goods_on_event_id"
     t.index ["update_id"], name: "index_event_goods_on_update_id"
   end
@@ -291,7 +297,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
   create_table "event_shipments", force: :cascade do |t|
     t.integer "event_id", null: false
     t.integer "shipment"
-    t.integer "med"
+    t.integer "mode"
     t.integer "term"
     t.string "place_of_receipt"
     t.string "port_of_loading"
@@ -342,6 +348,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.boolean "charge"
     t.text "description"
     t.text "remark"
+    t.boolean "file_pasted", default: false
+    t.integer "containers_count", default: 0
     t.datetime "accounting_month"
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
@@ -385,6 +393,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.boolean "van_repo", default: false
     t.boolean "quarantine", default: false
     t.boolean "slip", default: false
+    t.boolean "quotation", default: false
     t.boolean "s_i", default: false
     t.boolean "hbl_awb", default: false
     t.boolean "dg_declaration", default: false
@@ -399,6 +408,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.boolean "house_arrival_notice", default: false
     t.boolean "master_arrival_notice", default: false
     t.boolean "pod", default: false
+    t.boolean "completed", default: false
     t.datetime "discarded_at"
     t.integer "create_id"
     t.integer "update_id"
@@ -410,9 +420,58 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.index ["update_id"], name: "index_favorite_docs_on_update_id"
   end
 
+  create_table "favorite_files", force: :cascade do |t|
+    t.integer "business_category_id", null: false
+    t.integer "favorite_id", null: false
+    t.integer "create_id", null: false
+    t.integer "update_id", null: false
+    t.string "file_name"
+    t.string "file_type"
+    t.integer "file_size"
+    t.string "verified_doc"
+    t.string "verified_name"
+    t.boolean "is_estimate", default: false
+    t.boolean "is_verified", default: false
+    t.boolean "shipper_view", default: false
+    t.boolean "consignee_view", default: false
+    t.boolean "custom_view", default: false
+    t.boolean "agent_view", default: false
+    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_view"], name: "index_favorite_files_on_agent_view"
+    t.index ["business_category_id"], name: "index_favorite_files_on_business_category_id"
+    t.index ["consignee_view"], name: "index_favorite_files_on_consignee_view"
+    t.index ["create_id"], name: "index_favorite_files_on_create_id"
+    t.index ["custom_view"], name: "index_favorite_files_on_custom_view"
+    t.index ["discarded_at"], name: "index_favorite_files_on_discarded_at"
+    t.index ["favorite_id"], name: "index_favorite_files_on_favorite_id"
+    t.index ["is_estimate"], name: "index_favorite_files_on_is_estimate"
+    t.index ["is_verified"], name: "index_favorite_files_on_is_verified"
+    t.index ["shipper_view"], name: "index_favorite_files_on_shipper_view"
+    t.index ["update_id"], name: "index_favorite_files_on_update_id"
+  end
+
+  create_table "favorite_finbalance_assemblies", force: :cascade do |t|
+    t.integer "favorite_finbalance_id", null: false
+    t.integer "finbalance_item_id", null: false
+    t.integer "cost_amount", null: false
+    t.integer "income_amount", null: false
+    t.integer "balance_amount", null: false
+    t.datetime "discarded_at"
+    t.integer "create_id"
+    t.integer "update_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["create_id"], name: "index_favorite_finbalance_assemblies_on_create_id"
+    t.index ["discarded_at"], name: "index_favorite_finbalance_assemblies_on_discarded_at"
+    t.index ["favorite_finbalance_id"], name: "index_favorite_finbalance_assemblies_on_favorite_finbalance_id"
+    t.index ["finbalance_item_id"], name: "index_favorite_finbalance_assemblies_on_finbalance_item_id"
+    t.index ["update_id"], name: "index_favorite_finbalance_assemblies_on_update_id"
+  end
+
   create_table "favorite_finbalances", force: :cascade do |t|
     t.integer "favorite_id", null: false
-    t.integer "finbalance_item_id", null: false
     t.integer "balance", default: 0
     t.integer "income", default: 0
     t.integer "cost", default: 0
@@ -424,19 +483,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.index ["create_id"], name: "index_favorite_finbalances_on_create_id"
     t.index ["discarded_at"], name: "index_favorite_finbalances_on_discarded_at"
     t.index ["favorite_id"], name: "index_favorite_finbalances_on_favorite_id"
-    t.index ["finbalance_item_id"], name: "index_favorite_finbalances_on_finbalance_item_id"
     t.index ["update_id"], name: "index_favorite_finbalances_on_update_id"
   end
 
   create_table "favorite_goods", force: :cascade do |t|
     t.integer "favorite_id", null: false
-    t.string "pkgs"
+    t.string "pkg"
     t.string "type_of_pkg"
     t.string "n_w"
     t.string "g_w"
-    t.string "m3"
-    t.text "description"
-    t.text "remark"
+    t.string "three_m"
     t.integer "create_id"
     t.integer "update_id"
     t.datetime "discarded_at"
@@ -451,7 +507,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
   create_table "favorite_shipments", force: :cascade do |t|
     t.integer "favorite_id", null: false
     t.integer "shipment"
-    t.integer "method"
+    t.integer "mode"
     t.integer "term"
     t.string "place_of_receipt"
     t.string "port_of_loading"
@@ -459,9 +515,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.string "port_of_delivery"
     t.string "pick_up"
     t.string "delivery"
+    t.string "carrier"
+    t.datetime "discarded_at"
     t.integer "create_id"
     t.integer "update_id"
-    t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["create_id"], name: "index_favorite_shipments_on_create_id"
@@ -471,10 +528,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
   end
 
   create_table "favorites", force: :cascade do |t|
-    t.string "name", null: false
     t.integer "forwarder_id", null: false
+    t.string "name", null: false
     t.integer "create_id"
     t.integer "update_id"
+    t.text "description"
+    t.text "remark"
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -484,40 +543,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.index ["update_id"], name: "index_favorites_on_update_id"
   end
 
-  create_table "finbalance_costs", force: :cascade do |t|
+  create_table "finbalance_assemblies", force: :cascade do |t|
     t.integer "finbalance_id", null: false
     t.integer "finbalance_item_id", null: false
-    t.integer "company_id", null: false
-    t.integer "amount", null: false
+    t.integer "cost_amount", null: false
+    t.integer "income_amount", null: false
+    t.integer "balance_amount", null: false
     t.datetime "discarded_at"
     t.integer "create_id"
     t.integer "update_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_finbalance_costs_on_company_id"
-    t.index ["create_id"], name: "index_finbalance_costs_on_create_id"
-    t.index ["discarded_at"], name: "index_finbalance_costs_on_discarded_at"
-    t.index ["finbalance_id"], name: "index_finbalance_costs_on_finbalance_id"
-    t.index ["finbalance_item_id"], name: "index_finbalance_costs_on_finbalance_item_id"
-    t.index ["update_id"], name: "index_finbalance_costs_on_update_id"
-  end
-
-  create_table "finbalance_incomes", force: :cascade do |t|
-    t.integer "finbalance_id", null: false
-    t.integer "finbalance_item_id", null: false
-    t.integer "company_id", null: false
-    t.integer "amount", null: false
-    t.datetime "discarded_at"
-    t.integer "create_id"
-    t.integer "update_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_finbalance_incomes_on_company_id"
-    t.index ["create_id"], name: "index_finbalance_incomes_on_create_id"
-    t.index ["discarded_at"], name: "index_finbalance_incomes_on_discarded_at"
-    t.index ["finbalance_id"], name: "index_finbalance_incomes_on_finbalance_id"
-    t.index ["finbalance_item_id"], name: "index_finbalance_incomes_on_finbalance_item_id"
-    t.index ["update_id"], name: "index_finbalance_incomes_on_update_id"
+    t.index ["create_id"], name: "index_finbalance_assemblies_on_create_id"
+    t.index ["discarded_at"], name: "index_finbalance_assemblies_on_discarded_at"
+    t.index ["finbalance_id"], name: "index_finbalance_assemblies_on_finbalance_id"
+    t.index ["finbalance_item_id"], name: "index_finbalance_assemblies_on_finbalance_item_id"
+    t.index ["update_id"], name: "index_finbalance_assemblies_on_update_id"
   end
 
   create_table "finbalance_items", force: :cascade do |t|
@@ -536,7 +577,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
 
   create_table "finbalances", force: :cascade do |t|
     t.integer "event_id", null: false
-    t.integer "finbalance_item_id", null: false
     t.integer "balance", default: 0
     t.integer "income", default: 0
     t.integer "cost", default: 0
@@ -548,7 +588,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.index ["create_id"], name: "index_finbalances_on_create_id"
     t.index ["discarded_at"], name: "index_finbalances_on_discarded_at"
     t.index ["event_id"], name: "index_finbalances_on_event_id"
-    t.index ["finbalance_item_id"], name: "index_finbalances_on_finbalance_item_id"
     t.index ["update_id"], name: "index_finbalances_on_update_id"
   end
 
@@ -614,6 +653,84 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["discarded_at"], name: "index_port_lists_on_discarded_at"
+  end
+
+  create_table "quotation_companies", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.integer "quotation_id", null: false
+    t.datetime "discarded_at"
+    t.integer "create_id"
+    t.integer "update_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_quotation_companies_on_company_id"
+    t.index ["create_id"], name: "index_quotation_companies_on_create_id"
+    t.index ["discarded_at"], name: "index_quotation_companies_on_discarded_at"
+    t.index ["quotation_id"], name: "index_quotation_companies_on_quotation_id"
+    t.index ["update_id"], name: "index_quotation_companies_on_update_id"
+  end
+
+  create_table "quotation_items", force: :cascade do |t|
+    t.integer "finbalance_item_id"
+    t.integer "quotation_id", null: false
+    t.integer "item_type"
+    t.string "item_name_note"
+    t.boolean "tax_flag", default: false
+    t.float "unit"
+    t.integer "section"
+    t.string "currency"
+    t.string "item_remark"
+    t.float "exchange_rate"
+    t.decimal "quantity"
+    t.decimal "purchase_unit_price"
+    t.decimal "purchase_amount", default: "0.0"
+    t.decimal "sales_unit_price"
+    t.decimal "sales_amount", default: "0.0"
+    t.decimal "gross_profit", default: "0.0"
+    t.decimal "gross_profit_rate", default: "0.0"
+    t.datetime "discarded_at"
+    t.integer "create_id"
+    t.integer "update_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["create_id"], name: "index_quotation_items_on_create_id"
+    t.index ["discarded_at"], name: "index_quotation_items_on_discarded_at"
+    t.index ["finbalance_item_id"], name: "index_quotation_items_on_finbalance_item_id"
+    t.index ["quotation_id"], name: "index_quotation_items_on_quotation_id"
+    t.index ["update_id"], name: "index_quotation_items_on_update_id"
+  end
+
+  create_table "quotations", force: :cascade do |t|
+    t.integer "forwarder_id", null: false
+    t.integer "client_id", null: false
+    t.integer "user_id", null: false
+    t.string "client_pic_name"
+    t.string "place_of_receipt"
+    t.string "port_of_loading"
+    t.string "port_of_discharge"
+    t.string "port_of_delivery"
+    t.integer "tax_percent"
+    t.string "carrier"
+    t.datetime "issue_at"
+    t.string "valid_at"
+    t.integer "shipment"
+    t.integer "mode"
+    t.integer "term"
+    t.string "cargo"
+    t.integer "total_amount"
+    t.datetime "discarded_at"
+    t.string "remark"
+    t.integer "create_id"
+    t.integer "update_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_quotations_on_client_id"
+    t.index ["create_id"], name: "index_quotations_on_create_id"
+    t.index ["discarded_at"], name: "index_quotations_on_discarded_at"
+    t.index ["forwarder_id"], name: "index_quotations_on_forwarder_id"
+    t.index ["update_id"], name: "index_quotations_on_update_id"
+    t.index ["user_id"], name: "index_quotations_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -655,6 +772,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
   add_foreign_key "chats", "users", column: "update_id"
   add_foreign_key "company_business_categories", "business_categories"
   add_foreign_key "company_business_categories", "companies"
+  add_foreign_key "company_business_categories", "companies", column: "forwarder_id"
   add_foreign_key "containers", "events"
   add_foreign_key "containers", "users", column: "create_id"
   add_foreign_key "containers", "users", column: "update_id"
@@ -693,8 +811,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
   add_foreign_key "favorite_docs", "favorites"
   add_foreign_key "favorite_docs", "users", column: "create_id"
   add_foreign_key "favorite_docs", "users", column: "update_id"
+  add_foreign_key "favorite_files", "business_categories"
+  add_foreign_key "favorite_files", "favorites"
+  add_foreign_key "favorite_files", "users", column: "create_id"
+  add_foreign_key "favorite_files", "users", column: "update_id"
+  add_foreign_key "favorite_finbalance_assemblies", "favorite_finbalances"
+  add_foreign_key "favorite_finbalance_assemblies", "finbalance_items"
+  add_foreign_key "favorite_finbalance_assemblies", "users", column: "create_id"
+  add_foreign_key "favorite_finbalance_assemblies", "users", column: "update_id"
   add_foreign_key "favorite_finbalances", "favorites"
-  add_foreign_key "favorite_finbalances", "finbalance_items"
   add_foreign_key "favorite_finbalances", "users", column: "create_id"
   add_foreign_key "favorite_finbalances", "users", column: "update_id"
   add_foreign_key "favorite_goods", "favorites"
@@ -706,21 +831,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
   add_foreign_key "favorites", "companies", column: "forwarder_id"
   add_foreign_key "favorites", "users", column: "create_id"
   add_foreign_key "favorites", "users", column: "update_id"
-  add_foreign_key "finbalance_costs", "companies"
-  add_foreign_key "finbalance_costs", "finbalance_items"
-  add_foreign_key "finbalance_costs", "finbalances"
-  add_foreign_key "finbalance_costs", "users", column: "create_id"
-  add_foreign_key "finbalance_costs", "users", column: "update_id"
-  add_foreign_key "finbalance_incomes", "companies"
-  add_foreign_key "finbalance_incomes", "finbalance_items"
-  add_foreign_key "finbalance_incomes", "finbalances"
-  add_foreign_key "finbalance_incomes", "users", column: "create_id"
-  add_foreign_key "finbalance_incomes", "users", column: "update_id"
+  add_foreign_key "finbalance_assemblies", "finbalance_items"
+  add_foreign_key "finbalance_assemblies", "finbalances"
+  add_foreign_key "finbalance_assemblies", "users", column: "create_id"
+  add_foreign_key "finbalance_assemblies", "users", column: "update_id"
   add_foreign_key "finbalance_items", "companies", column: "forwarder_id"
   add_foreign_key "finbalance_items", "users", column: "create_id"
   add_foreign_key "finbalance_items", "users", column: "update_id"
   add_foreign_key "finbalances", "events"
-  add_foreign_key "finbalances", "finbalance_items"
   add_foreign_key "finbalances", "users", column: "create_id"
   add_foreign_key "finbalances", "users", column: "update_id"
   add_foreign_key "kepler_logs", "keplers"
@@ -730,5 +848,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_23_094515) do
   add_foreign_key "messages", "users"
   add_foreign_key "messages", "users", column: "create_id"
   add_foreign_key "messages", "users", column: "update_id"
+  add_foreign_key "quotation_companies", "companies"
+  add_foreign_key "quotation_companies", "quotations"
+  add_foreign_key "quotation_companies", "users", column: "create_id"
+  add_foreign_key "quotation_companies", "users", column: "update_id"
+  add_foreign_key "quotation_items", "finbalance_items"
+  add_foreign_key "quotation_items", "quotations"
+  add_foreign_key "quotation_items", "users", column: "create_id"
+  add_foreign_key "quotation_items", "users", column: "update_id"
+  add_foreign_key "quotations", "companies", column: "client_id"
+  add_foreign_key "quotations", "companies", column: "forwarder_id"
+  add_foreign_key "quotations", "users"
+  add_foreign_key "quotations", "users", column: "create_id"
+  add_foreign_key "quotations", "users", column: "update_id"
   add_foreign_key "users", "companies"
 end

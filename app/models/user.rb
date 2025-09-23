@@ -11,6 +11,7 @@ class User < ApplicationRecord
   enum :role, { admin: 0, editor: 1, viewer: 2}
 
   include Discard::Model
+  default_scope -> { kept }
 
   # ransack用の検索可能属性を定義
   def self.ransackable_attributes(auth_object = nil)

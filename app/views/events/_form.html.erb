@@ -5,7 +5,7 @@
   </div>
   <div class="header-right">
     <div class="header-actions-right">
-      <% if action_name == "edit" %>
+      <% if @display_header %>
         <%= render "header" %>
       <% end %>
       <%= f.submit "登録", class: "btn btn-primary" do %>
@@ -60,7 +60,7 @@
 
         <div class="form-group">
           <label class="form-label">SOA</label>
-          <%= f.date_field :soa, class: "form-select", data: { event_new_target: "soaInput" } %>
+          <%= f.date_field :soa, class: "form-select" %>
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@
           <div class="form-group">
             <label class="form-label"><%= company_form.object.role.humanize %></label>
             <%= company_form.hidden_field :role %>
-            <%= company_form.collection_select :company_id, @company_groups[event_new_company_fields(company_form.object.role)] || [], :id, :name,
+            <%= company_form.collection_select :company_id, @company_groups[new_company_fields(company_form.object.role)] || [], :id, :name,
                   { prompt: "選択してください" },
                   { class: "form-select" } %>
           </div>
@@ -111,9 +111,9 @@
                   { class: "form-select" } %>
           </div>
           <div class="form-group">
-            <label class="form-label">METHOD</label>
-            <%= shipment_form.select :med,
-                  EventShipment.meds.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.med.#{k}"), k] },
+            <label class="form-label">MODE</label>
+            <%= shipment_form.select :mode,
+                  EventShipment.modes.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.mode.#{k}"), k] },
                   { prompt: "選択してください" },
                   { class: "form-select" } %>
           </div>
@@ -167,9 +167,6 @@
                     port_field: "port_of_delivery"
                   } %>
           </div>
-
-          <%= render "layouts/port_search" %>
-
         </div>
         <div class="form-grid grid-2" style="margin-top: 20px;">
           <div class="form-group">
@@ -438,16 +435,16 @@
               </tr>
             </thead>
             <tbody>
-              <% (0...[event_new_shipper_docs.size, event_new_forwarder_docs.size, event_new_custom_docs.size].max).each do |i| %>
+              <% (0...[shipper_docs_select.size, forwarder_docs_select.size, custom_docs_select.size].max).each do |i| %>
                 <tr>
                   <!-- 荷主 -->
-                  <% if event_new_shipper_docs[i] %>
-                    <% name = event_new_shipper_docs[i][1] %>
+                  <% if shipper_docs_select[i] %>
+                    <% name = shipper_docs_select[i][1] %>
                     <td style="text-align:center; padding:5px;">
                       <%= doc_form.check_box name.to_sym, {}, true, false %>
                     </td>
                     <td style="text-align:left; padding:5px;">
-                      <%= doc_form.label name.to_sym, event_new_shipper_docs[i][0] %>
+                      <%= doc_form.label name.to_sym, shipper_docs_select[i][0] %>
                     </td>
                   <% else %>
                     <td style="text-align:center; padding:5px;"></td>
@@ -455,13 +452,13 @@
                   <% end %>
 
                   <!-- フォワーダー -->
-                  <% if event_new_forwarder_docs[i] %>
-                    <% name = event_new_forwarder_docs[i][1] %>
+                  <% if forwarder_docs_select[i] %>
+                    <% name = forwarder_docs_select[i][1] %>
                     <td style="text-align:center; padding:5px;">
                       <%= doc_form.check_box name.to_sym, {}, true, false %>
                     </td>
                     <td style="text-align:left; padding:5px;">
-                      <%= doc_form.label name.to_sym, event_new_forwarder_docs[i][0] %>
+                      <%= doc_form.label name.to_sym, forwarder_docs_select[i][0] %>
                     </td>
                   <% else %>
                     <td style="text-align:center; padding:5px;"></td>
@@ -469,13 +466,13 @@
                   <% end %>
 
                   <!-- 通関 -->
-                  <% if event_new_custom_docs[i] %>
-                    <% name = event_new_custom_docs[i][1] %>
+                  <% if custom_docs_select[i] %>
+                    <% name = custom_docs_select[i][1] %>
                     <td style="text-align:center; padding:5px;">
                       <%= doc_form.check_box name.to_sym, {}, true, false %>
                     </td>
                     <td style="text-align:left; padding:5px;">
-                      <%= doc_form.label name.to_sym, event_new_custom_docs[i][0] %>
+                      <%= doc_form.label name.to_sym, custom_docs_select[i][0] %>
                     </td>
                   <% else %>
                     <td style="text-align:center; padding:5px;"></td>

@@ -1,61 +1,54 @@
 module EventHelper
-  def event_new_company_fields(role)
-    if ["si_notifier", "master_notifier"].include? role
-      "notifier"
-    else
-      role
-    end
-  end
-
-  def event_list_shipment(event)
-    return "" if event&.shipment.blank?
-    "type-#{EventShipment.shipments.keys[event.shipment]}"
-  end
-
-  def event_list_item(item)
-    return "N/A" if item.blank?
-    item
-  end
-
   def event_edit_chat_hidden(chat)
     chat.other? && !chat.visible 
   end
 
-  def event_new_shipper_docs 
-    [
-      ["Commercial Invoice", "invoice"], 
-      ["Packing List", "packing_list"], 
-      ["MSDS", "msds"], 
-      ["COO（原産地証明書）", "coo"],
-      ["検疫書類", "quarantine"], 
-      ["L/C（荷主バンの場合）", "l_c"],
-      ["バン画像", "van_photo"], 
-      ["バンレポ", "van_repo"],
-      ["搬入票", "slip"]
-    ]
+  def event_list_edit_status_check_icon(event_doc_completed, status, event_step, event_schedule, event)
+    case status
+    when "booking"
+      event.mbl.present? ? "complete" : "pending"
+    when "docs"
+      event_doc_completed == 1 ? "complete" : "pending"
+    when "vanning", "quarantine", "custom"
+      event_step.present? ? "complete" : "pending"
+    when "etd"
+      pol_atd = event_schedule.is_a?(Hash) ? event_schedule["pol_atd"] : event_schedule&.pol_atd
+      pol_atd.present? && pol_atd < DateTime.current ? "complete" : "pending"
+    when "eta"
+      pod_ata = event_schedule.is_a?(Hash) ? event_schedule["pod_ata"] : event_schedule&.pod_ata
+      pod_ata.present? && pod_ata < DateTime.current ? "complete" : "pending"
+    when "delivery"
+      delivery_date = event_schedule.is_a?(Hash) ? event_schedule["delivery_date"] : event_schedule&.delivery_date
+      delivery_date.present? && delivery_date < DateTime.current ? "complete" : "pending"
+    when "invoice"
+      # TBD
+    end
   end
 
-  def event_new_forwarder_docs
-    [
-      ["見積書", "quotation"], 
-      ["S/I", "s_i"], 
-      ["HBL / AWB", "hbl_awb"], 
-      ["DG Declaration", "dg_declaration"],
-      ["保険証券", "insurance"], 
-      ["Booking Confirmation", "booking_confirmation"], 
-      ["MBL", "mbl"], 
-      ["フレートメモ", "freight_memo"],
-      ["House Arrival Notice","house_arrival_notice" ],
-      ["Master Arrival Notice","master_arrival_notice"],
-      ["POD","pod"]
-    ] 
-  end
+  def event_list_edit_status_date(status, event_schedule)
+    case status
+    when "booking", "docs","vanning", "quarantine", "custom"
+      nil
+    when "etd"
+      pol_atd = event_schedule.is_a?(Hash) ? event_schedule["pol_atd"] : event_schedule&.pol_atd
+      pol_etd = event_schedule.is_a?(Hash) ? event_schedule["pol_etd"] : event_schedule&.pol_etd
 
-  def event_new_custom_docs
-    [
-      ["検量証明書", "weight_cert"], 
-      ["輸出許可書", "export_permit"], 
-      ["D/R（Dock Receipt）", "dock_receipt"]
-    ]
+      return date_only(pol_atd) if pol_atd.present? && pol_atd < DateTime.current
+      date_only(pol_etd)
+
+    when "eta"
+      pod_ata = event_schedule.is_a?(Hash) ? event_schedule["pod_ata"] : event_schedule&.pod_ata
+      pod_eta = event_schedule.is_a?(Hash) ? event_schedule["pod_eta"] : event_schedule&.pod_eta
+
+      return date_only(pod_ata) if pod_ata.present? && pod_ata < DateTime.current
+      date_only(pod_eta)
+
+    when "delivery"
+      delivery_date = event_schedule.is_a?(Hash) ? event_schedule["delivery_date"] : event_schedule&.delivery_date
+      date_only(delivery_date)
+    when "invoice"
+      nil
+      # TBD
+    end
   end
 end

@@ -129,19 +129,19 @@
 }
 
 /* 港名登録・検索セクション用の横並びレイアウト */
-.port-form {
+.port-form, .finbalance-form {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.port-input-row {
+.port-input-row, .finbalance-input-row {
     display: flex;
     align-items: end;
     gap: 15px;
 }
 
-.port-input-group {
+.port-input-group, .finbalance-input-group {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -169,7 +169,7 @@
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-#port-name, #port-search-name {
+#port-name, #port-search-name, #finbalance-name, #finbalance-search-name {
     width: 50%;
 }
 
@@ -293,7 +293,7 @@
 }
 
 /* 左右分割レイアウト用 */
-.port-management-grid {
+.port-management-grid, .finbalance-management-grid{
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;

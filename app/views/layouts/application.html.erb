@@ -14,7 +14,7 @@
 
   <body>
     <!-- フラッシュメッセージ -->
-    <% if notice || alert || flash[:error] %>
+    <% if notice || alert || flash[:error] || flash.now[:error] %>
       <div class="flash-messages">
         <% if notice %>
           <div class="flash-message flash-notice" data-controller="flash">

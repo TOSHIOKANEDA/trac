@@ -1,0 +1,132 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "finbalances/new", "data-turbo-track": "reload" %>
+<% end %>
+<% content_for :title, "支払い・請求管理編集" %>
+
+<div data-controller="finbalance-new" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <%= form_with model: @finbalance, local: true, data: { turbo: false } do |f| %>
+        <%= f.hidden_field :event_id, value: @event.id %>
+        <div class="header">
+          <h1><i class="fas fa-calculator"></i> 支払い・請求管理編集</h1>
+          <div class="header-actions">
+            <%= link_to edit_event_path(@event), class: "btn btn-secondary" do %>
+              <i class="fas fa-arrow-left"></i> 案件に戻る
+            <% end %>
+            <button class="btn btn-secondary">
+              <i class="fas fa-file-invoice"></i> 請求書PDF
+            </button>
+            <button class="btn btn-secondary" data-action="click->finbalance-new#openFileListPanel">
+              <i class="fas fa-paperclip"></i> 添付ファイル一覧
+            </button>
+            <button class="btn btn-success">
+              <i class="fas fa-save"></i> 保存
+            </button>
+          </div>
+        </div>
+
+        <div class="form-container">
+          <!-- 案件情報セクション（表示のみ） -->
+          <%= render "info" %>
+          <!-- 支払い・請求管理情報セクション（入力部分） -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="section-icon"><i class="fas fa-yen-sign"></i></div>
+                支払い・請求管理情報
+              </div>
+            </div>
+            <div class="section-content">
+              <div class="cargo-table-container">
+                <table class="cargo-table" id="accountingTable">
+                  <thead>
+                    <tr>
+                      <th>項目名</th>
+                      <th>収入 (円)</th>
+                      <th>支出 (円)</th>
+                      <th>差額 (円)</th>
+                      <th style="width: 50px;">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody data-finbalance-new-target="accountingTableBody">
+                    <%= f.fields_for :finbalance_assemblies do |assembly| %>
+                      <tr>
+                        <td>
+                          <%= assembly.select :finbalance_item_id,
+                                        @finbalance_items.map { |item| [item.item_name, item.id] },
+                                        { include_blank: '項目を選択してください' },
+                                        class: 'table-select item-select', required: true %>
+                        </td>
+                        <td>
+                          <%= assembly.text_field :income_amount,
+                                                  class: "table-input income-input number-with-commas",
+                                                  placeholder: 0,
+                                                  required: true, 
+                                                  data: {
+                                                    finbalance_new_target: "amountInput",
+                                                    action: "input->finbalance-new#formatWithCommas input->finbalance-new#calculateTotals" } %>
+                        </td>
+                        <td>
+                          <%= assembly.text_field :cost_amount,
+                                                  class: "table-input expense-input number-with-commas",
+                                                  placeholder: 0,
+                                                  required: true, 
+                                                  data: { 
+                                                    finbalance_new_target: "amountInput",
+                                                    action: "input->finbalance-new#formatWithCommas input->finbalance-new#calculateTotals" } %>
+                        </td>
+                        <td>
+                          <%= assembly.text_field :balance_amount,
+                                                    class: 'table-input balance-output',
+                                                    readonly: true,
+                                                    value: 0 %>
+                        </td>
+                        <td>
+                          <%= assembly.hidden_field :_destroy, value: 0, class: 'discard-flag' %>
+                          <button type="button" class="delete-row-btn" title="行を削除" data-action="click->finbalance-new#deleteRow">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style="margin-top: 15px;">
+                <button type="button" class="btn btn-secondary" data-action="click->finbalance-new#addAccountingRow" data-finbalance-new-is-favorite="false">
+                  <i class="fas fa-plus"></i> 行を追加
+                </button>
+              </div>
+              
+              <div class="totals-container">
+                <div class="total-item">
+                  <div class="total-label">収入合計</div>
+                  <div class="total-value" data-finbalance-new-target="totalIncome">¥0</div>
+                </div>
+                <div class="total-item">
+                  <div class="total-label">支出合計</div>
+                  <div class="total-value" data-finbalance-new-target="totalExpense">¥0</div>
+                </div>
+                <div class="total-item">
+                  <div class="total-label">総差額</div>
+                  <div class="total-value" data-finbalance-new-target="grandTotal">¥0</div>
+                </div>
+                <div class="total-item">
+                  <label class="total-label">利益率</label>
+                  <div class="total-value" data-finbalance-new-target="displayMarginInfo">0%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <div id="finbalance-items" style="display: none;">
+    <%= options_from_collection_for_select(@finbalance_items, :id, :item_name) %>
+  </div>
+  <%= render "file_panel"%>
+</div>

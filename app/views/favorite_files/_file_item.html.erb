@@ -1,0 +1,94 @@
+<div class="file-item uploaded" data-file-id="<%= favorite_file || 0%>">
+  <%= form_with model: [@favorite, favorite_file], local: true, data: { "event-file-index-target": "fileForm" } do |form| %>
+    <div class="file-item-header">
+      <%= form.select :verified_doc, 
+              options_for_select(
+                [['ファイル種類を選択', '']] + section[:docs],
+                favorite_file&.verified_doc
+              ),
+              {}, 
+              { 
+                class: "file-type-select", 
+                data: { action: "change->event-file-index#onVerifiedDocChange" }
+              } %>
+        <span class="required-mark">*必須</span>
+        <%= link_to favorite_favorite_file_path(@favorite, favorite_file),
+            method: :delete,
+            class: "delete-file-btn",
+            title: "ファイルを削除",
+            data: { 
+              confirm: "このファイルを削除してもよろしいですか？",
+              turbo: false
+            } do %>
+          <i class="fas fa-trash"></i>
+        <% end %>
+      <span class="status-indicator uploaded"></span>
+    </div>
+
+    <div class="file-info-section">
+      <div class="uploaded-file-info">
+        <div class="file-name-display">
+          <i class="<%= file_icon_class(favorite_file.file_type) %>" style="<%= file_icon_style(favorite_file.file_type) %>"></i>
+          <%= link_to download_favorite_favorite_file_path(@favorite, favorite_file),
+              class: "file-name", 
+              target: "_blank" do %>
+            <%= favorite_file.file_name %>
+          <% end %>
+        </div>
+        <div class="file-size"><%= number_to_human_size(favorite_file.file_size) %></div>
+        <div class="file-meta">
+          <span class="upload-date">
+            <%= date_with_time(favorite_file.created_at) %>
+          </span>
+          <span class="uploader">
+            by <%= favorite_file.creator.name %>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="control-wrap">
+      <div class="access-control">
+        <div class="access-label">アクセス権限</div>
+        <div class="access-chips">
+          <label class="access-chip <%= 'active' if favorite_file.custom_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :custom_view, 
+                { checked: favorite_file.custom_view },
+                { style: "display: none;" } %>
+            <span>通関業者</span>
+          </label>
+          <label class="access-chip <%= 'active' if favorite_file.shipper_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :shipper_view, 
+                { checked: favorite_file.shipper_view },
+                { style: "display: none;" } %>
+            <span>荷主</span>
+          </label>
+          <label class="access-chip <%= 'active' if favorite_file.consignee_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :consignee_view, 
+                { checked: favorite_file.consignee_view },
+                { style: "display: none;" } %>
+            <span>荷受人</span>
+          </label>
+          <label class="access-chip <%= 'active' if favorite_file.agent_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :agent_view, 
+                { checked: favorite_file.agent_view },
+                { style: "display: none;" } %>
+            <span>Agent</span>
+          </label>
+        </div>
+      </div>
+      <% if favorite_file.is_verified? %>
+        <div class="verification-info">
+          <i class="fas fa-check-circle verified-icon"></i>
+          <span>検証済み by <%= favorite_file.verified_name %></span>
+        </div>
+      <% end %>    
+      <%= form.submit "更新", 
+          class: "btn btn-sm btn-primary file-update-btn", 
+          data: { "event-file-index-target": "updateBtn" } %>
+    </div>
+  <% end %>
+</div>

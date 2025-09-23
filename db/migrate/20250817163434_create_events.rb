@@ -13,6 +13,8 @@ class CreateEvents < ActiveRecord::Migration[7.2]
       t.boolean :charge
       t.text :description
       t.text :remark
+      t.boolean :file_pasted, default: false
+      t.integer :containers_count, default: 0
       t.datetime :accounting_month
       t.datetime :discarded_at
       # Event は必ず Forwarder に属する

@@ -23,7 +23,7 @@
         <%= turbo_frame_tag dom_id(chat, :messages) do %>
           <% chat.messages.order(:created_at).each do |message| %>
             <div class="chat-message">
-              <strong><%= message.user.name %> <%= message.created_at.strftime("%H:%M") %></strong><br>
+              <strong><%= message.user.name %> <%= date_with_time(message.created_at) %></strong><br>
               <%= message.content %>
             </div>
           <% end %>
@@ -79,9 +79,8 @@
                             required: true %>
       </div>
       
-      <div class="form-group">
+      <div class="form-group" style="margin-top:25px;">
         <label class="form-label">参加者</label>
-        
         <div id="participants-container">
           <!-- 既存の参加者をfields_forで表示 -->
           <%= form.fields_for :chat_users do |chat_user_form| %>
@@ -112,12 +111,13 @@
             <option value="<%= chat_user.user_id %>" data-name="<%= chat_user.name %>" data-company="<%= chat_user.company_name %>"><%= chat_user.user_and_company %></option>
           <% end %>
         </select>
-        <button type="button" class="btn btn-secondary" data-action="click->event-new#addParticipant">参加者を追加</button>
+        <button type="button" class="btn btn-secondary" style="margin-top:10px;" data-action="click->event-new#addParticipant">参加者を追加</button>
       </div>
 
       <div class="modal-actions">
         <%= form.submit "保存", 
-            class: "btn btn-primary", 
+            class: "btn btn-primary",
+            style: "margin-top:5px;",
             data: { 
               disable_with: "処理中...",
               "action": "click->event-new#handleSubmitClick"

@@ -1,6 +1,8 @@
 class Event < ApplicationRecord
+  include Discard::Model
+
   belongs_to :forwarder, -> { where(is_forwarder: true).kept }, class_name: "Company"
-  has_many :containers, -> { kept }, dependent: :destroy
+  has_many :containers, -> { kept }, dependent: :destroy, counter_cache: :containers_count
   accepts_nested_attributes_for :containers, allow_destroy: true
   has_many :event_files, -> { kept }, dependent: :destroy
   has_many :event_goods, -> { kept }, dependent: :destroy
@@ -22,15 +24,30 @@ class Event < ApplicationRecord
   attr_accessor :ac_month, :ac_year
 
   after_create :create_default_chats
-  include Discard::Model
-  # Ransack設定
+  default_scope -> { kept }
+
   def self.ransackable_attributes(auth_object = nil)
-    %w[id_string mbl]
+    %w[id_string mbl accounting_month]
   end
 
   def self.ransackable_associations(auth_object = nil)
     %w[event_shipment event_schedule event_companies forwarder]
   end
+
+  scope :with_finbalances, ->(forwarder_id) {
+    sql = <<~SQL
+      LEFT JOIN event_companies client_ec
+        ON client_ec.event_id = events.id
+        AND client_ec.role = #{EventCompany.roles[:client]}
+        AND client_ec.discarded_at IS NULL
+      LEFT JOIN companies clients
+        ON clients.id = client_ec.company_id
+    SQL
+
+    joins(:finbalance)
+      .left_outer_joins(:event_shipment, :event_schedule)
+      .joins(sql)
+  }
 
   scope :with_shipper_and_consignee, -> {
     sql = <<~SQL
@@ -47,7 +64,7 @@ class Event < ApplicationRecord
         ON consignees.id = consignee_ec.company_id
     SQL
 
-    left_outer_joins(:event_shipment, :event_schedule)
+    left_outer_joins(:event_shipment, :event_schedule, :event_doc)
       .joins(sql)
   }
 
@@ -65,6 +82,14 @@ class Event < ApplicationRecord
     
     joins(event_companies: :company)
       .where(event_companies: { role: EventCompany.roles[:consignee] })
+      .where("companies.english_name LIKE ?", "%#{name}%")
+  }
+
+  scope :by_client_name, ->(name) {
+    return all if name.blank?
+    
+    joins(event_companies: :company)
+      .where(event_companies: { role: EventCompany.roles[:client] })
       .where("companies.english_name LIKE ?", "%#{name}%")
   }
 

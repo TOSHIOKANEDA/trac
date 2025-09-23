@@ -6,5 +6,6 @@ class CreatePortLists < ActiveRecord::Migration[7.2]
       t.datetime :discarded_at
       t.timestamps
     end
+    add_index :port_lists, :discarded_at
   end
 end

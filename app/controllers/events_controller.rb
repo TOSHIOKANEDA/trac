@@ -1,6 +1,10 @@
 class EventsController < ApplicationController
-  before_action :set_attributes, only: [:edit, :new]
+  include CompanyAttributes
+  include EventDisplayData
+  
+  before_action :set_attributes, only: [:edit, :new, :paste]
   before_action :find_event, only: [:edit, :update, :destroy]
+  before_action :display_header, only: [:edit, :new, :paste]
 
   def index
   end
@@ -14,44 +18,24 @@ class EventsController < ApplicationController
   end
 
   def list
-    company = current_user.company
-    base_events = company.is_forwarder ? company.organized_events : company.participated_events
+    base_events = base_events_for_current_company
+    @events, @q = EventsSearchQuery.new(base_events, params).call
     
-    # ransackを使用して検索条件を構築
-    @q = base_events.with_shipper_and_consignee.ransack(params[:q])
-    
-    # 基本的な検索結果を取得
-    search_result = @q.result(distinct: true)
-    
-    # Shipper名での絞り込み（ransackでは複雑な関連テーブル検索が難しいため）
-    if params[:q] && params[:q][:shipper_name_cont].present?
-      search_result = search_result.by_shipper_name(params[:q][:shipper_name_cont])
-    end
-    
-    # Consignee名での絞り込み
-    if params[:q] && params[:q][:consignee_name_cont].present?
-      search_result = search_result.by_consignee_name(params[:q][:consignee_name_cont])
-    end
-    
-    @events = search_result.select(
-      "events.id",
-      "events.id_string",
-      "events.mbl",
-      "event_shipments.shipment AS shipment",
-      "event_shipments.port_of_loading AS pol",
-      "event_shipments.port_of_discharge AS pod",
-      "event_schedules.pol_etd AS etd",
-      "event_schedules.pod_eta AS eta",
-      "shippers.english_name AS shipper",
-      "consignees.english_name AS consignee"
-    )
+    @events = @events.select(event_list_columns)
+    @event_steps = EventStep.where(
+      event_id: @events.ids,
+      status: [:vanning, :quarantine, :custom]
+    ).group_by(&:event_id)
   end
 
   def create
     @event = Event.new(event_params)
     @event.forwarder = current_user.company
     @event.year = Time.current.year
-    @event.accounting_month = Event.generate_accounting_month(event_params[:ac_year], event_params[:ac_month])
+    @event.accounting_month = Event.generate_accounting_month(
+      event_params[:ac_year],
+      event_params[:ac_month]
+    )
 
     if @event.save
       redirect_to list_events_path, notice: '船積みデータが正常に作成されました。'
@@ -64,22 +48,17 @@ class EventsController < ApplicationController
     @id_string = @event.id_string
     @event.ac_year = @event.accounting_month&.year
     @event.ac_month = @event.accounting_month&.month
-    @chats = @event.chats
-    @other_chat = @chats.where(chat_type: "other").first
-    @chat_participatnts = @other_chat.users.joins(:company).select("users.id as id", "users.name as name", "companies.japanese_name as company_name")
-
-    @chat_users = EventCompany.where(event_id: @event.id).joins(company: :users).
-                  select("users.id as user_id", "users.name as name", "companies.japanese_name as company_name", "CONCAT(users.name, '（', companies.japanese_name, '）') AS user_and_company")
-    # 各 role ごとに必ず event_companies が用意されるように build
-    EventCompany.roles.keys.each do |role|
-      @event.event_companies.find_or_initialize_by(role: role)
-    end
+    
+    ensure_all_event_companies
+    prepare_event_display_data(@event)
   end
 
   def update
     event_hash = event_params.to_h
-    event_hash[:accounting_month] = Event.generate_accounting_month(event_params[:ac_year], event_params[:ac_month])
-
+    event_hash[:accounting_month] = Event.generate_accounting_month(
+      event_params[:ac_year],
+      event_params[:ac_month]
+    )
     if @event.update(event_hash)
       redirect_to edit_event_path(@event.id), notice: '更新しました'
     else
@@ -87,21 +66,77 @@ class EventsController < ApplicationController
     end
   end
 
+  def paste
+    if params[:favorite_id]
+      @favorite = Favorite.includes(:favorite_doc).find(params[:favorite_id])
+      @event = EventFromFavoriteCreator.new(@favorite, Time.current.year).call
+    elsif params[:quotation_id]
+      @quotation = Quotation.find(params[:quotation_id])
+      @event = EventFromQuotationCreator.new(@quotation, Time.current.year).call
+    else
+      redirect_to root_path, alert: 'パラメータが不正です'
+      return
+    end
+    
+    @id_string = @event.id_string
+    prepare_event_display_data(@event)
+    redirect_to edit_event_path(@event.id), notice: '案件登録しました'
+  end
+
   def new
     @event = Event.new
-    %w[shipper consignee si_notifier master_notifier client agent custom].each do |role|
-      @event.event_companies.build(role: role)
+    @id_string = @event.generate_id
+    
+    build_new_event_associations
+  end
+
+  private
+
+  def base_events_for_current_company
+    company = current_user.company
+    company.is_forwarder ? company.organized_events : company.participated_events
+  end
+
+  def event_list_columns
+    [
+      "events.id",
+      "events.id_string",
+      "events.mbl",
+      "event_shipments.shipment AS shipment",
+      "event_shipments.port_of_loading AS pol",
+      "event_shipments.port_of_discharge AS pod",
+      "event_schedules.pol_etd AS etd",
+      "event_schedules.pod_eta AS eta",
+      "shippers.english_name AS shipper",
+      "consignees.english_name AS consignee",
+      "event_schedules.pol_etd",
+      "event_schedules.pol_atd",
+      "event_schedules.pod_eta",
+      "event_schedules.pod_ata",
+      "event_schedules.delivery_date",
+      "event_docs.completed"
+    ]
+  end
+
+  def ensure_all_event_companies
+    EventCompany.roles.keys.each do |role|
+      @event.event_companies.find_or_initialize_by(role: role)
     end
+  end
+
+  def build_new_event_associations
+    ensure_all_event_companies
     @event.containers.build
     @event.event_goods.build
     @event.event_steps.build
     @event.build_event_doc
     @event.build_event_shipment
     @event.build_event_schedule
-    @id_string ||= @event.generate_id
   end
 
-  private
+  def display_header
+    @display_header = ["edit", "paste"].include?(action_name)
+  end
 
   def find_event
     @event = Event.find(params[:id])
@@ -125,7 +160,7 @@ class EventsController < ApplicationController
       event_shipment_attributes: [
         :id,
         :shipment,
-        :med,
+        :mode,
         :term,
         :place_of_receipt,
         :port_of_loading,
@@ -214,11 +249,5 @@ class EventsController < ApplicationController
         :dock_receipt
       ]
     )
-  end
-
-  def set_attributes
-    @ports = PortList.pluck(:name)
-    @users = current_user.company.users
-    @company_groups = BusinessCategory.where(companies: {status: true}).joins(:companies).select("companies.id AS id", "companies.english_name AS name", "business_categories.category").group_by(&:category)
   end
 end

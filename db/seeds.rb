@@ -1,191 +1,3 @@
-# db/seeds/users_companies_roles.rb
-
-# フォワーダー
-forwarder = Company.create!(
-  japanese_name: "東京海運物流株式会社",
-  english_name: "Tokyo Marine Logistics Co., Ltd.",
-  address: "東京都港区",
-  is_forwarder: true
-)
-
-# Agent（代理店）
-agents = [
-  { jp: "関西総合エージェンシー株式会社", en: "Kansai General Agency Co., Ltd.", addr: "大阪府大阪市" },
-  { jp: "九州国際サービス株式会社", en: "Kyushu International Service Co., Ltd.", addr: "福岡県福岡市" },
-  { jp: "北海道ロジスティクス株式会社", en: "Hokkaido Logistics Co., Ltd.", addr: "北海道札幌市" },
-  { jp: "中部通商代理店株式会社", en: "Chubu Trading Agency Co., Ltd.", addr: "愛知県名古屋市" },
-  { jp: "東北マリンサービス株式会社", en: "Tohoku Marine Service Co., Ltd.", addr: "宮城県仙台市" }
-].map do |company_data|
-  Company.create!(
-    japanese_name: company_data[:jp],
-    english_name: company_data[:en],
-    address: company_data[:addr],
-    is_forwarder: false
-  )
-end
-
-# Shipper（荷主）
-shippers = [
-  { jp: "三栄工業株式会社", en: "Sanei Industries Co., Ltd.", addr: "神奈川県横浜市" },
-  { jp: "日本精密機器株式会社", en: "Japan Precision Equipment Co., Ltd.", addr: "静岡県浜松市" },
-  { jp: "関東電子部品株式会社", en: "Kanto Electronic Components Co., Ltd.", addr: "埼玉県さいたま市" },
-  { jp: "大和製作所株式会社", en: "Yamato Manufacturing Co., Ltd.", addr: "兵庫県神戸市" },
-  { jp: "富士商事株式会社", en: "Fuji Trading Co., Ltd.", addr: "東京都千代田区" }
-].map do |company_data|
-  Company.create!(
-    japanese_name: company_data[:jp],
-    english_name: company_data[:en],
-    address: company_data[:addr],
-    is_forwarder: false
-  )
-end
-
-# Consignee（荷受人）
-consignees = [
-  { jp: "太平洋トレーディング株式会社", en: "Pacific Trading Co., Ltd.", addr: "東京都品川区" },
-  { jp: "日本輸入商事株式会社", en: "Japan Import Trading Co., Ltd.", addr: "大阪府堺市" },
-  { jp: "アジア流通株式会社", en: "Asia Distribution Co., Ltd.", addr: "神奈川県川崎市" },
-  { jp: "グローバル商材株式会社", en: "Global Materials Co., Ltd.", addr: "千葉県千葉市" },
-  { jp: "東日本インターナショナル株式会社", en: "East Japan International Co., Ltd.", addr: "茨城県つくば市" }
-].map do |company_data|
-  Company.create!(
-    japanese_name: company_data[:jp],
-    english_name: company_data[:en],
-    address: company_data[:addr],
-    is_forwarder: false
-  )
-end
-
-# Custom（通関業者）
-customs = [
-  { jp: "東京通関サービス株式会社", en: "Tokyo Customs Service Co., Ltd.", addr: "東京都江東区" },
-  { jp: "横浜港通関株式会社", en: "Yokohama Port Customs Co., Ltd.", addr: "神奈川県横浜市" },
-  { jp: "関西通関ブローカー株式会社", en: "Kansai Customs Broker Co., Ltd.", addr: "大阪府大阪市" },
-  { jp: "神戸関税代理株式会社", en: "Kobe Customs Agency Co., Ltd.", addr: "兵庫県神戸市" },
-  { jp: "中部通関業務株式会社", en: "Chubu Customs Operations Co., Ltd.", addr: "愛知県名古屋市" }
-].map do |company_data|
-  Company.create!(
-    japanese_name: company_data[:jp],
-    english_name: company_data[:en],
-    address: company_data[:addr],
-    is_forwarder: false
-  )
-end
-
-# 複数役割兼務の会社例
-agent_and_consignee = Company.create!(
-  japanese_name: "総合物流ソリューションズ株式会社",
-  english_name: "Integrated Logistics Solutions Co., Ltd.",
-  address: "東京都中央区",
-  is_forwarder: false
-)
-
-shipper_and_custom = Company.create!(
-  japanese_name: "国際貿易コンサルティング株式会社",
-  english_name: "International Trade Consulting Co., Ltd.",
-  address: "大阪府大阪市",
-  is_forwarder: false
-)
-
-# BusinessCategory作成
-0.upto(6) do |num|
-  BusinessCategory.create!(category: num)
-end
-
-# 複数役割の関連付け
-CompanyBusinessCategory.create!(company_id: agent_and_consignee.id, business_category_id: BusinessCategory.find_by(category: :agent).id)
-CompanyBusinessCategory.create!(company_id: agent_and_consignee.id, business_category_id: BusinessCategory.find_by(category: :consignee).id)
-CompanyBusinessCategory.create!(company_id: shipper_and_custom.id, business_category_id: BusinessCategory.find_by(category: :shipper).id)
-CompanyBusinessCategory.create!(company_id: shipper_and_custom.id, business_category_id: BusinessCategory.find_by(category: :custom).id)
-
-# --- Users ---
-users = []
-
-# Forwarder Users
-users << User.create!(
-  email: "admin@tokyomarine-logistics.co.jp",
-  password: "password",
-  company: forwarder,
-  role: 0,
-  name: "田中 太郎"
-)
-users << User.create!(
-  email: "manager@tokyomarine-logistics.co.jp",
-  password: "password",
-  company: forwarder,
-  role: 0,
-  name: "佐藤 花子"
-)
-users << User.create!(
-  email: "staff@tokyomarine-logistics.co.jp",
-  password: "password",
-  company: forwarder,
-  role: 0,
-  name: "鈴木 次郎"
-)
-
-# 他会社 Users
-japanese_names = [
-  ["山田 一郎", "高橋 美穂", "渡辺 健太", "中村 みさき", "小林 達也"],
-  ["伊藤 雅子", "加藤 真一", "吉田 由紀", "木村 裕介", "林 さくら"],
-  ["森 和也", "清水 美香", "池田 聡", "石川 恵子", "前田 健二"],
-  ["藤田 智子", "岡田 浩司", "長谷川 理恵", "村上 直樹", "近藤 麻衣"]
-]
-
-[agents, shippers, consignees, customs].each_with_index do |company_list, i|
-  email_prefix = %w[agent shipper consignee custom][i]
-  
-  company_list.each_with_index do |c, si|
-    users << User.create!(
-      email: "manager#{si+1}@#{email_prefix}#{si+1}.co.jp",
-      password: "password",
-      company: c,
-      role: 1,
-      name: japanese_names[i][si]
-    )
-    users << User.create!(
-      email: "staff#{si+1}@#{email_prefix}#{si+1}.co.jp",
-      password: "password",
-      company: c,
-      role: 1,
-      name: japanese_names[i][si] + "（スタッフ）"
-    )
-  end
-end
-
-# 兼務会社 Users
-users << User.create!(
-  email: "manager@integrated-logistics.co.jp",
-  password: "password",
-  company: agent_and_consignee,
-  role: 2,
-  name: "橋本 和彦"
-)
-users << User.create!(
-  email: "staff@integrated-logistics.co.jp",
-  password: "password",
-  company: agent_and_consignee,
-  role: 2,
-  name: "松本 優子"
-)
-users << User.create!(
-  email: "manager@intl-trade-consulting.co.jp",
-  password: "password",
-  company: shipper_and_custom,
-  role: 2,
-  name: "福田 俊介"
-)
-users << User.create!(
-  email: "staff@intl-trade-consulting.co.jp",
-  password: "password",
-  company: shipper_and_custom,
-  role: 2,
-  name: "井上 千恵"
-)
-
-User.update_all confirmed_at: DateTime.now
-puts "Seeded #{Company.count} companies, #{User.count} users"
-
 ports = [
   # // 確認済み（調査で確認できたもの）
   {name: "ADEN", port_code: "YEADE"},
@@ -734,3 +546,936 @@ ports = [
   {name: "ZARAGOZA", port_code: "ESZAR"}
 ];
 PortList.insert_all(ports)
+
+# db/seeds.rb
+
+# 既存データをクリア（開発環境のみ）
+if Rails.env.development?
+  puts "⚠️  Cleaning existing data..."
+  [
+    Message,
+    ChatUser,
+    Chat,
+    FinbalanceAssembly,
+    Finbalance,
+    Container,
+    EventDoc,
+    EventGood,
+    EventStep,
+    EventSchedule,
+    EventShipment,
+    EventCompany,
+    Event,
+    QuotationItem,
+    QuotationCompany,
+    Quotation,
+    FavoriteFinbalanceAssembly,
+    FavoriteFinbalance,
+    FavoriteDoc,
+    FavoriteGood,
+    FavoriteShipment,
+    FavoriteCompany,
+    Favorite,
+    FinbalanceItem,
+    User,
+    CompanyBusinessCategory,
+    Company,
+    BusinessCategory,
+  ].each(&:destroy_all)
+end
+
+puts "🌱 Starting seed..."
+
+# ==============================================
+# 1. Business Categories
+# ==============================================
+puts "\n📦 Creating Business Categories..."
+
+# 0から6までのカテゴリを作成（enumで定義されている想定）
+0.upto(6) do |num|
+  BusinessCategory.create!(category: num)
+  puts "  ✓ Created: category #{num}"
+end
+
+# ==============================================
+# 2. Companies
+# ==============================================
+puts "\n🏢 Creating Companies..."
+
+# フォワーダー（物流会社）
+forwarder = Company.create!(
+  japanese_name: "東京国際物流株式会社",
+  english_name: "Tokyo International Logistics Co., Ltd.",
+  address: "東京都港区芝浦1-2-3",
+  is_forwarder: true,
+  status: true,
+  deal_memo: "主要取引先",
+  company_memo: "海上輸送に強み"
+)
+puts "  ✓ Created Forwarder: #{forwarder.japanese_name}"
+
+forwarder2 = Company.create!(
+  japanese_name: "大阪フォワーディング株式会社",
+  english_name: "Osaka Forwarding Co., Ltd.",
+  address: "大阪府大阪市北区梅田2-4-9",
+  is_forwarder: true,
+  status: true,
+  deal_memo: "関西エリア担当",
+  company_memo: "航空便に強み"
+)
+puts "  ✓ Created Forwarder: #{forwarder2.japanese_name}"
+
+# Agent（代理店）
+agents = [
+  { jp: "関西総合エージェンシー株式会社", en: "Kansai General Agency Co., Ltd.", addr: "大阪府大阪市中央区", memo: "関西エリア代理店" },
+  { jp: "九州国際サービス株式会社", en: "Kyushu International Service Co., Ltd.", addr: "福岡県福岡市博多区", memo: "九州エリア代理店" },
+  { jp: "北海道ロジスティクス株式会社", en: "Hokkaido Logistics Co., Ltd.", addr: "北海道札幌市中央区", memo: "北海道エリア代理店" },
+  { jp: "中部通商代理店株式会社", en: "Chubu Trading Agency Co., Ltd.", addr: "愛知県名古屋市中区", memo: "中部エリア代理店" },
+  { jp: "東北マリンサービス株式会社", en: "Tohoku Marine Service Co., Ltd.", addr: "宮城県仙台市青葉区", memo: "東北エリア代理店" }
+]
+
+agent_companies = agents.map do |company_data|
+  Company.create!(
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
+    is_forwarder: false,
+    status: true,
+    company_memo: company_data[:memo]
+  ).tap { |c| puts "  ✓ Created Agent: #{c.japanese_name}" }
+end
+
+# Shipper（荷主）
+shippers = [
+  { jp: "グローバル商事株式会社", en: "Global Trading Co., Ltd.", addr: "東京都千代田区丸の内1-1-1", memo: "電子機器輸出" },
+  { jp: "日本精密機器株式会社", en: "Japan Precision Equipment Co., Ltd.", addr: "静岡県浜松市中区", memo: "精密機器製造" },
+  { jp: "関東電子部品株式会社", en: "Kanto Electronic Components Co., Ltd.", addr: "埼玉県さいたま市大宮区", memo: "電子部品製造" },
+  { jp: "大和製作所株式会社", en: "Yamato Manufacturing Co., Ltd.", addr: "兵庫県神戸市中央区", memo: "機械部品製造" },
+  { jp: "富士商事株式会社", en: "Fuji Trading Co., Ltd.", addr: "東京都新宿区西新宿2-8-1", memo: "総合商社" }
+]
+
+shipper_companies = shippers.map do |company_data|
+  Company.create!(
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
+    is_forwarder: false,
+    status: true,
+    deal_memo: company_data[:memo]
+  ).tap { |c| puts "  ✓ Created Shipper: #{c.japanese_name}" }
+end
+
+# Consignee（荷受人）
+consignees = [
+  { jp: "太平洋トレーディング株式会社", en: "Pacific Trading Co., Ltd.", addr: "東京都品川区大崎1-5-1", memo: "輸入商社" },
+  { jp: "日本輸入商事株式会社", en: "Japan Import Trading Co., Ltd.", addr: "大阪府堺市堺区", memo: "輸入専門" },
+  { jp: "アジア流通株式会社", en: "Asia Distribution Co., Ltd.", addr: "神奈川県川崎市川崎区", memo: "流通業" },
+  { jp: "グローバル商材株式会社", en: "Global Materials Co., Ltd.", addr: "千葉県千葉市美浜区", memo: "原材料輸入" },
+  { jp: "東日本インターナショナル株式会社", en: "East Japan International Co., Ltd.", addr: "茨城県つくば市", memo: "国際貿易" }
+]
+
+consignee_companies = consignees.map do |company_data|
+  Company.create!(
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
+    is_forwarder: false,
+    status: true,
+    company_memo: company_data[:memo]
+  ).tap { |c| puts "  ✓ Created Consignee: #{c.japanese_name}" }
+end
+
+# Custom（通関業者）
+customs = [
+  { jp: "東京通関サービス株式会社", en: "Tokyo Customs Service Co., Ltd.", addr: "東京都江東区青海2-4-32", memo: "東京港専門" },
+  { jp: "横浜港通関株式会社", en: "Yokohama Port Customs Co., Ltd.", addr: "神奈川県横浜市中区海岸通1-1", memo: "横浜港専門" },
+  { jp: "関西通関ブローカー株式会社", en: "Kansai Customs Broker Co., Ltd.", addr: "大阪府大阪市港区", memo: "大阪港専門" },
+  { jp: "神戸関税代理株式会社", en: "Kobe Customs Agency Co., Ltd.", addr: "兵庫県神戸市中央区", memo: "神戸港専門" },
+  { jp: "中部通関業務株式会社", en: "Chubu Customs Operations Co., Ltd.", addr: "愛知県名古屋市港区", memo: "名古屋港専門" }
+]
+
+custom_companies = customs.map do |company_data|
+  Company.create!(
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
+    is_forwarder: false,
+    status: true,
+    deal_memo: "通関業務",
+    company_memo: company_data[:memo]
+  ).tap { |c| puts "  ✓ Created Customs: #{c.japanese_name}" }
+end
+
+# 運送会社
+trucking_companies = [
+  { jp: "東京運輸株式会社", en: "Tokyo Transport Co., Ltd.", addr: "東京都大田区平和島3-1-1", memo: "都内近郊配送" },
+  { jp: "関東トラック株式会社", en: "Kanto Truck Co., Ltd.", addr: "埼玉県戸田市", memo: "関東エリア配送" }
+]
+
+trucking_companies.each do |company_data|
+  Company.create!(
+    japanese_name: company_data[:jp],
+    english_name: company_data[:en],
+    address: company_data[:addr],
+    is_forwarder: false,
+    status: true,
+    deal_memo: "国内配送",
+    company_memo: company_data[:memo]
+  ).tap { |c| puts "  ✓ Created Trucking: #{c.japanese_name}" }
+end
+
+# 複数役割兼務の会社
+multi_role1 = Company.create!(
+  japanese_name: "総合物流ソリューションズ株式会社",
+  english_name: "Integrated Logistics Solutions Co., Ltd.",
+  address: "東京都中央区日本橋1-1-1",
+  is_forwarder: false,
+  status: true,
+  company_memo: "代理店と荷受人を兼務"
+)
+puts "  ✓ Created Multi-role: #{multi_role1.japanese_name}"
+
+multi_role2 = Company.create!(
+  japanese_name: "国際貿易コンサルティング株式会社",
+  english_name: "International Trade Consulting Co., Ltd.",
+  address: "大阪府大阪市北区堂島1-1-1",
+  is_forwarder: false,
+  status: true,
+  company_memo: "荷主と通関業者を兼務"
+)
+puts "  ✓ Created Multi-role: #{multi_role2.japanese_name}"
+
+# ==============================================
+# 3. Company Business Categories（役割の紐付け）
+# ==============================================
+puts "\n🔗 Creating Company Business Categories..."
+
+# 各会社に役割を紐付け（enumのシンボル名を使用）
+# Agent
+agent_companies.each do |company|
+  if BusinessCategory.respond_to?(:find_by) && BusinessCategory.column_names.include?('category')
+    bc = BusinessCategory.find_by(category: 'agent') || BusinessCategory.find_by(category: 0)
+    if bc
+      CompanyBusinessCategory.create!(
+        forwarder_id: forwarder.id,
+        company_id: company.id,
+        business_category_id: bc.id
+      )
+    end
+  end
+end
+puts "  ✓ Created Agent categories"
+
+# Shipper
+shipper_companies.each do |company|
+  bc = BusinessCategory.find_by(category: 'shipper') || BusinessCategory.find_by(category: 1)
+  if bc
+    CompanyBusinessCategory.create!(
+      forwarder_id: forwarder.id,
+      company_id: company.id,
+      business_category_id: bc.id
+    )
+  end
+end
+puts "  ✓ Created Shipper categories"
+
+# Consignee
+consignee_companies.each do |company|
+  bc = BusinessCategory.find_by(category: 'consignee') || BusinessCategory.find_by(category: 2)
+  if bc
+    CompanyBusinessCategory.create!(
+      forwarder_id: forwarder.id,
+      company_id: company.id,
+      business_category_id: bc.id
+    )
+  end
+end
+puts "  ✓ Created Consignee categories"
+
+# Custom
+custom_companies.each do |company|
+  bc = BusinessCategory.find_by(category: 'custom') || BusinessCategory.find_by(category: 3)
+  if bc
+    CompanyBusinessCategory.create!(
+      forwarder_id: forwarder.id,
+      company_id: company.id,
+      business_category_id: bc.id
+    )
+  end
+end
+puts "  ✓ Created Custom categories"
+
+# 複数役割の紐付け
+agent_bc = BusinessCategory.find_by(category: 'agent') || BusinessCategory.find_by(category: 0)
+consignee_bc = BusinessCategory.find_by(category: 'consignee') || BusinessCategory.find_by(category: 2)
+shipper_bc = BusinessCategory.find_by(category: 'shipper') || BusinessCategory.find_by(category: 1)
+custom_bc = BusinessCategory.find_by(category: 'custom') || BusinessCategory.find_by(category: 3)
+
+if agent_bc && consignee_bc
+  CompanyBusinessCategory.create!(forwarder_id: forwarder.id, company_id: multi_role1.id, business_category_id: agent_bc.id)
+  CompanyBusinessCategory.create!(forwarder_id: forwarder.id, company_id: multi_role1.id, business_category_id: consignee_bc.id)
+end
+
+if shipper_bc && custom_bc
+  CompanyBusinessCategory.create!(forwarder_id: forwarder.id, company_id: multi_role2.id, business_category_id: shipper_bc.id)
+  CompanyBusinessCategory.create!(forwarder_id: forwarder.id, company_id: multi_role2.id, business_category_id: custom_bc.id)
+end
+puts "  ✓ Created Multi-role categories"
+
+# ==============================================
+# 4. Users
+# ==============================================
+puts "\n👤 Creating Users..."
+
+users = []
+
+# Forwarder Users
+users << User.create!(
+  email: "admin@tokyo-logistics.example.com",
+  name: "山田太郎",
+  password: "password123",
+  password_confirmation: "password123",
+  company_id: forwarder.id,
+  role: 0,
+  dept: "営業部",
+  phone: "03-1234-5678",
+  status: true,
+  confirmed_at: Time.current
+)
+
+users << User.create!(
+  email: "operator@tokyo-logistics.example.com",
+  name: "佐藤花子",
+  password: "password123",
+  password_confirmation: "password123",
+  company_id: forwarder.id,
+  role: 1,
+  dept: "オペレーション部",
+  phone: "03-1234-5679",
+  status: true,
+  confirmed_at: Time.current
+)
+
+users << User.create!(
+  email: "sales@tokyo-logistics.example.com",
+  name: "鈴木一郎",
+  password: "password123",
+  password_confirmation: "password123",
+  company_id: forwarder.id,
+  role: 2,
+  dept: "営業部",
+  phone: "03-1234-5680",
+  status: true,
+  confirmed_at: Time.current
+)
+
+puts "  ✓ Created Forwarder users (3)"
+
+# 他の会社のユーザー（簡略版）
+japanese_names = [
+  ["田中次郎", "高橋美咲", "渡辺健太", "中村みさき", "小林達也"],
+  ["伊藤雅子", "加藤真一", "吉田由紀", "木村裕介", "林さくら"],
+  ["森和也", "清水美香", "池田聡", "石川恵子", "前田健二"],
+  ["藤田智子", "岡田浩司", "長谷川理恵", "村上直樹", "近藤麻衣"]
+]
+
+[agent_companies, shipper_companies, consignee_companies, custom_companies].each_with_index do |company_list, i|
+  email_prefix = %w[agent shipper consignee custom][i]
+  
+  company_list.first(3).each_with_index do |c, si|
+    users << User.create!(
+      email: "manager#{si+1}@#{email_prefix}#{si+1}.example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      company_id: c.id,
+      role: 1,
+      name: japanese_names[i][si],
+      status: true,
+      confirmed_at: Time.current
+    )
+  end
+end
+
+puts "  ✓ Created other company users (#{users.size - 3})"
+puts "  Total users: #{User.count}"
+
+admin_user = users.first
+
+# ==============================================
+# 5. Finbalance Items（財務項目マスター）
+# ==============================================
+puts "\n💰 Creating Finbalance Items..."
+
+finbalance_items_data = [
+  "集荷費用",
+  "保管料",
+  "梱包費",
+  "輸出通関手数料",
+  "輸出税・関税",
+  "検査費用",
+  "海上運賃",
+  "航空運賃",
+  "B/L発行手数料",
+  "CAF",
+  "BAF",
+  "DO費用",
+  "海上保険料",
+  "コンテナチャージ",
+  "THC",
+  "VGM申告費用",
+  "輸入通関費用",
+  "輸入関税",
+  "現地配送費"
+]
+
+finbalance_items_data.each do |item_name|
+  FinbalanceItem.create!(
+    forwarder_id: forwarder.id,
+    item_name: item_name,
+    create_id: admin_user.id,
+    update_id: admin_user.id
+  )
+end
+
+puts "  ✓ Created #{FinbalanceItem.count} Finbalance Items"
+
+# ==============================================
+# 7. Favorites（お気に入りテンプレート）
+# ==============================================
+puts "\n⭐ Creating Favorites..."
+
+favorite1 = Favorite.create!(
+  forwarder_id: forwarder.id,
+  name: "中国輸入（上海→横浜）定番ルート",
+  description: "電子機器の定期輸入案件",
+  remark: "グローバル商事様向け標準パターン",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+favorite2 = Favorite.create!(
+  forwarder_id: forwarder.id,
+  name: "米国輸出（横浜→LA）標準ルート",
+  description: "自動車部品の輸出案件",
+  remark: "日本精密機器様向け標準パターン",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+favorite3 = Favorite.create!(
+  forwarder_id: forwarder.id,
+  name: "東南アジア輸入（バンコク→東京）",
+  description: "食品輸入案件",
+  remark: "太平洋トレーディング様向け",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created #{Favorite.count} Favorites"
+
+# Favorite Companies
+FavoriteCompany.create!(
+  favorite_id: favorite1.id,
+  company_id: shipper_companies.first.id,
+  role: 0,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+FavoriteCompany.create!(
+  favorite_id: favorite1.id,
+  company_id: custom_companies.first.id,
+  role: 2,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Favorite Companies"
+
+# Favorite Shipments
+FavoriteShipment.create!(
+  favorite_id: favorite1.id,
+  shipment: 0,
+  mode: 0,
+  term: 1,
+  place_of_receipt: "Shanghai Factory",
+  port_of_loading: "Shanghai",
+  port_of_discharge: "Yokohama",
+  port_of_delivery: "横浜CY",
+  carrier: "ONE",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+FavoriteShipment.create!(
+  favorite_id: favorite2.id,
+  shipment: 1,
+  mode: 0,
+  term: 0,
+  place_of_receipt: "横浜工場",
+  port_of_loading: "Shanghai",
+  port_of_discharge: "Los Angeles",
+  port_of_delivery: "LA Warehouse",
+  carrier: "NYK LINE",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Favorite Shipments"
+
+# Favorite Goods
+FavoriteGood.create!(
+  favorite_id: favorite1.id,
+  pkg: "10",
+  type_of_pkg: "CARTONS",
+  n_w: "1000",
+  g_w: "1100",
+  three_m: "5.0",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+FavoriteGood.create!(
+  favorite_id: favorite2.id,
+  pkg: "50",
+  type_of_pkg: "PALLETS",
+  n_w: "5000",
+  g_w: "5500",
+  three_m: "25.0",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Favorite Goods"
+
+# Favorite Docs
+FavoriteDoc.create!(
+  favorite_id: favorite1.id,
+  invoice: true,
+  packing_list: true,
+  msds: true,
+  coo: true,
+  hbl_awb: true,
+  mbl: true,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+FavoriteDoc.create!(
+  favorite_id: favorite2.id,
+  invoice: true,
+  packing_list: true,
+  coo: true,
+  s_i: true,
+  hbl_awb: true,
+  export_permit: true,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Favorite Docs"
+
+# Favorite Finbalances
+ocean_freight = FinbalanceItem.find_by(item_name: "海上運賃")
+thc = FinbalanceItem.find_by(item_name: "THC")
+customs_fee = FinbalanceItem.find_by(item_name: "輸入通関費用")
+
+fav_finbalance1 = FavoriteFinbalance.create!(
+  favorite_id: favorite1.id,
+  balance: 50000,
+  income: 300000,
+  cost: 250000,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+if ocean_freight && thc && customs_fee
+  FavoriteFinbalanceAssembly.create!(
+    favorite_finbalance_id: fav_finbalance1.id,
+    finbalance_item_id: ocean_freight.id,
+    cost_amount: 150000,
+    income_amount: 180000,
+    balance_amount: 30000,
+    create_id: admin_user.id,
+    update_id: admin_user.id
+  )
+
+  FavoriteFinbalanceAssembly.create!(
+    favorite_finbalance_id: fav_finbalance1.id,
+    finbalance_item_id: thc.id,
+    cost_amount: 50000,
+    income_amount: 60000,
+    balance_amount: 10000,
+    create_id: admin_user.id,
+    update_id: admin_user.id
+  )
+end
+
+puts "  ✓ Created Favorite Finbalances"
+
+# ==============================================
+# 8. Quotations（見積もり）
+# ==============================================
+puts "\n📋 Creating Quotations..."
+
+quotation1 = Quotation.create!(
+  forwarder_id: forwarder.id,
+  client_id: shipper_companies.first.id,
+  user_id: admin_user.id,
+  place_of_receipt: "Shanghai Factory",
+  port_of_loading: "Shanghai",
+  port_of_discharge: "Yokohama",
+  port_of_delivery: "横浜CY",
+  carrier: "ONE",
+  issue_at: Time.current,
+  valid_at: "30 days",
+  shipment: 0,
+  mode: 0,
+  term: 1,
+  cargo: "Electronic Components",
+  total_amount: 280000,
+  tax_percent: 10,
+  remark: "標準的な輸入見積もり",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created #{Quotation.count} Quotations"
+
+# Quotation Companies
+QuotationCompany.create!(
+  quotation_id: quotation1.id,
+  company_id: custom_companies.first.id,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Quotation Companies"
+
+# Quotation Items
+if ocean_freight
+  QuotationItem.create!(
+    quotation_id: quotation1.id,
+    finbalance_item_id: ocean_freight.id,
+    item_type: 0,
+    tax_flag: false,
+    unit: 1,
+    section: 0,
+    currency: "JPY",
+    exchange_rate: 1.0,
+    quantity: 1,
+    purchase_unit_price: 150000,
+    purchase_amount: 150000,
+    sales_unit_price: 180000,
+    sales_amount: 180000,
+    gross_profit: 30000,
+    gross_profit_rate: 16.67,
+    create_id: admin_user.id,
+    update_id: admin_user.id
+  )
+end
+
+puts "  ✓ Created Quotation Items"
+
+# ==============================================
+# 9. Events（案件）
+# ==============================================
+puts "\n📊 Creating Events..."
+
+event1 = Event.create!(
+  forwarder_id: forwarder.id,
+  user_id: admin_user.id,
+  id_string: "TKY-2025-001",
+  year: "2025",
+  mbl: "ONESHA250001",
+  hbl: "TKY250001",
+  soa: 30.days.from_now,
+  charge: true,
+  description: "電子機器輸入案件（グローバル商事様）",
+  remark: "定期便",
+  accounting_month: Time.current.beginning_of_month,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+event2 = Event.create!(
+  forwarder_id: forwarder.id,
+  user_id: admin_user.id,
+  id_string: "TKY-2025-002",
+  year: "2025",
+  mbl: "NYKLAX250001",
+  hbl: "TKY250002",
+  soa: 45.days.from_now,
+  charge: true,
+  description: "精密機器輸出案件",
+  remark: "新規ルート",
+  accounting_month: Time.current.beginning_of_month,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created #{Event.count} Events"
+
+# Event Companies
+EventCompany.create!(
+  event_id: event1.id,
+  company_id: shipper_companies.first.id,
+  role: 0,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+EventCompany.create!(
+  event_id: event1.id,
+  company_id: custom_companies.first.id,
+  role: 2,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Event Companies"
+
+# Event Shipments
+EventShipment.create!(
+  event_id: event1.id,
+  shipment: 0,
+  mode: 0,
+  term: 1,
+  place_of_receipt: "Shanghai Factory",
+  port_of_loading: "Shanghai",
+  port_of_discharge: "Yokohama",
+  port_of_delivery: "横浜CY",
+  vessel: "ONE INNOVATION",
+  voyage: "025E",
+  booking_no: "ONESHA2500123",
+  carrier: "ONE",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Event Shipments"
+
+# Event Schedules
+EventSchedule.create!(
+  event_id: event1.id,
+  container_pick_up: 5.days.ago,
+  vanning_date: 4.days.ago,
+  cut_off_date: 2.days.ago,
+  pol_etd: 1.day.ago,
+  pod_eta: 12.days.from_now,
+  delivery_date: 15.days.from_now,
+  transportation_status: 1,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Event Schedules"
+
+# Event Steps
+EventStep.create!(
+  event_id: event1.id,
+  status: 0,
+  status_date: 10.days.ago,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+EventStep.create!(
+  event_id: event1.id,
+  status: 1,
+  status_date: 5.days.ago,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Event Steps"
+
+# Event Goods
+EventGood.create!(
+  event_id: event1.id,
+  pkg: "10",
+  type_of_pkg: "CARTONS",
+  n_w: "1000.00",
+  g_w: "1100.00",
+  three_m: "5.0",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Event Goods"
+
+# Event Docs
+EventDoc.create!(
+  event_id: event1.id,
+  invoice: true,
+  packing_list: true,
+  msds: true,
+  coo: true,
+  hbl_awb: true,
+  mbl: true,
+  completed: false,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created Event Docs"
+
+# Containers
+Container.create!(
+  event_id: event1.id,
+  cntr_num: "TGHU1234567",
+  cntr_type: "DRY",
+  cntr_size: "20",
+  cntr_seal: "SH12345",
+  cntr_remark: "標準20ftコンテナ",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+Container.create!(
+  event_id: event2.id,
+  cntr_num: "MSCU9876543",
+  cntr_type: "DRY",
+  cntr_size: "40",
+  cntr_seal: "YK67890",
+  cntr_remark: "40ftハイキューブ",
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+puts "  ✓ Created #{Container.count} Containers"
+
+# Finbalances
+finbalance1 = Finbalance.create!(
+  event_id: event1.id,
+  balance: 50000,
+  income: 280000,
+  cost: 230000,
+  create_id: admin_user.id,
+  update_id: admin_user.id
+)
+
+if ocean_freight && thc && customs_fee
+  FinbalanceAssembly.create!(
+    finbalance_id: finbalance1.id,
+    finbalance_item_id: ocean_freight.id,
+    cost_amount: 150000,
+    income_amount: 180000,
+    balance_amount: 30000,
+    create_id: admin_user.id,
+    update_id: admin_user.id
+  )
+
+  FinbalanceAssembly.create!(
+    finbalance_id: finbalance1.id,
+    finbalance_item_id: thc.id,
+    cost_amount: 50000,
+    income_amount: 60000,
+    balance_amount: 10000,
+    create_id: admin_user.id,
+    update_id: admin_user.id
+  )
+end
+
+puts "  ✓ Created Finbalances & Assemblies"
+
+# ==============================================
+# 10. Chats & Messages
+# ==============================================
+puts "\n💬 Creating Chats & Messages..."
+
+chat1 = Chat.find_or_create_by!(
+  event_id: event1.id,
+  chat_type: 0
+) do |chat|
+  chat.name = "グローバル商事様案件 - 上海輸入"
+  chat.visible = true
+  chat.create_id = admin_user.id
+  chat.update_id = admin_user.id
+end
+
+operator = User.find_by(email: "operator@tokyo-logistics.example.com")
+
+ChatUser.find_or_create_by!(
+  chat_id: chat1.id,
+  user_id: admin_user.id
+) do |cu|
+  cu.create_id = admin_user.id
+  cu.update_id = admin_user.id
+end
+
+if operator
+  ChatUser.find_or_create_by!(
+    chat_id: chat1.id,
+    user_id: operator.id
+  ) do |cu|
+    cu.create_id = admin_user.id
+    cu.update_id = admin_user.id
+  end
+end
+
+Message.find_or_create_by!(
+  chat_id: chat1.id,
+  user_id: admin_user.id,
+  content: "案件を作成しました。よろしくお願いします。"
+) do |msg|
+  msg.create_id = admin_user.id
+  msg.update_id = admin_user.id
+end
+
+if operator
+  Message.find_or_create_by!(
+    chat_id: chat1.id,
+    user_id: operator.id,
+    content: "承知しました。ブッキングを進めます。"
+  ) do |msg|
+    msg.create_id = operator.id
+    msg.update_id = operator.id
+  end
+end
+
+puts "  ✓ Created #{Chat.count} Chats and #{Message.count} Messages"
+
+# ==============================================
+# サマリー表示
+# ==============================================
+puts "\n" + "="*70
+puts "✅ Seed completed successfully!"
+puts "="*70
+puts "\n📊 Summary:"
+puts "  【マスターデータ】"
+puts "    - Business Categories: #{BusinessCategory.count}"
+puts "    - Companies: #{Company.count}"
+puts "      - Forwarders: #{Company.where(is_forwarder: true).count}"
+puts "      - Others: #{Company.where(is_forwarder: false).count}"
+puts "    - Company Business Categories: #{CompanyBusinessCategory.count}"
+puts "    - Users: #{User.count}"
+puts "    - Finbalance Items: #{FinbalanceItem.count}"
+puts ""
+puts "  【テンプレート】"
+puts "    - Favorites: #{Favorite.count}"
+puts "    - Favorite Companies: #{FavoriteCompany.count}"
+puts "    - Favorite Shipments: #{FavoriteShipment.count}"
+puts "    - Favorite Goods: #{FavoriteGood.count}"
+puts "    - Favorite Docs: #{FavoriteDoc.count}"
+puts "    - Favorite Finbalances: #{FavoriteFinbalance.count}"
+puts ""
+puts "  【見積もり】"
+puts "    - Quotations: #{Quotation.count}"
+puts "    - Quotation Items: #{QuotationItem.count}"
+puts ""
+puts "  【案件データ】"
+puts "    - Events: #{Event.count}"
+puts "    - Event Companies: #{EventCompany.count}"
+puts "    - Containers: #{Container.count}"
+puts "    - Finbalances: #{Finbalance.count}"
+puts ""
+puts "  【コミュニケーション】"
+puts "    - Chats: #{Chat.count}"
+puts "    - Messages: #{Message.count}"
+puts ""
+puts "🔑 Login Credentials:"
+puts "  Admin: admin@tokyo-logistics.example.com / password123"
+puts "  Operator: operator@tokyo-logistics.example.com / password123"
+puts "  Sales: sales@tokyo-logistics.example.com / password123"
+puts "="*70

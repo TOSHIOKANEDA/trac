@@ -4,6 +4,8 @@ class Message < ApplicationRecord
   
   validates :content, presence: true, length: { maximum: 1000 }
   include Discard::Model
+  default_scope -> { kept }
+
   # メッセージ作成後にリアルタイム配信
   after_create_commit :broadcast_message
   
@@ -14,8 +16,7 @@ class Message < ApplicationRecord
       message: content,
       username: user.name,
       event_id: chat.event.id,
-      chat_id: chat.id,
-      created_at: created_at.strftime('%H:%M')
+      chat_id: chat.id
     })
   end
 end

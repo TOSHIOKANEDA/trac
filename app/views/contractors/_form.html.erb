@@ -36,7 +36,7 @@
             <div class="checkbox-group" data-contractor-new-target="partnerTypes">
               <% @business_categories.each do |bc| %>
                 <div class="checkbox-item">
-                  <%= check_box_tag "company[category_ids][]", bc.id, 
+                  <%= check_box_tag "company[business_category_ids][]", bc.id, 
                                     @company.category_ids.include?(bc.id),
                                     id: "category_#{bc.id}",
                                     data: { contractor_new_target: "partnerTypeCheckbox" } %>

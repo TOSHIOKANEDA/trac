@@ -26,8 +26,8 @@ class CreateEventDocs < ActiveRecord::Migration[7.2]
       t.boolean :house_arrival_notice, default: false
       t.boolean :master_arrival_notice, default: false
       t.boolean :pod, default: false
+      t.boolean :completed, default: false
       t.datetime :discarded_at
-      # create_id / update_id → users.id
       t.references :create, foreign_key: { to_table: :users }
       t.references :update, foreign_key: { to_table: :users }
       t.timestamps

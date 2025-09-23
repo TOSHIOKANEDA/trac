@@ -1,0 +1,40 @@
+<div class="form-section">
+  <div class="section-header">
+    <div class="section-title">
+      <div class="section-icon"><i class="fas fa-file-invoice"></i></div>
+      案件情報
+    </div>
+  </div>
+  <div class="section-content">
+    <div class="form-grid grid-3">
+      <div class="form-group">
+        <label class="form-label">積み地</label>
+        <div class="display-value"><%= @favorite&.favorite_shipment&.port_of_loading.presence || 'N/A' %></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">揚げ地</label>
+        <div class="display-value"><%= @favorite&.favorite_shipment&.port_of_discharge.presence || 'N/A' %></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Shipper</label>
+        <div class="display-value"><%= @favorite_company&.shipper || 'N/A'%></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Consignee</label>
+        <div class="display-value"><%= @favorite_company&.consignee || 'N/A' %></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">収入</label>
+        <div class="display-value" style="color: #2e7d32; font-weight: 600;">¥<%= number_with_delimiter(@favorite_finbalance.income || 0) %></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">支出</label>
+        <div class="display-value" style="color: #c72c41; font-weight: 600;">¥<%= number_with_delimiter(@favorite_finbalance.cost || 0) %></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">差引</label>
+        <div class="display-value" style="font-weight: 700;">¥<%=number_with_delimiter(@favorite_finbalance.balance || 0) %></div>
+      </div>
+    </div>
+  </div>
+</div>

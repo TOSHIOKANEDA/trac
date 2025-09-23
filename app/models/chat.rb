@@ -8,6 +8,8 @@ class Chat < ApplicationRecord
   validate :max_three_per_event
   enum :chat_type, { customer: 0, internal: 1, other: 2}
   include Discard::Model
+  default_scope -> { kept }
+
   private
 
   def max_three_per_event

@@ -8,6 +8,9 @@
   <div class="container">
     <div class="header">
       <h1><i class="fas fa-folder-open"></i> 案件ファイル管理</h1>
+      <%= link_to edit_event_path(@event), class: "btn btn-secondary" do %>
+        <i class="fas fa-arrow-left"></i> 案件に戻る
+      <% end %>
       <div class="header-info">
         <div class="info-item">
           <span class="info-label">MBL NO.</span>
@@ -32,7 +35,7 @@
         <div class="action-info">
           <span style="color: #666; font-size: 14px;">
             <i class="fas fa-info-circle"></i>
-            全書類: <span data-event-file-index-target="totalUploadedCount"><%= @event_files.count %></span>/<span data-event-file-index-target="totalCount"><%= @event_files.count %></span> アップロード済み
+            全書類: <span data-event-file-index-target="totalUploadedCount"><%= @event_files_count %></span>/<span data-event-file-index-target="totalCount"><%= @event_doc.true_count %></span> アップロード済み
           </span>
         </div>
         <div class="action-buttons">
@@ -41,10 +44,6 @@
               data: { "turbo-method": :get } do %>
             <i class="fas fa-download"></i>
             全てダウンロード
-          <% end %>
-          <%= link_to new_event_event_file_path(@event), class: "btn btn-primary" do %>
-            <i class="fas fa-plus"></i>
-            新規ファイル追加
           <% end %>
         </div>
       </div>

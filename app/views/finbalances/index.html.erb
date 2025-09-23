@@ -20,19 +20,19 @@
           <div class="summary-grid">
             <div class="summary-item">
               <div class="summary-label">総収入</div>
-              <div class="summary-value">¥ 2,250,000</div>
+              <div class="summary-value">¥<%= @totals.total_income&.to_formatted_s(:delimited)  %></div>
             </div>
             <div class="summary-item">
               <div class="summary-label">総支出</div>
-              <div class="summary-value">¥ 1,890,000</div>
+              <div class="summary-value">¥<%= @totals.total_cost&.to_formatted_s(:delimited)  %></div>
             </div>
             <div class="summary-item">
               <div class="summary-label">純利益</div>
-              <div class="summary-value">¥ 360,000</div>
+              <div class="summary-value">¥<%= @totals.total_balance&.to_formatted_s(:delimited)  %></div>
             </div>
             <div class="summary-item">
               <div class="summary-label">平均利益率</div>
-              <div class="summary-value">16.0%</div>
+              <div class="summary-value"><%= profit_margin(@totals.total_income, @totals.total_cost) %></div>
             </div>
           </div>
         </div>
@@ -46,75 +46,91 @@
             </div>
           </div>
           <div class="filter-content">
-            <div class="filter-grid">
-              <div class="form-group">
-                <label class="form-label">B/L番号</label>
-                <input type="text" id="bl-filter" class="form-input" placeholder="BL-12345..." data-finbalance-index-target="blFilter">
+            <%= search_form_for @q, url: finbalances_path, method: :get, local: true do |f| %>
+              <div class="filter-grid">
+                <div class="form-group">
+                  <%= f.label :mbl_cont, "MBL", class: "form-label" %>
+                  <%= f.search_field :mbl_cont, 
+                      class: "form-input",
+                      value: @q.mbl_cont %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :id_string_cont, "ID番号", class: "form-label" %>
+                  <%= f.search_field :id_string_cont, 
+                      class: "form-input",
+                      value: @q.id_string_cont %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :event_shipment_shipment_eq, "種別", class: "form-label" %>
+                  <%= f.select :event_shipment_shipment_eq, 
+                      options_for_select([
+                        ['すべて', '']] + 
+                        EventShipment.shipments.map { |k,v| [I18n.t("activerecord.attributes.event_shipment.shipment.#{k}"), k,v] }, @q.event_shipment_shipment_eq), 
+                      {}, 
+                      { class: "form-select" } %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :event_shipment_mode_eq, "Method", class: "form-label" %>
+                  <%= f.select :event_shipment_mode_eq,
+                      options_for_select([
+                        ['すべて', '']] + 
+                        EventShipment.modes.map { |k,v| [I18n.t("activerecord.attributes.event_shipment.mode.#{k}"), k,v] }, @q.event_shipment_mode_eq), 
+                      {}, 
+                      { class: "form-select" } %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :event_shipment_port_of_loading_cont, "積み地", class: "form-label" %>
+                  <%= f.search_field :event_shipment_port_of_loading_cont, 
+                      class: "form-input",
+                      value: @q.event_shipment_port_of_loading_cont,
+                      data: {
+                        action: "click->finbalance-index#showPortSearchModal",
+                        port_field: "event_shipment_port_of_loading_cont"
+                  } %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :event_shipment_port_of_discharge_cont, "揚げ地", class: "form-label" %>
+                  <%= f.search_field :event_shipment_port_of_discharge_cont, 
+                      class: "form-input",
+                      value: @q.event_shipment_port_of_discharge_cont,
+                      data: {
+                        action: "click->finbalance-index#showPortSearchModal",
+                        port_field: "event_shipment_port_of_discharge_cont"
+                  } %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :client_name_cont, "Client名", class: "form-label" %>
+                  <%= f.search_field :client_name_cont, 
+                      placeholder: "Client name(english)", 
+                      class: "form-input",
+                      value: params[:q]&.[](:client_name_cont) %>
+                </div>
+                <div class="form-group">
+                  <%= f.label :accounting_month_gteq, "計上月（開始）", class: "form-label" %>
+                  <%= f.search_field :accounting_month_gteq,
+                        class: "form-input",
+                        type: "month",
+                        value: @month_gteq_display %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :accounting_month_lteq, "計上月（終了）", class: "form-label" %>
+                  <%= f.search_field :accounting_month_lteq,
+                        class: "form-input",
+                        type: "month",
+                        value: @month_lteq_display %>
+                </div>
+                <div class="form-group">
+                  <%= f.submit "検索実行", class: "btn btn-primary" %>
+                </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">ID番号</label>
-                <input type="text" id="id-filter" class="form-input" placeholder="ID..." data-finbalance-index-target="idFilter">
-              </div>
-              <div class="form-group">
-                <label class="form-label">輸出/輸入</label>
-                <select id="type-filter" class="form-select" data-finbalance-index-target="typeFilter">
-                  <option value="">全て</option>
-                  <option value="輸出">輸出</option>
-                  <option value="輸入">輸入</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Method</label>
-                <select id="method-filter" class="form-select" data-finbalance-index-target="methodFilter">
-                  <option value="">全て</option>
-                  <option value="FCL">FCL</option>
-                  <option value="LCL">LCL</option>
-                  <option value="AIR">AIR</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">積み地</label>
-                <select id="loading-port-filter" class="form-select" data-finbalance-index-target="loadingPortFilter">
-                  <option value="">全て</option>
-                  <option value="SHA">SHA</option>
-                  <option value="TAO">TAO</option>
-                  <option value="LAX">LAX</option>
-                  <option value="BKK">BKK</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">揚げ地</label>
-                <select id="discharge-port-filter" class="form-select" data-finbalance-index-target="dischargePortFilter">
-                  <option value="">全て</option>
-                  <option value="TYO">TYO</option>
-                  <option value="OSA">OSA</option>
-                  <option value="YOK">YOK</option>
-                  <option value="NGO">NGO</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">請求先情報</label>
-                <input type="text" id="billing-filter" class="form-input" placeholder="会社名..." data-finbalance-index-target="billingFilter">
-              </div>
-              <div class="form-group">
-                <label class="form-label">計上月</label>
-                <select id="month-filter" class="form-select" data-finbalance-index-target="monthFilter">
-                  <option value="">全て</option>
-                  <option value="2025-01">2025年1月</option>
-                  <option value="2025-02">2025年2月</option>
-                  <option value="2025-03">2025年3月</option>
-                  <option value="2025-04">2025年4月</option>
-                  <option value="2025-05">2025年5月</option>
-                  <option value="2025-06">2025年6月</option>
-                  <option value="2025-07">2025年7月</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <button class="btn btn-primary" data-action="click->finbalance-index#applyFilters">
-                  <i class="fas fa-search"></i> 検索実行
-                </button>
-              </div>
-            </div>
+            <% end %>
           </div>
         </div>
         
@@ -123,28 +139,88 @@
           <div class="table-header">
             <div class="table-title">
               <div class="section-icon"><i class="fas fa-table"></i></div>
-              支払い・請求管理リスト（4件）
+              支払い・請求管理リスト
             </div>
           </div>
           <div class="table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>B/L NO. <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="bl"><i class="fas fa-sort"></i></button></th>
-                  <th>ID番号 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="id"><i class="fas fa-sort"></i></button></th>
+                  <th>MBL</th>
+                  <th>ID番号</th>
                   <th>輸出/輸入</th>
                   <th>Method</th>
                   <th>港</th>
-                  <th>請求先情報</th>
+                  <th>CLIENT名</th>
                   <th>スケジュール</th>
-                  <th>コンテナ本数 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="containers"><i class="fas fa-sort"></i></button></th>
-                  <th>計上月 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="accounting"><i class="fas fa-sort"></i></button></th>
-                  <th>支払い・請求管理 <button class="sort-btn" data-action="click->finbalance-index#sortTable" data-column="profit"><i class="fas fa-sort"></i></button></th>
+                  <th>コンテナ本数</th>
+                  <th>計上月</th>
+                  <th>支払い・請求管理</th>
                   <th>操作</th>
                 </tr>
               </thead>
-              <tbody id="data-tbody" data-finbalance-index-target="dataTableBody">
-                <!-- JavaScriptで動的に生成 -->
+              <tbody>
+                <% @events.each do |event| %>
+                  <tr>
+                    <td class="text-sm font-medium"><%= list_item_with_na(event.mbl) %></td>
+                    <td class="text-sm font-medium"><%= list_item_with_na(event.id_string) %></td>
+                    <td>
+                      <span class="type-badge <%= get_shipment_badge_class(event.shipment) %>"><%= event.shipment.present? ? EventShipment.shipments.keys[event.shipment] : 'N/A' %></span>
+                    </td>
+                    <td>
+                      <span class="method-badge <%= get_method_badge_class(event.mode) %>"><%= event.mode.present? ? EventShipment.modes.keys[event.mode] : 'N/A' %></span>
+                    </td>
+                    <td class="port-info">
+                      <div class="port-row port-loading"><%= list_item_with_na(event.pol) %></div>
+                      <div class="port-row port-discharge"><%= list_item_with_na(event.pod) %></div>
+                    </td>
+                    <td class="multi-line-cell">
+                      <div class="cell-row">
+                        <div class="cell-value truncate-text" title="<%= list_item_with_na(event.client) %>"><%= list_item_with_na(event.client) %></div>
+                      </div>
+                    </td>
+                    <td class="multi-line-cell">
+                      <div class="cell-row">
+                        <span class="cell-value">ATD：<%= date_only(event.atd) %></span>
+                      </div>
+                      <div class="cell-row">
+                        <span class="cell-value">ATA：<%= date_only(event.ata) %></span>
+                      </div>
+                    </td>
+                    <td class="multi-line-cell">
+                      <% finbalance_index_container_count(@containers[event.id] ).each do |type, count| %>
+                        <div class="cell-row">
+                          <span class="cell-value"><%= type %>：</span>
+                          <span class="cell-value"><%= count %>本</span>
+                        </div>
+                      <% end %>
+                    </td>
+                    <td class="text-sm"><%= year_month_only(event.accounting_month) %></td>
+                    <td class="financial-summary">
+                      <div class="financial-row">
+                        <span class="financial-label">収入</span>
+                        <span class="financial-value text-income"><%= event.income&.to_formatted_s(:delimited) %></span>
+                      </div>
+                      <div class="financial-row">
+                        <span class="financial-label">支出</span>
+                        <span class="financial-value text-expense"><%= event.cost&.to_formatted_s(:delimited) %></span>
+                      </div>
+                      <div class="financial-row financial-calculation">
+                        <span class="financial-label">差引</span>
+                        <span class="financial-value financial-total <%= event.balance || 0 < 0 ? 'negative' : '' %>"><%= event.balance&.to_formatted_s(:delimited) %></span>
+                      </div>
+                      <div class="financial-row">
+                        <span class="financial-label">利益率</span>
+                        <span class="financial-value financial-margin <%= event.balance || 0 < 0 ? 'negative' : '' %>"><%= profit_margin(event.income, event.cost)%></span>
+                      </div>
+                    </td>
+                    <td>
+                      <a href="#" class="action-link">
+                        <i class="fas fa-edit"></i> 編集
+                      </a>
+                    </td>
+                  </tr>
+                <% end %>
               </tbody>
             </table>
           </div>
@@ -152,4 +228,5 @@
       </div>
     </div>
   </div>
+  <%= render "layouts/port_search" %>
 </div>

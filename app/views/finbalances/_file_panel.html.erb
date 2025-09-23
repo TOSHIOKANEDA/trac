@@ -1,0 +1,26 @@
+<!-- 添付ファイル一覧パネル -->
+<div class="file-panel-overlay" data-finbalance-new-target="fileListPanelOverlay" data-action="click->finbalance-new#closeFileListPanel"></div>
+<div class="file-panel" data-finbalance-new-target="fileListPanel">
+  <div class="file-panel-header">
+    <div class="file-panel-title">
+      <i class="fas fa-paperclip"></i>
+      添付ファイル一覧
+    </div>
+    <button class="file-panel-close" data-action="click->finbalance-new#closeFileListPanel">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="file-panel-content">
+    <ul>
+      <% @estimated_files.each do |event_file| %>
+        <li>
+          <i class="<%= file_icon_class(event_file.file_type) %>" style="<%= file_icon_style(event_file.file_type) %>"></i>
+          <%= link_to download_event_event_file_path(@event, event_file), 
+              target: "_blank" do %>
+            <%= event_file.file_name %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
