@@ -46,49 +46,49 @@
         </div>
       </div>
     </div>
-    
-    <div class="access-control">
-      <div class="access-label">アクセス権限</div>
-      <div class="access-chips">
-        <label class="access-chip <%= 'active' if event_file.custom_view %>" 
-               data-action="click->event-file-index#toggleAccessChip">
-          <%= form.check_box :custom_view, 
-              { checked: event_file.custom_view },
-              { style: "display: none;" } %>
-          <span>通関業者</span>
-        </label>
-        <label class="access-chip <%= 'active' if event_file.shipper_view %>" 
-               data-action="click->event-file-index#toggleAccessChip">
-          <%= form.check_box :shipper_view, 
-              { checked: event_file.shipper_view },
-              { style: "display: none;" } %>
-          <span>荷主</span>
-        </label>
-        <label class="access-chip <%= 'active' if event_file.consignee_view %>" 
-               data-action="click->event-file-index#toggleAccessChip">
-          <%= form.check_box :consignee_view, 
-              { checked: event_file.consignee_view },
-              { style: "display: none;" } %>
-          <span>荷受人</span>
-        </label>
-        <label class="access-chip <%= 'active' if event_file.agent_view %>" 
-               data-action="click->event-file-index#toggleAccessChip">
-          <%= form.check_box :agent_view, 
-              { checked: event_file.agent_view },
-              { style: "display: none;" } %>
-          <span>Agent</span>
-        </label>
+    <div class="control-wrap">
+      <div class="access-control">
+        <div class="access-label">アクセス権限</div>
+        <div class="access-chips">
+          <label class="access-chip <%= 'active' if event_file.custom_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :custom_view, 
+                { checked: event_file.custom_view },
+                { style: "display: none;" } %>
+            <span>通関業者</span>
+          </label>
+          <label class="access-chip <%= 'active' if event_file.shipper_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :shipper_view, 
+                { checked: event_file.shipper_view },
+                { style: "display: none;" } %>
+            <span>荷主</span>
+          </label>
+          <label class="access-chip <%= 'active' if event_file.consignee_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :consignee_view, 
+                { checked: event_file.consignee_view },
+                { style: "display: none;" } %>
+            <span>荷受人</span>
+          </label>
+          <label class="access-chip <%= 'active' if event_file.agent_view %>" 
+                data-action="click->event-file-index#toggleAccessChip">
+            <%= form.check_box :agent_view, 
+                { checked: event_file.agent_view },
+                { style: "display: none;" } %>
+            <span>Agent</span>
+          </label>
+        </div>
       </div>
+      <% if event_file.is_verified? %>
+        <div class="verification-info">
+          <i class="fas fa-check-circle verified-icon"></i>
+          <span>検証済み by <%= event_file.verified_name %></span>
+        </div>
+      <% end %>    
+      <%= form.submit "更新", 
+          class: "btn btn-sm btn-primary file-update-btn", 
+          data: { "event-file-index-target": "updateBtn" } %>
     </div>
-    
-    <% if event_file.is_verified? %>
-      <div class="verification-info">
-        <i class="fas fa-check-circle verified-icon"></i>
-        <span>検証済み by <%= event_file.verified_name %></span>
-      </div>
-    <% end %>    
-    <%= form.submit "更新", 
-        class: "btn btn-sm btn-primary file-update-btn", 
-        data: { "event-file-index-target": "updateBtn" } %>
   <% end %>
 </div>

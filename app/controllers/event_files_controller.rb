@@ -36,13 +36,40 @@ class EventFilesController < ApplicationController
         files: @event_files.joins(:business_category).where(business_categories: { category: BusinessCategory.categories[:custom] })
       }
     ]
+    # JSONレスポンス対応を追加
+    respond_to do |format|
+      format.html # index.html.erb
+      format.json { 
+        render json: { 
+          success: true,
+          event_files: @event_files.as_json(include: [:creator, :business_category]),
+          sections: @sections.map { |section| 
+            {
+              id: section[:id],
+              title: section[:title],
+              category_id: section[:category_id],
+              files_count: section[:files].count,
+              docs_count: section[:docs].length
+            }
+          }
+        } 
+      }
+    end
   end
 
   # POST /events/:event_id/event_files
   def create
     if params[:event_file][:file].blank?
-      redirect_to event_event_files_path(@event), 
-                  alert: 'ファイルを選択してください。'
+      respond_to do |format|
+        format.html { 
+          redirect_to event_event_files_path(@event), 
+                      alert: 'ファイルを選択してください。'
+        }
+        format.json { 
+          render json: { error: 'ファイルを選択してください。' }, 
+                 status: :unprocessable_entity 
+        }
+      end
       return
     end
 
@@ -55,12 +82,33 @@ class EventFilesController < ApplicationController
     @event_file.custom_view = false
     @event_file.agent_view = false
 
-    if @event_file.save
-      redirect_to event_event_files_path(@event), 
-                  notice: 'ファイルがアップロードされました。'
-    else
-      redirect_to event_event_files_path(@event), 
-                  alert: "エラー: #{@event_file.errors.full_messages.join(', ')}"
+    respond_to do |format|
+      if @event_file.save
+        format.html { 
+          redirect_to event_event_files_path(@event), 
+                      notice: 'ファイルがアップロードされました。'
+        }
+        format.json { 
+          render json: { 
+            success: true, 
+            file: {
+              id: @event_file.id,
+              name: @event_file.file_name,
+              size: @event_file.file_size
+            }
+          }, status: :ok
+        }
+      else
+        format.html { 
+          redirect_to event_event_files_path(@event), 
+                      alert: "エラー: #{@event_file.errors.full_messages.join(', ')}"
+        }
+        format.json { 
+          render json: { 
+            error: @event_file.errors.full_messages.join(', ') 
+          }, status: :unprocessable_entity
+        }
+      end
     end
   end
   
@@ -74,6 +122,12 @@ class EventFilesController < ApplicationController
 
   # PATCH/PUT /events/:event_id/event_files/:id
   def update
+    if event_file_params_for_update[:file_type].present?
+      @event_file.is_verified = true
+      @event_file.verified_name = current_user.name
+      @event_file.is_estimate = event_file_params_for_update[:file_type] == "quotation"
+    end
+    
     if @event_file.update(event_file_params_for_update)
       redirect_to event_event_files_path(@event), 
                   notice: 'ファイル情報が更新されました。'

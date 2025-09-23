@@ -53,13 +53,14 @@ class EventFile < ApplicationRecord
     
     filename = file.blob.filename.to_s.downcase
     content_type = file.blob.content_type
-    
+
     # .emlまたは.msgファイルの場合の特別な検証
     if filename.end_with?('.eml', '.msg')
       allowed_email_types = [
         'message/rfc822',
         'application/vnd.ms-outlook',
         'application/octet-stream',
+        'application/x-ole-storage',
         'text/plain'  # .emlファイルはテキストとして認識される場合もある
       ]
       
