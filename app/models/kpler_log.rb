@@ -1,0 +1,2 @@
+class KplerLog < ApplicationRecord
+end

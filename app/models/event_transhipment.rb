@@ -1,0 +1,2 @@
+class EventTranshipment < ApplicationRecord
+end

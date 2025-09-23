@@ -1,3 +1,6 @@
+/* ==================================== */
+/* 1. 基本スタイル (ボタン、コンテナ) */
+/* ==================================== */
 .btn {
     padding: 10px 20px;
     border: none;
@@ -26,6 +29,9 @@
     padding: 0 30px 30px;
 }
 
+/* ==================================== */
+/* 2. 統計カード */
+/* ==================================== */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -72,6 +78,9 @@
     margin-bottom: 5px;
 }
 
+/* ==================================== */
+/* 3. フィルターセクション */
+/* ==================================== */
 .filter-section {
     margin-bottom: 30px;
     background: white;
@@ -128,20 +137,26 @@
     flex-direction: column;
 }
 
-/* 港名登録・検索セクション用の横並びレイアウト */
-.port-form {
+/* ==================================== */
+/* 4. 共通フォームスタイル (リファクタ) */
+/* ==================================== */
+
+/* フォームコンテナ (元: .port-form, .finbalance-form) */
+.data-form {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.port-input-row {
+/* フォーム入力行 (元: .port-input-row, .finbalance-input-row) */
+.form-input-row {
     display: flex;
     align-items: end;
     gap: 15px;
 }
 
-.port-input-group {
+/* フォーム入力グループ (元: .port-input-group, .finbalance-input-group) */
+.form-input-group {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -169,10 +184,14 @@
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-#port-name, #port-search-name {
+/* 幅指定用のIDは残す (必要に応じてクラス化を推奨) */
+#port-name, #port-search-name, #finbalance-name, #finbalance-search-name {
     width: 50%;
 }
 
+/* ==================================== */
+/* 5. テーブルセクション */
+/* ==================================== */
 .table-section {
     background: white;
     border-radius: 15px;
@@ -254,6 +273,7 @@
     background: #f8f9fa;
 }
 
+/* ステータスバッジ */
 .status-badge {
     display: inline-block;
     padding: 4px 12px;
@@ -263,27 +283,24 @@
     text-align: center;
     min-width: 80px;
 }
-
 .status-success {
     background: #e8f5e8;
     color: #2e7d32;
 }
-
 .status-error {
     background: #ffebee;
     color: #c62828;
 }
-
 .status-warning {
     background: #fff3e0;
     color: #ef6c00;
 }
-
 .status-active {
     background: #e3f2fd;
     color: #1565c0;
 }
 
+/* ユーティリティ */
 .text-sm {
     font-size: 13px;
 }
@@ -292,20 +309,24 @@
     font-weight: 500;
 }
 
-/* 左右分割レイアウト用 */
-.port-management-grid {
+/* ==================================== */
+/* 6. タブ + グリッドレイアウト (リファクタ) */
+/* ==================================== */
+
+/* 左右分割レイアウト用 (元: .port-management-grid, .finbalance-management-grid) */
+/* タブコンテントの直下で使用 */
+.management-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
-    margin-bottom: 30px;
+    /* margin-bottomは親要素(.tab-content)のpaddingで管理するため削除 */
 }
 
-/* セクション構造 */
+/* 共通セクション構造 */
 .section {
     background: white;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border-left: 4px solid #667eea;
     overflow: hidden;
 }
 
@@ -330,4 +351,103 @@
 
 .section-content {
     padding: 25px;
+}
+
+/* ==================================== */
+/* 7. 新規タブスタイル */
+/* ==================================== */
+
+.tab-management-container {
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #667eea;
+    overflow: hidden;
+}
+
+.tab-header {
+    display: flex;
+    border-bottom: 1px solid #e1e8ed;
+    background: #f8f9fa;
+    padding: 0 15px;
+    /* タブが多い場合に横スクロールできるようにする */
+    overflow-x: auto;
+}
+
+.tab-button {
+    padding: 15px 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap; /* ボタン内のテキストが折り返さないように */
+}
+
+.tab-button:hover {
+    color: #667eea;
+}
+
+.tab-button.active {
+    color: #667eea;
+    border-bottom: 3px solid #667eea;
+    font-weight: 600;
+}
+
+.tab-content {
+    /* 内部の .management-grid との間に余白を持たせる */
+    padding: 30px 25px 5px; 
+}
+
+/* Stimulusで表示/非表示を切り替えるためのクラス */
+.hidden {
+    display: none !important;
+}
+
+/* ==================================== */
+/* 8. 検索結果表示用 (新規追加) */
+/* ==================================== */
+
+.search-results-container {
+    margin-top: 25px;
+    border-top: 1px solid #e1e8ed;
+    padding-top: 20px;
+}
+
+.search-status-success {
+    font-size: 14px;
+    color: #2e7d32; /* status-success と色を合わせる */
+    margin-bottom: 15px;
+}
+
+.search-status-empty {
+    font-size: 14px;
+    color: #c62828; /* status-error と色を合わせる */
+    margin-bottom: 10px;
+}
+
+.search-results-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    max-height: 200px; /* 結果が多い場合に備えてスクロール可に */
+    overflow-y: auto;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    background: #fdfdfd;
+}
+
+.search-results-list li {
+    font-size: 14px;
+    color: #333;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e1e8ed;
+}
+
+.search-results-list li:last-child {
+    border-bottom: none;
 }

@@ -1,0 +1,2 @@
+class KplerMilestoneLocation < ApplicationRecord
+end

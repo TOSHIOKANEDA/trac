@@ -10,54 +10,123 @@
     </div>
 
     <div class="content-container">
-      <div class="port-management-grid">
-        <!-- 左側：港名登録 -->
-        <div class="section">
-          <div class="section-header">
-            <div class="section-title">
-              <div class="section-icon"><i class="fas fa-plus"></i></div>
-              港名登録
-            </div>
-          </div>
-            <div class="section-content">
-              <div id="registration-message" class="hidden"></div>
-              <form id="port-registration-form" class="port-form">
-                <div class="port-input-row">
-                  <div class="port-input-group">
-                    <label class="form-label">港名</label>
-                    <input type="text" class="form-input" id="port-name" placeholder="Tokyo" required>
-                  </div>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> 登録
-                  </button>
-                </div>
-              </form>
-            </div>
+      <div class="tab-management-container" data-controller="tabs">
+        <div class="tab-header">
+          
+          <%# --- クラスを動的に変更 --- %>
+          <button class="tab-button <%= 'active' if @active_tab == 'finbalance-tab' %>" 
+                  data-tabs-target="tabButton" data-target="finbalance-tab" data-action="tabs#switchTab">
+            支払い・請求項目
+          </button>
+          
+          <button class="tab-button <%= 'active' if @active_tab == 'port-tab' %>" 
+                  data-tabs-target="tabButton" data-target="port-tab" data-action="tabs#switchTab">
+            港名
+          </button>
+          
+          <button class="tab-button <%= 'active' if @active_tab == 'industry-tab' %>" 
+                  data-tabs-target="tabButton" data-target="industry-tab" data-action="tabs#switchTab">
+            業種
+          </button>
         </div>
-        <div class="section">
-          <div class="section-header">
-            <div class="section-title">
-              <div class="section-icon"><i class="fas fa-search"></i></div>
-              港名検索
+
+        <div class="tab-content-wrapper">
+          <div id="finbalance-tab" class="tab-content <%= 'active' if @active_tab == 'finbalance-tab' %> <%= 'hidden' unless @active_tab == 'finbalance-tab' %>" 
+               data-tabs-target="tabContent">
+            <div class="management-grid">
+              <% finbalance_registration_inputs = Proc.new do |f| %>
+                <%= render 'systems/form_input_group', f: f, attribute: :name, label_text: '項目名' %>
+              <% end %>
+              <%= render 'systems/registration_section', 
+                title: '支払い・請求項目登録', 
+                icon_class: 'fas fa-plus', 
+                object: @finbalance_item, 
+                url: finbalance_item_create_systems_path,
+                form_elements: finbalance_registration_inputs
+              %>
+              <%= render 'systems/search_section', 
+                  title: '項目名検索', 
+                  icon_class: 'fas fa-search', 
+                  url: finbalance_item_search_systems_path,
+                  query_label: '項目名',
+                  input_id: 'finbalance-search-name',
+                  results: @finbalance_item_results,
+                  search_query: @finbalance_search_query do |result| %>
+                <li><%= result.item_name %></li>
+              <% end %>
             </div>
           </div>
-            <div class="section-content">
-              <div id="search-message" class="hidden"></div>
-              <form id="port-search-form" class="port-form">
-                <div class="port-input-row">
-                  <div class="port-input-group">
-                    <label class="form-label">港名</label>
-                    <input type="text" class="form-input" id="port-search-name" placeholder="Tokyo" required>
-                  </div>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i> 検索
-                  </button>
-                </div>
-              </form>
+
+          <div id="port-tab" class="tab-content <%= 'active' if @active_tab == 'port-tab' %> <%= 'hidden' unless @active_tab == 'port-tab' %>" 
+               data-tabs-target="tabContent">
+            <div class="management-grid">
+              <% port_registration_inputs = Proc.new do |f| %>
+                <%= render 'systems/form_input_group', f: f, attribute: :name, label_text: '港名', placeholder_text: 'Tokyo' %>
+                <%= render 'systems/form_input_group', f: f, attribute: :port_code, label_text: '港名（略称）', placeholder_text: 'JPTYO' %>
+              <% end %>
+              <%= render 'systems/registration_section', 
+                title: '港名登録', 
+                icon_class: 'fas fa-plus', 
+                object: @port, 
+                url: port_create_systems_path,
+                form_elements: port_registration_inputs
+              %>
+              <%= render 'systems/search_section', 
+                  title: '港名検索', 
+                  icon_class: 'fas fa-search', 
+                  url: port_search_systems_path,
+                  query_label: '港名',
+                  input_id: 'port-search-name', 
+                  placeholder_text: 'Tokyo',
+                  results: @port_results,
+                  search_query: @port_search_query do |result| %>
+                <li><%= result.name %> (<%= result.port_code %>)</li>
+              <% end %>
             </div>
+          </div>
+
+          <div id="industry-tab" class="tab-content <%= 'active' if @active_tab == 'industry-tab' %> <%= 'hidden' unless @active_tab == 'industry-tab' %>" 
+               data-tabs-target="tabContent">
+            <div class="management-grid">
+              <% industry_registration_inputs = Proc.new do |f| %>
+                <%= render 'systems/form_input_group', f: f, attribute: :industry_name, label_text: '業種', placeholder_text: '梱包業' %>
+              <% end %>
+              <%= render 'systems/registration_section', 
+                title: '業種登録', 
+                icon_class: 'fas fa-plus', 
+                object: @industry, 
+                url: industry_create_systems_path,
+                form_elements: industry_registration_inputs
+              %>
+              <%= render 'systems/search_section', 
+                  title: '業種検索', 
+                  icon_class: 'fas fa-search', 
+                  url: industry_search_systems_path,
+                  query_label: '業種名',
+                  input_id: 'industry-search-name', 
+                  placeholder_text: '梱包業',
+                  results: @industry_results,
+                  search_query: @industry_search_query do |result| %>
+                <li><%= result.industry_name %></li>
+              <% end %>
+            </div>
+          </div>
+
         </div>
       </div>
-      <!-- 統計カード -->
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-title">総API呼び出し数</div>
+            <div class="stat-icon" style="background: #4caf50;">
+              <i class="fas fa-chart-line"></i>
+            </div>
+          </div>
+          <div class="stat-value">2,847</div>
+        </div>
+      </div>
+      
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-header">
@@ -70,7 +139,6 @@
         </div>
       </div>
 
-      <!-- フィルター・検索セクション -->
       <div class="filter-section">
         <div class="filter-header">
           <div class="filter-title">
@@ -116,7 +184,6 @@
         </div>
       </div>
 
-      <!-- API履歴テーブル -->
       <div class="table-section">
         <div class="table-header">
           <div class="table-title">
@@ -224,6 +291,7 @@
           </table>
         </div>
       </div>
+
     </div>
   </div>
 </div>

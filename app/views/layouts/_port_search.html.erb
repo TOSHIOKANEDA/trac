@@ -1,16 +1,16 @@
-<div data-event-new-target="portSearchModal" class="port-modal">
+<div data-<%= stimulus_controller %>-target="portSearchModal" class="port-modal">
   <div class="port-modal-content">
-    <span data-action="click->event-new#closePortSearchModal" class="port-modal-close">×</span>
+    <span data-action="click-><%= stimulus_controller %>#closePortSearchModal" class="port-modal-close">×</span>
 
     <!-- Railsから渡す港データ -->
     <%= tag.div '', id: "port-data", data: { ports: @ports.to_json } %>
 
     <input type="text"
-           data-event-new-target="portSearchModalInput"
-           data-action="input->event-new#searchPort"
+           data-<%= stimulus_controller %>-target="portSearchModalInput"
+           data-action="input-><%= stimulus_controller %>#searchPort"
            placeholder="港名を入力..."
            class="port-modal-input">
 
-    <ul data-event-new-target="portSearchResults" class="port-search-results"></ul>
+    <ul data-<%= stimulus_controller %>-target="portSearchResults" class="port-search-results"></ul>
   </div>
 </div>

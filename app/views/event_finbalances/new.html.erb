@@ -1,0 +1,26 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "event_finbalances/new", "data-turbo-track": "reload" %>
+<% end %>
+<% content_for :title, "支払い・請求編集" %>
+
+<div data-controller="event-finbalance-new" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <%= form_with model: @event_finbalance, url: event_event_finbalances_path(event_id: @event.id), local: true, data: { turbo: false } do |f| %>
+        <div class="header">
+          <h1><i class="fas fa-calculator"></i> 支払い・請求編集</h1>
+          <div class="header-actions">
+            <%= link_to event_event_finbalances_path(@event), class: "btn btn-secondary" do %>
+              <i class="fas fa-arrow-left"></i> 一覧に戻る
+            <% end %>
+            <button class="btn btn-success">
+              <i class="fas fa-save"></i> 保存
+            </button>
+          </div>
+        </div>
+        <%= render 'form', f: f %>
+      <% end %>
+    </div>
+  </div>
+</div>

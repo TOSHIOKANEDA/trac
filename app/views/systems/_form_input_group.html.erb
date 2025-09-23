@@ -1,0 +1,8 @@
+<div class="form-input-group">
+  <%= f.label attribute, label_text, class: "form-label" %>
+  <%= f.text_field attribute, 
+      class: "form-input", 
+      placeholder: (defined?(placeholder_text) && placeholder_text.present? ? placeholder_text : nil), 
+      required: (defined?(required) ? required : true)
+  %>
+</div>

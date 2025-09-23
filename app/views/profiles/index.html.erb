@@ -26,7 +26,7 @@
                 <%= f.select :role_eq, 
                     options_for_select([
                       ['すべての権限', '']
-                    ] + User.roles.map { |role, v| [I18n.t("activerecord.attributes.users.role.#{role}"), v] }, f.object.role_eq), 
+                    ] + User.roles.map { |role, v| [I18n.t("activerecord.attributes.users.role.#{role}"), v] }, f.object&.role_eq), 
                     {}, 
                     { class: "form-select" } %>
               </div>
@@ -35,7 +35,7 @@
                 <%= f.select :company_japanese_name_eq, 
                     options_for_select([
                       ['すべての会社', '']
-                    ] + @companies.map { |company| [company.japanese_name, company.japanese_name] }, f.object.company_japanese_name_eq), 
+                    ] + @companies.map { |company| [company.japanese_name, company.japanese_name] }, f.object&.company_japanese_name_eq), 
                     {}, 
                     { class: "form-select" } %>
               </div>

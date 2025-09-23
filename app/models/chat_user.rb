@@ -5,6 +5,8 @@ class ChatUser < ApplicationRecord
 
   validates :user_id, uniqueness: { scope: :chat_id }
   include Discard::Model
+  default_scope -> { kept }
+
   def self.sanitize_attributes_for_chat(chat, chat_users_attributes)
     return {} unless chat_users_attributes
     

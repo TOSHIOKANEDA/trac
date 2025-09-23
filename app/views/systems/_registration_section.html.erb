@@ -1,0 +1,23 @@
+<%# app/views/shared/_registration_section.html.erb %>
+<%# ローカル変数: title, icon_class, object, url, form_elements %>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">
+      <div class="section-icon"><i class="<%= icon_class %>"></i></div>
+      <%= title %>
+    </div>
+  </div>
+  <div class="section-content">
+    <%= form_with model: object, url: url, class: 'data-form' do |f| %>
+      <div class="form-input-row">
+        <%# form_elementsはProcとして渡され、fを引数に実行される %>
+        <%= form_elements.call(f) if form_elements.respond_to?(:call) %>
+        
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> 登録
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

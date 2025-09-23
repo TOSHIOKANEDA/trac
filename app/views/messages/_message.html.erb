@@ -1,4 +1,4 @@
 <div class="chat-message">
-  <strong><%= message.user.name %> <%= message.created_at.strftime("%H:%M") %></strong><br>
+  <strong><%= message.user.name %> <%= date_with_time(message.created_at) %></strong><br>
   <%= message.content %>
 </div>

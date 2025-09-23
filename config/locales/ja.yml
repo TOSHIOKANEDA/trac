@@ -1,12 +1,23 @@
 ja:
   activerecord:
     attributes:
+      event_step:
+        status:
+          booking: "ブッキング確定"
+          docs: "船積み書類受領"
+          vanning: "バンニング"
+          quarantine: "検疫完了"
+          custom: "通関書類"
+          etd: "ETD"
+          eta: "ETA"
+          delivery: "配送日"
+          invoice: "請求書発行"
       event_shipment:
         shipment:
           export: "輸出"
           import: "輸入"
           third_country: "三国間"
-        med:
+        mode:
           lcl: "LCL"
           fcl: "FCL"
           air: "AIR"
@@ -18,6 +29,57 @@ ja:
           cif: "CIF"
           dap: "DAP"
           ddp: "DDP"
+      favorite_shipment:
+        shipment:
+          export: "輸出"
+          import: "輸入"
+          third_country: "三国間"
+        mode:
+          lcl: "LCL"
+          fcl: "FCL"
+          air: "AIR"
+        term:
+          exb: "EXB"
+          fob: "FOB"
+          fca: "FCA"
+          cfr: "CFR"
+          cif: "CIF"
+          dap: "DAP"
+          ddp: "DDP"
+      quotation:
+        shipment:
+          export: "輸出"
+          import: "輸入"
+          third_country: "三国間"
+        mode:
+          lcl: "LCL"
+          fcl: "FCL"
+          air: "AIR"
+        term:
+          exb: "EXB"
+          fob: "FOB"
+          fca: "FCA"
+          cfr: "CFR"
+          cif: "CIF"
+          dap: "DAP"
+          ddp: "DDP"
+        issue_at: "見積有効期限"
+        port_of_loading: "積み地"
+        port_of_discharge: "揚げ地"
+        issue_at: "発行日"
+        valid_at: "見積有効期限"
+        cargo: "貨物"
+        carrier: "船社"
+        place_of_receipt: "受取場所"
+        port_of_delivery: "配送先"
+        tax_percent: "税率"
+        client_pic_name: "担当者名"
+        remark: "備考"
+        total_amount: "合計金額"
+        quotation_companies: "ベンダー"
+        "quotation_companies.company": "ベンダー会社"  # 追加
+      quotation_company:
+        company: "会社"
       business_category:
         category:
           shipper: "shipper"
@@ -26,7 +88,10 @@ ja:
           notifier: "notifier"
           agent: "agent"
           custom: "custom"
-      users:
+          carrier: "carrier"
+          other: "other"
+      user:
+        email: "メールアドレス"
         role:
           admin: "管理者"
           editor: "編集者"
@@ -79,6 +144,8 @@ ja:
       send_paranoid_instructions: 'アカウントが見つかった場合、アカウントの凍結解除方法を数分以内にメールでご連絡します。'
       unlocked: 'アカウントを凍結解除しました。'
   errors:
+    format:
+      "%{message}"
     messages:
       already_confirmed: 'は既に登録済みです。ログインしてください。'
       confirmation_period_expired: "の期限が切れました。%{period} までに確認する必要があります。 新しくリクエストしてください。"

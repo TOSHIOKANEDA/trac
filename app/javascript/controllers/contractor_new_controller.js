@@ -3,24 +3,154 @@ import BaseController from "./base_controller"
 export default class extends BaseController {
   static targets = [
     "contactTableBody", "companyName", "partnerTypes", "partnerTypeCheckbox", "address",
-    "companyDescription", "tradingTerms"
+    "companyDescription", "tradingTerms", "industryRadio", "carrierType", "carrierScacInput"
   ]
 
   connect() {
     this.setupFormInteractions();
-    this.addContactInputEventListeners(this.contactTableBodyTarget.querySelector('tr'));
+    this.setupCategoryHandlers();
+    this.setupCarrierHandlers();
+    // Initialize display based on current checkbox states (for edit page)
+    this.updateCategoryDisplay();
+    
+    const firstContactRow = this.contactTableBodyTarget.querySelector('tr');
+    if (firstContactRow) {
+      this.addContactInputEventListeners(firstContactRow);
+    }
   }
 
-  // 連絡先行を追加
+  // Setup category change event handlers
+  setupCategoryHandlers() {
+    this.partnerTypeCheckboxTargets.forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        this.handleCategoryChange();
+      });
+    });
+  }
+
+  // Setup carrier type (Ship/Air) handlers
+  setupCarrierHandlers() {
+    this.carrierTypeTargets.forEach(radio => {
+      radio.addEventListener('change', () => {
+        this.handleCarrierTypeChange();
+      });
+    });
+  }
+
+  // Handle carrier type change (Ship vs Air)
+  handleCarrierTypeChange() {
+    const selectedCarrierType = this.getSelectedCarrierType();
+    const scacInput = this.carrierScacInputTarget;
+
+    if (selectedCarrierType === 'true') {
+      // Air selected: disable SCAC input and set to "AIR"
+      scacInput.value = 'AIR';
+      scacInput.disabled = true;
+      scacInput.style.opacity = '0.6';
+      scacInput.style.cursor = 'not-allowed';
+    } else {
+      // Ship selected: enable SCAC input
+      scacInput.disabled = false;
+      scacInput.style.opacity = '1';
+      scacInput.style.cursor = 'auto';
+      scacInput.value = '';
+      scacInput.focus();
+    }
+  }
+
+  // Get selected carrier type
+  getSelectedCarrierType() {
+    const selected = this.carrierTypeTargets.find(radio => radio.checked);
+    return selected ? selected.value : null;
+  }
+
+  // Handle category change event
+  handleCategoryChange() {
+    this.updateCategoryDisplay();
+  }
+
+  // Update display based on selected categories
+  updateCategoryDisplay() {
+    const selectedTypes = this.getSelectedPartnerTypes();
+    const hasCarrier = selectedTypes.some(type => type === 'carrier');
+    const hasOther = selectedTypes.some(type => type === 'other');
+
+    // CARRIER logic: disable other checkboxes when CARRIER is selected
+    this.partnerTypeCheckboxTargets.forEach(checkbox => {
+      if (hasCarrier) {
+        if (checkbox.dataset.categoryType !== 'carrier') {
+          checkbox.disabled = true;
+          checkbox.checked = false;
+        }
+      } else {
+        checkbox.disabled = false;
+      }
+    });
+
+    // Show/hide Carrier Type section (Ship/Air radio buttons)
+    const carrierTypeSection = document.getElementById('carrier-type-section');
+    if (carrierTypeSection) {
+      if (hasCarrier) {
+        carrierTypeSection.style.display = 'block';
+      } else {
+        carrierTypeSection.style.display = 'none';
+      }
+    }
+
+    // Show/hide SCAC section
+    const carrierScacSection = document.getElementById('carrier-scac-section');
+    if (carrierScacSection) {
+      if (hasCarrier) {
+        carrierScacSection.style.display = 'block';
+      } else {
+        carrierScacSection.style.display = 'none';
+      }
+    }
+
+    // Show/hide Industry section
+    const otherIndustrySection = document.getElementById('other-industry-section');
+    if (otherIndustrySection) {
+      if (hasOther) {
+        otherIndustrySection.style.display = 'block';
+      } else {
+        otherIndustrySection.style.display = 'none';
+        // Uncheck all industry radios when OTHER is deselected
+        this.industryRadioTargets.forEach(radio => {
+          radio.checked = false;
+        });
+      }
+    }
+
+    // Clear error state
+    if (this.partnerTypesTarget) {
+      this.partnerTypesTarget.classList.remove('form-error');
+      const errorMsg = this.partnerTypesTarget.parentNode.querySelector('.error-message');
+      if (errorMsg) {
+        errorMsg.remove();
+      }
+    }
+  }
+
+  // Get selected partner types
+  getSelectedPartnerTypes() {
+    const selectedTypes = [];
+    this.partnerTypeCheckboxTargets.forEach(checkbox => {
+      if (checkbox.checked) {
+        selectedTypes.push(checkbox.dataset.categoryType);
+      }
+    });
+    return selectedTypes;
+  }
+
+  // Add contact row
   addContactRow() {
-    // 現在の時刻をユニークなインデックスとして使用（Railsの推奨方法）
     const newIndex = new Date().getTime();
     
     const newRow = this.contactTableBodyTarget.insertRow();
     newRow.innerHTML = `
       <td>
         <input class="table-input contact-name-input" 
-              placeholder="例: 山田 一郎" 
+              placeholder="Example: Yamada Ichiro" 
               required="required" 
               type="text" 
               name="company[users_attributes][${newIndex}][name]" 
@@ -31,23 +161,23 @@ export default class extends BaseController {
                 required 
                 name="company[users_attributes][${newIndex}][role]" 
                 id="company_users_attributes_${newIndex}_role">
-          <option value="">選択してください</option>
-          <option value="admin">管理者</option>
-          <option value="editor">編集者</option>
-          <option value="viewer">閲覧者</option>
+          <option value="">Select</option>
+          <option value="admin">Admin</option>
+          <option value="editor">Editor</option>
+          <option value="viewer">Viewer</option>
         </select>
       </td>
       <td>
         <input type="text" 
               class="table-input contact-dept-input" 
-              placeholder="例: 貿易部"
-              name="company[users_attributes][${newIndex}][department]" 
-              id="company_users_attributes_${newIndex}_department">
+              placeholder="Example: Sales Dept"
+              name="company[users_attributes][${newIndex}][dept]" 
+              id="company_users_attributes_${newIndex}_dept">
       </td>
       <td>
         <input type="email" 
               class="table-input contact-email-input" 
-              placeholder="例: yamada@company.com" 
+              placeholder="Example: yamada@company.com" 
               required
               name="company[users_attributes][${newIndex}][email]" 
               id="company_users_attributes_${newIndex}_email">
@@ -55,7 +185,7 @@ export default class extends BaseController {
       <td>
         <input type="tel" 
               class="table-input contact-phone-input" 
-              placeholder="例: 0312345678"
+              placeholder="Example: 0312345678"
               name="company[users_attributes][${newIndex}][phone]" 
               id="company_users_attributes_${newIndex}_phone">
       </td>
@@ -66,7 +196,7 @@ export default class extends BaseController {
               id="company_users_attributes_${newIndex}__destroy">
         <button type="button" 
                 class="delete-contact-btn" 
-                title="連絡先を削除" 
+                title="Delete contact" 
                 data-action="click->contractor-new#deleteRow" data-target-name="contactTableBody">
           <i class="fas fa-trash-alt"></i>
         </button>
@@ -75,7 +205,7 @@ export default class extends BaseController {
     this.addContactInputEventListeners(newRow);
   }
 
-  // 連絡先入力フィールドにイベントリスナーを追加
+  // Add event listeners to contact inputs
   addContactInputEventListeners(row) {
     row.querySelectorAll('.table-input').forEach(input => {
       input.addEventListener('focus', function() {
@@ -98,31 +228,20 @@ export default class extends BaseController {
     });
   }
 
-  // 選択された取引先タイプを取得
-  getSelectedPartnerTypes() {
-    const selectedTypes = [];
-    this.partnerTypeCheckboxTargets.forEach(checkbox => {
-      if (checkbox.checked) {
-        selectedTypes.push(checkbox.value);
-      }
-    });
-    return selectedTypes;
-  }
-
-  // フォームバリデーション
+  // Form validation
   validateForm() {
     const requiredFields = [
-      { element: this.companyNameTarget, name: '会社名' },
-      { element: this.addressTarget, name: '住所' }
+      { element: this.companyNameTarget, name: 'Company Name' },
+      { element: this.addressTarget, name: 'Address' }
     ];
 
     let isValid = true;
 
-    // 既存のエラー表示をクリア
+    // Clear existing errors
     document.querySelectorAll('.form-error').forEach(el => el.classList.remove('form-error'));
     document.querySelectorAll('.error-message').forEach(el => el.remove());
 
-    // 基本項目のバリデーション
+    // Validate required fields
     requiredFields.forEach(field => {
       const value = field.element.value.trim();
 
@@ -132,12 +251,12 @@ export default class extends BaseController {
         
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
-        errorDiv.textContent = `${field.name}は必須項目です`;
+        errorDiv.textContent = `${field.name} is required`;
         field.element.parentNode.appendChild(errorDiv);
       }
     });
 
-    // 取引先タイプのバリデーション
+    // Validate partner types
     const selectedTypes = this.getSelectedPartnerTypes();
     if (selectedTypes.length === 0) {
       isValid = false;
@@ -145,11 +264,61 @@ export default class extends BaseController {
       
       const errorDiv = document.createElement('div');
       errorDiv.className = 'error-message';
-      errorDiv.textContent = '取引先タイプを最低1つ選択してください';
+      errorDiv.textContent = 'Please select at least one partner type';
       this.partnerTypesTarget.parentNode.appendChild(errorDiv);
     }
 
-    // 連絡先テーブルのバリデーション
+    // Validate CARRIER (SCAC or Air selection)
+    const hasCarrier = selectedTypes.some(type => type === 'carrier');
+    if (hasCarrier) {
+      // Check if carrier type is selected
+      const selectedCarrierType = this.getSelectedCarrierType();
+      if (!selectedCarrierType) {
+        isValid = false;
+        const carrierTypeSection = document.getElementById('carrier-type-section');
+        if (carrierTypeSection) {
+          carrierTypeSection.classList.add('form-error');
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.textContent = 'Please select Ship or Air for Carrier';
+          carrierTypeSection.appendChild(errorDiv);
+        }
+      }
+
+      // If Ship is selected, SCAC is required
+      if (selectedCarrierType === 'false') {
+        const scacInput = this.carrierScacInputTarget;
+        if (!scacInput || !scacInput.value.trim()) {
+          isValid = false;
+          if (scacInput) {
+            scacInput.classList.add('form-error');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = 'SCAC is required for Ship';
+            scacInput.parentNode.appendChild(errorDiv);
+          }
+        }
+      }
+    }
+
+    // Validate OTHER Industry
+    const hasOther = selectedTypes.some(type => type === 'other');
+    if (hasOther) {
+      const checkedIndustry = this.industryRadioTargets.find(radio => radio.checked);
+      if (!checkedIndustry) {
+        isValid = false;
+        const industrySection = document.getElementById('other-industry-section');
+        if (industrySection) {
+          industrySection.classList.add('form-error');
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.textContent = 'Industry selection is required for Other';
+          industrySection.appendChild(errorDiv);
+        }
+      }
+    }
+
+    // Validate contacts table
     const contactRows = this.contactTableBodyTarget.querySelectorAll('tr');
     let hasValidContact = false;
 
@@ -157,30 +326,32 @@ export default class extends BaseController {
       const nameInput = row.querySelector('.contact-name-input');
       const emailInput = row.querySelector('.contact-email-input');
       
+      if (!nameInput || !emailInput) return;
+      
       const name = nameInput.value.trim();
       const email = emailInput.value.trim();
 
-      // 担当者名のチェック
+      // Validate contact name
       if (!name) {
         isValid = false;
         nameInput.classList.add('form-error');
         
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
-        errorDiv.textContent = '担当者名は必須です';
+        errorDiv.textContent = 'Contact name is required';
         nameInput.parentNode.appendChild(errorDiv);
       } else {
         hasValidContact = true;
       }
 
-      // メールアドレスのチェック
+      // Validate contact email
       if (!email) {
         isValid = false;
         emailInput.classList.add('form-error');
         
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
-        errorDiv.textContent = 'メールアドレスは必須です';
+        errorDiv.textContent = 'Email address is required';
         emailInput.parentNode.appendChild(errorDiv);
       } else if (!this.isValidEmail(email)) {
         isValid = false;
@@ -188,7 +359,7 @@ export default class extends BaseController {
         
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
-        errorDiv.textContent = '正しいメールアドレスの形式で入力してください';
+        errorDiv.textContent = 'Please enter a valid email address';
         emailInput.parentNode.appendChild(errorDiv);
       } else {
         hasValidContact = true;
@@ -197,34 +368,41 @@ export default class extends BaseController {
 
     if (!hasValidContact) {
       isValid = false;
-      alert('最低1人の有効な連絡先（担当者名とメールアドレス）が必要です。');
+      alert('At least one valid contact (name and email) is required');
     }
 
     return isValid;
   }
 
-  // メールアドレス検証
+  // Validate email format
   isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // 保存処理
+  // Save partner
   savePartner(event) {
     if (!this.validateForm()) {
-      alert('入力内容に不備があります。赤字の項目を確認してください。');
+      alert('Please check the errors below');
       return;
     }
 
-    // 連絡先データを収集
+    // Collect contact data
     const contacts = [];
     const contactRows = this.contactTableBodyTarget.querySelectorAll('tr');
     
     contactRows.forEach(row => {
-      const name = row.querySelector('.contact-name-input').value.trim();
-      const title = row.querySelector('.contact-dept-input').value.trim();
-      const email = row.querySelector('.contact-email-input').value.trim();
-      const phone = row.querySelector('.contact-phone-input').value.trim();
+      const nameInput = row.querySelector('.contact-name-input');
+      const deptInput = row.querySelector('.contact-dept-input');
+      const emailInput = row.querySelector('.contact-email-input');
+      const phoneInput = row.querySelector('.contact-phone-input');
+      
+      if (!nameInput || !emailInput) return;
+      
+      const name = nameInput.value.trim();
+      const title = deptInput ? deptInput.value.trim() : '';
+      const email = emailInput.value.trim();
+      const phone = phoneInput ? phoneInput.value.trim() : '';
       
       if (name && email) {
         contacts.push({
@@ -236,86 +414,110 @@ export default class extends BaseController {
       }
     });
 
-    // 選択された取引先タイプを取得
+    // Get selected partner types
     const selectedPartnerTypes = this.getSelectedPartnerTypes();
 
-    // フォームデータ収集
+    // Collect form data
     const formData = {
       companyName: this.companyNameTarget.value.trim(),
-      partnerTypes: selectedPartnerTypes, // 配列として保存
+      partnerTypes: selectedPartnerTypes,
       address: this.addressTarget.value.trim(),
       companyDescription: this.companyDescriptionTarget.value.trim(),
       contacts: contacts,
-      status: document.querySelector('input[name="status"]:checked').value,
+      status: document.querySelector('input[name="status"]:checked')?.value || 'active',
       tradingTerms: this.tradingTermsTarget.value.trim()
     };
 
-    // 保存ボタンのアニメーション
+    // Animate save button
     const saveButton = event.currentTarget;
-    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 登録中...';
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     saveButton.disabled = true;
 
-    // 実際の処理では、ここでサーバーにデータを送信
     setTimeout(() => {
-      saveButton.innerHTML = '<i class="fas fa-check"></i> 登録完了';
+      saveButton.innerHTML = '<i class="fas fa-check"></i> Saved';
       
       setTimeout(() => {
-        alert(`取引先が正常に登録されました。\n選択されたタイプ: ${selectedPartnerTypes.join(', ')}`);
-        console.log('登録データ:', formData);
+        alert(`Saved successfully.\nSelected types: ${selectedPartnerTypes.join(', ')}`);
+        console.log('Form data:', formData);
         
-        // フォームをリセット
         this.resetForm();
-        saveButton.innerHTML = '<i class="fas fa-save"></i> 登録';
+        saveButton.innerHTML = '<i class="fas fa-save"></i> Save';
         saveButton.disabled = false;
       }, 1000);
     }, 2000);
   }
 
-  // フォームリセット
+  // Reset form
   resetForm() {
-    // テキスト入力フィールドをリセット
+    // Reset text inputs
     document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(el => {
       el.value = '';
       el.classList.remove('form-error');
+      el.disabled = false;
+      el.style.opacity = '1';
+      el.style.cursor = 'auto';
     });
     
-    // チェックボックスをリセット
+    // Reset checkboxes
     this.partnerTypeCheckboxTargets.forEach(checkbox => {
       checkbox.checked = false;
+      checkbox.disabled = false;
+    });
+
+    // Reset radios
+    this.carrierTypeTargets.forEach(radio => {
+      radio.checked = false;
+    });
+    this.industryRadioTargets.forEach(radio => {
+      radio.checked = false;
     });
     
-    // エラーメッセージを削除
+    // Remove error messages
     document.querySelectorAll('.error-message').forEach(el => el.remove());
     document.querySelector('input[name="status"][value="active"]').checked = true;
     
-    // チェックボックスグループのエラー状態をクリア
-    this.partnerTypesTarget.classList.remove('form-error');
+    // Clear error state
+    if (this.partnerTypesTarget) {
+      this.partnerTypesTarget.classList.remove('form-error');
+    }
     
-    // 連絡先テーブルをリセット（1行のみ残す）
+    // Reset contacts table
     this.contactTableBodyTarget.innerHTML = `
       <tr>
-        <td><input type="text" class="table-input contact-name-input" placeholder="例: 山田 一郎" required></td>
-        <td><input type="text" class="table-input contact-dept-input" placeholder="例: 営業部長"></td>
-        <td><input type="email" class="table-input contact-email-input" placeholder="例: yamada@company.com" required></td>
-        <td><input type="tel" class="table-input contact-phone-input" placeholder="例: +81-3-1234-5678"></td>
+        <td><input type="text" class="table-input contact-name-input" placeholder="Example: Yamada Ichiro" required></td>
+        <td><input type="text" class="table-input contact-dept-input" placeholder="Example: Sales Manager"></td>
+        <td><input type="email" class="table-input contact-email-input" placeholder="Example: yamada@company.com" required></td>
+        <td><input type="tel" class="table-input contact-phone-input" placeholder="Example: +81-3-1234-5678"></td>
         <td>
-          <button type="button" class="delete-contact-btn" title="連絡先を削除" data-action="click->contractor-new#deleteContactRow">
+          <button type="button" class="delete-contact-btn" title="Delete contact" data-action="click->contractor-new#deleteContactRow">
             <i class="fas fa-trash-alt"></i>
           </button>
         </td>
       </tr>
     `;
     
-    // 新しい行にイベントリスナーを追加
-    this.addContactInputEventListeners(this.contactTableBodyTarget.querySelector('tr'));
+    const firstRow = this.contactTableBodyTarget.querySelector('tr');
+    if (firstRow) {
+      this.addContactInputEventListeners(firstRow);
+    }
+    
+    // Hide sections
+    const carrierTypeSection = document.getElementById('carrier-type-section');
+    const carrierScacSection = document.getElementById('carrier-scac-section');
+    const otherIndustrySection = document.getElementById('other-industry-section');
+    if (carrierTypeSection) carrierTypeSection.style.display = 'none';
+    if (carrierScacSection) carrierScacSection.style.display = 'none';
+    if (otherIndustrySection) otherIndustrySection.style.display = 'none';
   }
 
-  // フォーム要素のインタラクション設定
+  // Setup form interactions
   setupFormInteractions() {
     document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
       input.addEventListener('focus', function() {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 5px 15px rgba(102, 126, 234, 0.2)';
+        if (!this.disabled) {
+          this.style.transform = 'translateY(-2px)';
+          this.style.boxShadow = '0 5px 15px rgba(102, 126, 234, 0.2)';
+        }
       });
       
       input.addEventListener('blur', function() {
@@ -323,7 +525,6 @@ export default class extends BaseController {
         this.style.boxShadow = 'none';
       });
 
-      // エラー状態をクリア
       input.addEventListener('input', function() {
         this.classList.remove('form-error');
         const errorMsg = this.parentNode.querySelector('.error-message');
@@ -332,17 +533,12 @@ export default class extends BaseController {
         }
       });
     });
+  }
 
-    // チェックボックスのイベントリスナー設定
-    this.partnerTypeCheckboxTargets.forEach(checkbox => {
-      checkbox.addEventListener('change', () => {
-        // チェックボックスが選択された時にエラー状態をクリア
-        this.partnerTypesTarget.classList.remove('form-error');
-        const errorMsg = this.partnerTypesTarget.parentNode.querySelector('.error-message');
-        if (errorMsg) {
-          errorMsg.remove();
-        }
-      });
-    });
+  // Delete row
+  deleteRow(event) {
+    const button = event.target.closest('.delete-contact-btn');
+    const row = button.closest('tr');
+    row.remove();
   }
 }

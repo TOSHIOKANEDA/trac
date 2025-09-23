@@ -1,60 +1,419 @@
-/* カレンダー関連のスタイル（既存のものを維持） */
+/* ============================================
+   FullCalendar - 月表示スタイル
+   ============================================ */
+
 .fc .fc-button-primary {
     background-color: #4f46e5;
-    border-color: #4f46e5;
     color: white;
     transition: background-color 0.2s;
 }
+
 .fc .fc-button-primary:hover {
     background-color: #4338ca;
 }
+
 .fc .fc-button-primary:not(:disabled).fc-button-active {
     background-color: #3730a3;
-    border-color: #3730a3;
 }
+
 .fc-daygrid-event {
-    padding: 0 !important;
+    padding: 2px !important;
     background-color: transparent !important;
-    border: 1px solid #e5e7eb !important;
-    overflow: hidden;
-    height: 36px;
+    overflow: visible !important;
+    height: 28px !important;
     cursor: pointer;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    margin-bottom: 4px !important;
+    border-radius: 4px;
 }
+
+.fc-daygrid-event[data-vessel-action="discharging"] {
+    background-color: #FEEAEC !important;
+}
+
+.fc-daygrid-event[data-vessel-action="loading"] {
+    background-color: #E2ECFE !important;
+}
+
 .fc-daygrid-event .fc-event-main {
-    height: 100%;
+    height: auto;
+    padding: 0;
 }
+
 .fc-daygrid-more-link {
     font-weight: 600;
     color: #4338ca;
+    cursor: pointer;
+    font-size: 0.75rem;
+    height: 28px !important;
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px !important;
 }
+
 .event-highlight-hover {
-    transform: scale(1.08);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     z-index: 1000;
     position: relative;
 }
+
 .event-pair-highlight {
     animation: pulse 1.5s infinite;
 }
+
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+    70% { box-shadow: 0 0 0 8px rgba(79, 70, 229, 0); }
     100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
 }
+
 #date-tooltip {
     position: absolute;
     pointer-events: none;
     z-index: 1001;
     transition: opacity 0.2s;
 }
-.fc-list-event-dot,
-.fc-daygrid-event-dot {
+
+#hidden-events-tooltip {
+    position: absolute;
+    pointer-events: auto;
+    z-index: 1001;
+    transition: opacity 0.2s;
+}
+
+.fc-list-event-dot, .fc-daygrid-event-dot {
     display: none !important;
 }
-tr[tabindex="-1"]:focus { outline: none; }
-.force-truncate {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+
+tr[tabindex="-1"]:focus { 
+    outline: none; 
+}
+
+/* カレンダーの高さ制御 */
+.fc-container {
+    min-height: 600px !important;
+}
+
+.fc-daygrid-day {
+    height: 172px !important;
+    vertical-align: top;
+}
+
+.fc-daygrid-day-frame {
+    height: 100% !important;
+}
+
+.fc-daygrid-day-events {
+    height: auto !important;
+    overflow: hidden;
+}
+
+.fc-daygrid-day-bg {
+    height: auto !important;
+}
+
+/* イベント要素の固定高さ */
+.fc-daygrid-event-harness {
+    height: auto !important;
+}
+
+.fc-daygrid-day-events .fc-daygrid-event-harness {
+    margin-bottom: 0 !important;
+}
+
+/* ETD チェックボックススタイル */
+.checkbox-etd {
+    cursor: pointer;
+    accent-color: #3B82F6;
+}
+
+/* ETA チェックボックススタイル */
+.checkbox-eta {
+    cursor: pointer;
+    accent-color: #F12B3D;
+}
+
+/* カスタム「+ X件」ボタンのスタイル */
+.fc-daygrid-more-link-custom {
+    font-weight: 600;
+    color: #000;
+    cursor: pointer;
+    font-size: 0.75rem;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    margin-bottom: 4px;
+    background-color: #F8FAFC !important;
+    border: none !important;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.fc-daygrid-more-link-custom:hover {
+    background-color: #E8F0F8 !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.hidden-events-tooltip {
+  z-index: 2000 !important; /* サイドバーより上に固定 */
+}
+
+/* ============================================
+   週表示スタイル
+   ============================================ */
+
+.week-view-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 曜日ヘッダー */
+.week-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #e5e7eb;
+    padding: 1px;
+    margin-bottom: 1px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.week-day-header {
+    background: #FFFFFF;
+    padding: 12px 8px;
+    text-align: center;
+    border-right: 1px solid #e5e7eb;
+}
+
+.week-day-header:last-child {
+    border-right: none;
+}
+
+.week-day-header.holiday,
+.week-day-cell.holiday,
+.week-day-header:nth-child(7),
+.week-day-cell:nth-child(7) {
+    background-color: #F8FAFC;
+}
+
+.week-day-header.holiday .day-label,
+.week-day-header.holiday .day-date {
+    color: #F12B3D;
+    font-weight: 600;
+}
+
+.week-day-header:nth-child(7) .day-label,
+.week-day-header:nth-child(7) .day-date {
+    color: #3B82F6;
+    font-weight: 600;
+}
+
+
+.day-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.day-date {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-top: 4px;
+}
+
+/* 週グリッド */
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #e5e7eb;
+    padding: 1px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0; /* スクロール対応 */
+    min-height: 900px;
+    margin-bottom: 24px;
+}
+
+/* 日付セル */
+.week-day-cell {
+    background-color: #ffffff;
+    padding: 12px;
+    overflow-y: auto;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.week-day-cell:last-child {
+    border-right: none;
+}
+
+/* 本日のハイライト */
+.week-day-cell.today {
+    background-color: #FFFDE7;
+}
+
+/* イベント */
+.week-event {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-size: 0.7rem;
+    min-height: 191px;
+    overflow: hidden;
+}
+
+.week-event.discharging {
+    background-color: #FEEAEC;
+    border: 3px solid #F12B3D;
+}
+
+.week-event.loading {
+    background-color: #E2ECFE;
+    border: 3px solid #3B82F6;
+}
+
+.week-event:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.week-event.event-hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Port Code Badge */
+.event-port-code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 134.29px;
+    height: 19px;
+    padding: 0;
+    border-radius: 4px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background-color: #F12B3D;
+    margin: 0 auto; /* 中央揃い */
+    text-align: center;
+}
+
+.week-event.loading .event-port-code {
+    background-color: #3B82F6;
+}
+
+/* Event Details */
+.event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 6px;
+    flex: 1;
+    overflow: hidden;
+    font-size: 0.65rem;
+    font-weight: 600; /* 太字 */
+}
+
+.event-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.event-row.inline {
+    flex-direction: row;
+    white-space: nowrap;
+}
+
+.event-row.multiline {
+    flex-direction: column;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.event-label {
+    font-weight: 700; /* さらに太く */
+    color: #374151;
+    font-size: 0.6rem;
+    display: inline;
+}
+
+.event-value {
+    color: #1f2937;
+    font-size: 0.65rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    display: inline;
+}
+
+.event-row.inline .event-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.event-row.multiline .event-value {
+    display: block;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* スクロール対応 */
+#week-view-container {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px); /* ヘッダーとフッターの余裕 */
+}
+
+/* スクロールバーのカスタマイズ（Chrome/Safari） */
+#week-view-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#week-view-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+#week-view-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+#week-view-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Firefox スクロールバー */
+#week-view-container {
+    scrollbar-color: #cbd5e1 #f1f5f9;
+    scrollbar-width: thin;
 }

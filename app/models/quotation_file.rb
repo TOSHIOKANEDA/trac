@@ -1,0 +1,2 @@
+class QuotationFile < ApplicationRecord
+end

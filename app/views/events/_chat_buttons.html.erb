@@ -1,0 +1,16 @@
+<div class="chat-buttons-container">
+  <% @chats.each do |chat| %>
+    <% unless event_edit_chat_hidden(chat) %>
+      <button 
+        class="chat-button chat-button-<%= chat.chat_type %>"
+        data-action="click->event-new#toggleChatFromButton"
+        data-chat-id="<%= chat.id %>"
+        data-chat-name="<%= chat.name %>"
+        type="button"
+        title="<%= chat.name %>">
+        <i class="fas fa-comments"></i>
+        <span><%= chat.name %></span>
+      </button>
+    <% end %>
+  <% end %>
+</div>

@@ -16,7 +16,6 @@
             <%= f.text_field :english_name,
                             class: "form-input",
                             placeholder: "例: ABC Trading Co., Ltd.",
-                            data: { contractor_new_target: "companyNameEnglish" },
                             required: true %>
             <div class="help-text">B/L面上の会社名（英語）を入力してください</div>
           </div>
@@ -25,37 +24,96 @@
             <%= f.text_field :japanese_name,
                             class: "form-input",
                             placeholder: "例: エービーシー株式会社",
-                            data: { contractor_new_target: "companyNameJapanese" },
                             required: true %>
             <div class="help-text">請求書上の会社名（日本語）を入力してください</div>
           </div>
         </div>
+
         <div class="form-grid grid-1" style="margin-top: 20px;">
           <div class="form-group">
             <label class="form-label required">取引先タイプ</label>
             <div class="checkbox-group" data-contractor-new-target="partnerTypes">
               <% @business_categories.each do |bc| %>
                 <div class="checkbox-item">
-                  <%= check_box_tag "company[category_ids][]", bc.id, 
-                                    @company.category_ids.include?(bc.id),
+                  <%= check_box_tag "company[business_category_ids][]", bc.id, 
+                                    @selected_category_ids.include?(bc.id),
                                     id: "category_#{bc.id}",
-                                    data: { contractor_new_target: "partnerTypeCheckbox" } %>
+                                    data: { contractor_new_target: "partnerTypeCheckbox", category_type: bc.category } %>
                   <%= label_tag "category_#{bc.id}" do %>
                     <span class="checkbox-label"><%= bc.category.upcase %></span>
                   <% end %>
                 </div>
               <% end %>
             </div>
-            <div class="help-text">該当するタイプをすべて選択してください（複数選択可）</div>
+            <div class="help-text">該当するタイプをすべて選択してください</div>
           </div>
         </div>
+
+        <!-- CARRIER - Ship / Air ラジオボタン（初期状態で非表示） -->
+        <div class="form-grid grid-1" style="margin-top: 20px; display: none;" id="carrier-type-section">
+          <div class="form-group">
+            <label class="form-label required">運送（Carrier用）</label>
+            <div class="radio-group">
+              <div class="radio-item">
+                <%= radio_button_tag "company[category_attributes][#{@carrier_business_category_id}][is_air]",
+                                     "false",
+                                     !@carrier_info&.is_air,
+                                     id: "carrier_type_ship",
+                                     data: { contractor_new_target: "carrierType" } %>
+                <%= label_tag "carrier_type_ship", "船" %>
+              </div>
+              <div class="radio-item">
+                <%= radio_button_tag "company[category_attributes][#{@carrier_business_category_id}][is_air]",
+                                     "true",
+                                     @carrier_info&.is_air,
+                                     id: "carrier_type_air",
+                                     data: { contractor_new_target: "carrierType" } %>
+                <%= label_tag "carrier_type_air", "Air" %>
+              </div>
+            </div>
+            <div class="help-text">配送方法を選択してください</div>
+          </div>
+        </div>
+
+        <!-- CARRIER - SCAC入力フィールド（初期状態で非表示） -->
+        <div class="form-grid grid-1" style="margin-top: 20px; display: none;" id="carrier-scac-section">
+          <div class="form-group">
+            <label class="form-label" id="scac-label">SCAC（Carrier用）</label>
+            <%= text_field_tag "company[category_attributes][#{@carrier_business_category_id}][scac]",
+                              @carrier_info&.scac,
+                              class: "form-input",
+                              placeholder: "例: MAEU",
+                              data: { contractor_new_target: "carrierScacInput" } %>
+            <div class="help-text">キャリアのSCAC（Standard Carrier Alpha Code）を入力してください。Airの場合は自動的に「AIR」が設定されます。</div>
+          </div>
+        </div>
+
+        <!-- OTHER - Industry ラジオボタン（初期状態で非表示） -->
+        <div class="form-grid grid-1" style="margin-top: 20px; display: none;" id="other-industry-section">
+          <div class="form-group">
+            <label class="form-label required">業種（Other用）</label>
+            <div class="radio-group">
+              <% @industries.each do |industry| %>
+                <div class="radio-item">
+                  <%= radio_button_tag "company[category_attributes][#{@other_business_category_id}][industry_id]",
+                                       industry.id,
+                                       @other_info&.industry_id == industry.id,
+                                       id: "industry_#{industry.id}",
+                                       data: { contractor_new_target: "industryRadio" } %>
+                  <%= label_tag "industry_#{industry.id}", industry.industry_name %>
+                </div>
+              <% end %>
+            </div>
+            <div class="help-text">該当する業種を選択してください</div>
+          </div>
+        </div>
+
         <div class="form-grid grid-1" style="margin-top: 20px;">
           <div class="form-group">
             <label class="form-label required">住所</label>
             <%= f.text_area :address,
                             class: "form-textarea",
                             placeholder: "例: 〒100-0001 東京都千代田区千代田1-1-1\nまたは\n123 Main Street, Los Angeles, CA 90210, USA",
-                            data: { contractor_new_target: "address" },
                             required: true %>
             <div class="help-text">郵便番号、都道府県、市区町村、番地を含む完全な住所を入力してください</div>
           </div>
@@ -66,8 +124,7 @@
             <label class="form-label">会社概要</label>
             <%= f.text_area :company_memo,
                             class: "form-textarea",
-                            placeholder: "会社の概要や特記事項があれば入力してください（任意）",
-                            data: { contractor_new_target: "companyDescription" } %>
+                            placeholder: "会社の概要や特記事項があれば入力してください（任意）" %>
           </div>
         </div>
 
@@ -80,8 +137,8 @@
                 <%= f.label :status, "アクティブ", { value: "active", for: "active" } %>
               </div>
               <div class="radio-item">
-                <%= f.radio_button :status, "inactive", checked: false, id: "inactive"  %>
-                <%= f.label :status_inactive, "非アクティブ", { value: "inactive", for: "inactive" }  %>
+                <%= f.radio_button :status, "inactive", id: "inactive" %>
+                <%= f.label :status_inactive, "非アクティブ", { value: "inactive", for: "inactive" } %>
               </div>
             </div>
           </div>
@@ -92,8 +149,7 @@
             <label class="form-label">取引条件・備考</label>
             <%= f.text_area :deal_memo,
                             class: "form-textarea",
-                            placeholder: "支払条件、配送条件、その他の取引に関する特記事項があれば入力してください（任意）",
-                            data: { contractor_new_target: "tradingTerms" } %>
+                            placeholder: "支払条件、配送条件、その他の取引に関する特記事項があれば入力してください（任意）" %>
           </div>
         </div>
       </div>
@@ -134,7 +190,7 @@
                                           ['管理者', 'admin'],
                                           ['編集者', 'editor'],
                                           ['閲覧者', 'viewer']
-                                        ], user_form.object.role), 
+                                        ], user_form.object&.role), 
                                         {}, 
                                         { class: "table-input contact-role-select", required: true } %>
                   </td>
@@ -143,7 +199,7 @@
                   <td><%= user_form.telephone_field :phone, class: "table-input contact-phone-input", placeholder: "例: 0312345678" %></td>
                   <td>
                     <%= user_form.check_box :_destroy, { class: "hidden" }, "1", "0" %>
-                    <button type="button" class="delete-contact-btn" title="連絡先を削除" data-action="click->contractor-new#deleteRow" data-target-name="contactTableBody">
+                    <button type="button" class="delete-contact-btn" title="連絡先を削除" data-action="click->contractor-new#deleteRow">
                       <i class="fas fa-trash-alt"></i>
                     </button>
                   </td>

@@ -3,7 +3,7 @@
 <% end %>
 <% content_for :title, "お気に入り一覧" %>
 
-<div data-controller="favorite-index" style="width:100%;">
+<div style="width:100%;">
   <%= render partial: "layouts/sidebar" %>
   
   <div class="main-content">
@@ -27,43 +27,58 @@
             </div>
           </div>
           <div class="filter-content">
-            <div class="filter-grid">
-              <div class="form-group">
-                <label class="form-label">種別</label>
-                <select data-favorite-index-target="typeFilter" class="form-select">
-                  <option value="">すべて</option>
-                  <option value="輸出">輸出</option>
-                  <option value="輸入">輸入</option>
-                </select>
-              </div>
+            <%= search_form_for @q, url: search_favorites_path, local: true, data: { turbo: false }, html: { method: :post } do |f| %>
+              <div class="filter-grid">
+                <div class="form-group">
+                  <label class="form-label">お気に入り名</label>
+                  <%= f.search_field :name_cont,
+                      class: "form-input"%>
+                </div>
 
-              <div class="form-group">
-                <label class="form-label">案件名</label>
-                <input type="text" data-favorite-index-target="nameSearch" class="form-input" placeholder="案件名で検索...">
+                <div class="form-group">
+                  <label class="form-label">種別</label>
+                  <%= f.select :favorite_shipment_shipment_eq, 
+                      options_for_select([
+                        ['すべて', '']] + 
+                        FavoriteShipment.shipments.map { |k,v| [I18n.t("activerecord.attributes.favorite_shipment.shipment.#{k}"), k,v] }, @q.favorite_shipment_shipment_eq), 
+                      {}, 
+                      { class: "form-select" } %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">積み地</label>
+                  <%= f.search_field :favorite_shipment_port_of_loading_cont, 
+                      class: "form-input" %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">揚げ地</label>
+                  <%= f.search_field :favorite_shipment_port_of_discharge_cont, 
+                      class: "form-input" %>
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">Shipper名</label>
+                  <%= f.search_field :shipper_name_cont, 
+                      placeholder: "英語名で検索...", 
+                      class: "form-input",
+                      value: params.dig(:q, "shipper_name_cont") %>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Consignee名</label>
+                  <%= f.search_field :consignee_name_cont, 
+                      placeholder: "英語名で検索...", 
+                      class: "form-input",
+                      value: params.dig(:q, "consignee_name_cont") %>
+                </div>
+
+                <div class="form-group">
+                  <%= f.submit "検索実行", class: "btn btn-primary" %>
+                  <%= link_to "クリア", favorites_path, class: "btn btn-secondary" %>
+                </div>
               </div>
-              
-              <div class="form-group">
-                <label class="form-label">積み地</label>
-                <input type="text" data-favorite-index-target="loadingPortSearch" class="form-input" placeholder="TYO, LAX...">
-              </div>
-              <div class="form-group">
-                <label class="form-label">揚げ地</label>
-                <input type="text" data-favorite-index-target="dischargePortSearch" class="form-input" placeholder="TYO, LAX...">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Shipper名</label>
-                <input type="text" data-favorite-index-target="shipperSearch" class="form-input" placeholder="Shipper名で検索...">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Consignee名</label>
-                <input type="text" data-favorite-index-target="consigneeSearch" class="form-input" placeholder="Consignee名で検索...">
-              </div>
-              <div class="form-group">
-                <button class="btn btn-primary" data-action="click->favorite-index#filterProjects">
-                  <i class="fas fa-search"></i> 検索実行
-                </button>
-              </div>
-            </div>
+            <% end %>
           </div>
         </div>
 
@@ -80,7 +95,7 @@
               <thead>
                 <tr>
                   <th>種別</th>
-                  <th>案件名</th>
+                  <th>お気に入り名</th>
                   <th>積み地</th>
                   <th>揚げ地</th>
                   <th>Shipper名</th>
@@ -89,7 +104,29 @@
                   <th></th>
                 </tr>
               </thead>
-              <tbody data-favorite-index-target="projectTableBody">
+              <tbody>
+                <% @favorites.each do |favorite| %>
+                  <tr>
+                    <td>
+                      <span class="type-badge <%= shipment_css_class(favorite, controller_name) %>"><%= favorite&.shipment.blank? ? "" : I18n.t("activerecord.attributes.favorite_shipment.shipment.#{EventShipment.shipments.keys[favorite&.shipment]}") %></span>
+                    </td>
+                    <td class="text-sm"><%= list_item_with_na(favorite&.name) %></td>
+                    <td class="text-sm"><%= list_item_with_na(favorite&.pol) %></td>
+                    <td class="text-sm"><%= list_item_with_na(favorite&.pod) %></td>
+                    <td class="text-sm"><div class="truncate-text" title="<%= list_item_with_na(favorite&.shipper) %>"><%= list_item_with_na(favorite&.shipper) %></div></td>
+                    <td class="text-sm"><div class="truncate-text" title="<%= list_item_with_na(favorite&.consignee) %>"><%= list_item_with_na(favorite&.consignee) %></div></td>
+                    <td>
+                      <%= link_to edit_favorite_path(favorite.id), class: "action-link" do %>
+                        <i class="fas fa-edit"></i> 編集
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= link_to paste_events_path(favorite_id: favorite.id), method: :post, class: "action-link" do %>
+                        <i class="fas fa-plus"></i> 案件登録
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
               </tbody>
             </table>
           </div>

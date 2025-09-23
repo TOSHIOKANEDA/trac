@@ -1,0 +1,51 @@
+<%# app/views/shared/_search_section.html.erb %>
+<%# ローカル変数: title, icon_class, url, input_id, placeholder_text (optional), query_label %>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">
+      <div class="section-icon"><i class="<%= icon_class %>"></i></div>
+      <%= title %>
+    </div>
+  </div>
+  <div class="section-content">
+    <%# フォームIDは不要なため削除、form_withでmethod: :getを指定 %>
+    <%= form_with url: url, method: :get, class: 'data-form', local: true do %>
+      <div class="form-input-row">
+        <div class="form-input-group">
+          <label class="form-label"><%= query_label %></label>
+          <%# name="query" とすることで、params[:query]としてコントローラーに渡る %>
+          <input type="text" class="form-input" name="query" id="<%= input_id %>" 
+                 <%= "placeholder=\"#{placeholder_text}\"" if defined?(placeholder_text) && placeholder_text.present? %> 
+                 required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-search"></i> 検索
+        </button>
+      </div>
+    <% end %>
+    <% if defined?(search_query) && search_query.present? %>
+      <div class="search-results-container">
+        <% if results.any? %>
+          <%# 1. 見つかった場合のメッセージ %>
+          <p class="search-status-success">
+            <strong><%= results.count %></strong>件の検索結果が見つかりました。
+          </p>
+          <%# 2. 検索結果の文字列リスト %>
+          <ul class="search-results-list">
+            <% results.each do |result| %>
+              <%# ブロックを呼び出し、index.html.erb側で定義されたHTMLを描画 %>
+              <%= yield(result) %>
+            <% end %>
+          </ul>
+        <% else %>
+          <%# 1. 見つからなかった場合のメッセージ %>
+          <p class="search-status-empty">
+            「<%= search_query %>」に一致する結果は見つかりませんでした。
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,2 @@
+class KplerMilestoneTransportation < ApplicationRecord
+end

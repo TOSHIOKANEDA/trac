@@ -1,0 +1,88 @@
+<tr class="item-row">
+  <td class="item-name-cell">
+    <%= item.select :finbalance_item_id,
+                  @finbalance_items.map { |fi| [fi.item_name, fi.id] },
+                  { include_blank: '項目を選択してください' },
+                  class: 'item-name-select', required: true %>
+  </td>
+  <td>
+    <%= item.select :unit, @units, {}, class: "item-input"%>
+  </td>
+  <td class="tax-cell">
+    <label class="tax-label">
+      <%= item.check_box :tax_flag, 
+          { class: "tax-check", 
+            data: { action: "change->event-finbalance-new#calculateTotals" } }, 
+          true, false %>
+    </label>
+  </td>
+  <td>
+    <%= item.text_field :currency, 
+        class: "item-input currency",
+        data: { action: "input->event-finbalance-new#calculateTotals" } %>
+  </td>
+  <td>
+    <%= item.text_field :exchange_rate, 
+        class: "item-input exchange-rate",
+        data: { action: "input->event-finbalance-new#calculateTotals" } %>
+  </td>
+  
+  <!-- 数量 -->
+  <td>
+    <%= item.text_field :quantity,
+        class: "item-input quantity",
+        data: { action: "input->event-finbalance-new#calculateTotals" } %>
+  </td>
+  
+  <!-- 仕入単価 -->
+  <td>
+    <%= item.text_field :purchase_unit_price,
+        class: "item-input purchase-unit-price",
+        data: { action: "input->event-finbalance-new#calculateTotals" } %>
+  </td>
+  
+  <!-- 仕入金額（readonly） -->
+  <td>
+    <%= item.text_field :purchase_amount,
+        class: "item-input purchase-amount",
+        readonly: true %>
+  </td>
+  
+  <!-- 売上単価 -->
+  <td>
+    <%= item.text_field :sales_unit_price,
+        class: "item-input sales-unit-price",
+        data: { action: "input->event-finbalance-new#calculateTotals" } %>
+  </td>
+  
+  <!-- 売上金額（readonly） -->
+  <td>
+    <%= item.text_field :sales_amount,
+        class: "item-input sales-amount",
+        readonly: true %>
+  </td>
+  
+  <!-- 粗利（readonly） -->
+  <td>
+    <%= item.text_field :gross_profit,
+        class: "item-input gross-profit",
+        readonly: true %>
+  </td>
+  
+  <!-- 粗利率（readonly） -->
+  <td>
+    <%= item.text_field :gross_profit_rate,
+        class: "item-input gross-profit-rate",
+        readonly: true %>
+  </td>
+  
+  <td>
+    <%= item.text_field :item_remark, class: "item-input"%>
+  </td>
+  <td class="delete-cell">
+    <button type="button" class="delete-item-btn" title="行を削除" 
+            data-action="click->event-finbalance-new#deleteRow">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </td>
+</tr>

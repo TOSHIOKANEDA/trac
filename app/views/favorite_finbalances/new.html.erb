@@ -1,0 +1,29 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "event_finbalances/new", "data-turbo-track": "reload" %>
+<% end %>
+<% content_for :title, "お気に入り支払い・請求編集" %>
+
+<div data-controller="favorite-finbalance-new" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <%= form_with model: @favorite_finbalance, url: favorite_favorite_finbalances_path(favorite_id: @favorite.id), local: true, data: { turbo: false } do |f| %>
+        <div class="header">
+          <h1><i class="fas fa-calculator"></i> お気に入り支払い・請求編集</h1>
+          <div class="header-actions">
+            <%= link_to favorite_favorite_finbalances_path(@favorite), class: "btn btn-secondary" do %>
+              <i class="fas fa-arrow-left"></i> お気に入り請求書一覧に戻る
+            <% end %>
+            <button class="btn btn-success">
+              <i class="fas fa-save"></i> 保存
+            </button>
+          </div>
+        </div>
+        <%= render 'form', f: f %>
+      <% end %>
+    </div>
+  </div>
+  <div id="finbalance-items" style="display: none;">
+    <%= options_from_collection_for_select(@finbalance_items, :id, :item_name) %>
+  </div>
+</div>

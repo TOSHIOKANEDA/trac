@@ -1,0 +1,16 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "favorites/new", "data-turbo-track": "reload" %>
+<% end %>
+
+<% content_for :title, "お気に入り編集" %>
+<div data-controller="favorite-new" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <%= form_with model: @favorite, local: true, url: favorite_path(@favorite) do |f| %>
+        <%= render "form", f: f %>
+      <% end %>
+    </div>   
+  </div>
+  <%= render "layouts/port_search" %>
+</div>

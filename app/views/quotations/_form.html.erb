@@ -1,0 +1,372 @@
+<% content_for :stylesheets do %>
+  <%= stylesheet_link_tag "quotations/new", "data-turbo-track": "reload" %>
+<% end %>
+<% content_for :title, "見積編集" %>
+
+<div data-controller="quotation-new" style="width:100%;">
+  <%= render partial: "layouts/sidebar" %>
+  <div class="main-content">
+    <div class="container">
+      <%= form_with model: @quotation, local: true, data: { turbo: false } do |f| %>
+        <div class="header">
+          <h1><i class="fas fa-calculator"></i> 見積り編集</h1>
+          <div class="header-actions">
+            <% if @display_copy %>
+              <%= link_to copy_quotation_path(@quotation), 
+                          class: "btn btn-primary", 
+                          method: :post do %>
+                <i class="fas fa-copy"></i> コピー
+              <% end %>
+            <% end %>
+            <%= link_to quotations_path, class: "btn btn-secondary" do %>
+              <i class="fas fa-copy"></i> 見積り一覧に戻る
+            <% end %>
+            
+            <!-- PDF出力ボタン -->
+            <% if @quotation.persisted? %>
+              <%= link_to quotation_path(@quotation, format: :pdf),
+                          class: "btn btn-secondary",
+                          target: "_blank",
+                          rel: "noopener noreferrer" do %>
+                <i class="fas fa-file-pdf"></i> 見積PDF
+              <% end %>
+            <% end %>
+            
+            <button class="btn btn-success">
+              <i class="fas fa-save"></i> 保存
+            </button>
+          </div>
+        </div>
+
+        <div class="form-container">
+          <!-- 見積り情報セクション -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="section-icon"><i class="fas fa-yen-sign"></i></div>
+                基本情報編集
+              </div>
+            </div>
+            <div class="section-content">
+              <div class="quotation-info-left">
+                <!-- 会社名（大きく表示） -->
+                <div class="company-name-section">
+                  <%= f.select :client_id,
+                                @client_companies.map { |c| [c.name, c.company_id] },
+                                { include_blank: '会社名を選択してください' },
+                                class: 'company-name-select', required: true %>
+                </div>
+
+                <!-- 担当者名 -->
+                <div class="pic-name-section">
+                  <label>ご担当者:</label>
+                  <%= f.text_field :client_pic_name, class: "pic-name-input", placeholder: "担当者名"%>
+                </div>
+
+                <!-- 見積り詳細情報 -->
+                <div class="quotation-details-grid">
+                  <div class="detail-row">
+                    <label class="detail-label">モード：</label>
+                    <div class="detail-value">
+                      <%= f.select :mode,
+                            Quotation.modes.keys.map { |k| [I18n.t("activerecord.attributes.quotation.mode.#{k}"), k] },
+                            { prompt: "選択してください" },
+                            { class: "detail-input" } %>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">ターム：</label>
+                    <div class="detail-value">
+                      <%= f.select :term,
+                            Quotation.terms.keys.map { |k| [I18n.t("activerecord.attributes.quotation.term.#{k}"), k] },
+                            { prompt: "選択してください" },
+                            { class: "detail-input" } %>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">条件：</label>
+                    <div class="detail-value">
+                      <%= f.text_field :condition, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">シップメント：</label>
+                    <div class="detail-value">
+                      <%= f.select :shipment,
+                            Quotation.shipments.keys.map { |k| [I18n.t("activerecord.attributes.quotation.shipment.#{k}"), k] },
+                            { prompt: "選択してください" },
+                            { class: "detail-input" } %>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">貨物内容：</label>
+                    <div class="detail-value">
+                      <%= f.text_field :cargo, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">集荷先：</label>
+                    <div class="detail-value">
+                      <%= f.text_field :place_of_receipt, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">出港地：</label>
+                    <div class="detail-value">
+                      <%= f.text_field :port_of_loading, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">入港地：</label>
+                    <div class="detail-value">
+                      <%= f.text_field :port_of_discharge, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">納品先：</label>
+                    <div class="detail-value">
+                      <%= f.text_field :port_of_delivery, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">船会社・航空会社：</label>
+                    <div class="detail-value">
+                      <%= f.text_field :carrier, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">見積有効期限：</label>
+                    <div class="detail-value">
+                      <%= f.date_field :valid_at, class: "detail-input"%>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">航空案件：</label>
+                    <div class="detail-value">
+                      <label class="checkbox-label">
+                        <%= f.check_box :is_air %>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="detail-row">
+                    <label class="detail-label">費用概算：</label>
+                    <div class="detail-value" >
+                      <%= f.text_field :total_amount,
+                          class: "detail-input total-amount",
+                          readonly: true %>
+                    </div>
+                  </div>
+
+                  <!-- 宛名設定 -->
+                  <div class="detail-row">
+                    <label class="detail-label"></label>
+                    <div class="detail-value">
+                      <label class="checkbox-label">
+                        <%= f.check_box :issued_in_english, { class: "issued-in-english-check" } %>
+                        宛名を英語にする
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 外国通貨設定 -->
+                  <div class="detail-row">
+                    <label class="detail-label"></label>
+                    <div class="detail-value">
+                      <label class="checkbox-label">
+                        <%= f.check_box :issued_by_foreign_currency, 
+                            { class: "issued-by-foreign-currency-check",
+                              data: { action: "change->quotation-new#toggleCurrencyFields" } } %>
+                        請求を外国通貨にする
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 通貨と換算レート（初期は非表示） -->
+                  <div id="currency-fields-container" style="display: <%= @quotation.issued_by_foreign_currency? ? 'block' : 'none' %>;">
+                    <div class="detail-row">
+                      <label class="detail-label">通貨名：</label>
+                      <div class="detail-value">
+                        <%= f.text_field :currency, 
+                            class: "detail-input currency-field",
+                            placeholder: "例：USD, EUR, CNY" %>
+                      </div>
+                    </div>
+
+                    <div class="detail-row">
+                      <label class="detail-label">換算レート：</label>
+                      <div class="detail-value">
+                        <%= f.text_field :exchange_rate,
+                            class: "detail-input exchange-rate-field",
+                            placeholder: "例：100.50" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 明細テーブルセクション -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="section-icon"><i class="fas fa-list"></i></div>
+                見積り明細
+              </div>
+            </div>
+            <div class="section-content">
+              <div class="items-table-container">
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>項目名</th>
+                      <th>単位</th>
+                      <th>課税</th>
+                      <th>通貨</th>
+                      <th>換算レート</th>
+                      <th>数量</th>
+                      <th>仕入単価</th>
+                      <th>仕入金額</th>
+                      <th>売上単価</th>
+                      <th>売上金額</th>
+                      <th>粗利</th>
+                      <th>粗利率</th>
+                      <th>備考</th>
+                      <th>削除</th>
+                    </tr>
+                  </thead>
+                  <tbody data-quotation-new-target="quotationDetailBody">
+                    <% @sections.each do |section| %>
+                      <tr class="section-header-row">
+                        <td colspan="14" class="section-header-cell"><%= section[:title] %></td>
+                      </tr>
+
+                      <%= f.fields_for :quotation_items, @quotation.quotation_items.select { |i| i.section == section[:key] } do |item| %>
+                        <%= item.hidden_field :section, value: section[:key].to_sym %>
+                        <%= render 'item', item: item, section: section[:key] %>
+                      <% end %>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button type="button" class="btn btn-secondary" data-action="click->quotation-new#addClientRow" data-section="export">
+                  <i class="fas fa-plus"></i> 輸出費用を追加
+                </button>
+                <button type="button" class="btn btn-secondary" data-action="click->quotation-new#addClientRow" data-section="freight">
+                  <i class="fas fa-plus"></i> 運賃を追加
+                </button>
+                <button type="button" class="btn btn-secondary" data-action="click->quotation-new#addClientRow" data-section="import">
+                  <i class="fas fa-plus"></i> 輸入費用を追加
+                </button>
+              </div>
+              <div class="totals-container">
+                <div class="total-item">
+                  <div class="total-label">仕入れ合計</div>
+                  <div class="total-value" data-quotation-new-target="totalIncome">¥0</div>
+                </div>
+                <div class="total-item">
+                  <div class="total-label">売上合計</div>
+                  <div class="total-value" data-quotation-new-target="totalExpense">¥0</div>
+                </div>
+                <div class="total-item">
+                  <div class="total-label">総差額</div>
+                  <div class="total-value" data-quotation-new-target="grandTotal">¥0</div>
+                </div>
+                <div class="total-item">
+                  <label class="total-label">利益率</label>
+                  <div class="total-value" data-quotation-new-target="displayMarginInfo">0%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Companyテーブルセクション -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="section-icon"><i class="fas fa-list"></i></div>
+                ベンダー登録
+              </div>
+            </div>
+            <div class="section-content">
+              <div data-quotation-new-target="quotationCompanyBody">
+                <%= f.fields_for :quotation_companies do |company| %>
+                  <div class="form-group company-row">
+                    <%= company.collection_select :company_id, quotation_new_get_company_options(company.object, @company_options_map), :id, :name,
+                          { prompt: "選択してください" },
+                          { class: "form-select", data: { quotation_new_target: "companySelect" } } %>
+                    
+                    <button type="button" 
+                            class="btn btn-danger btn-sm" 
+                            data-action="click->quotation-new#removeCompanyRow" 
+                            style="margin-left: 10px;">
+                      <i class="fas fa-trash"></i> 削除
+                    </button>
+                  </div>
+                <% end %>
+              </div>
+
+              <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button type="button" class="btn btn-secondary" data-action="click->quotation-new#addCompanyRow" data-company-type="carrier">
+                  <i class="fas fa-plus"></i> Carrierを追加
+                </button>
+                <button type="button" class="btn btn-secondary" data-action="click->quotation-new#addCompanyRow" data-company-type="custom">
+                  <i class="fas fa-plus"></i> Customを追加
+                </button>
+                <button type="button" class="btn btn-secondary" data-action="click->quotation-new#addCompanyRow" data-company-type="agent">
+                  <i class="fas fa-plus"></i> Agentを追加
+                </button>
+                <button type="button" class="btn btn-secondary" data-action="click->quotation-new#addCompanyRow" data-company-type="other">
+                  <i class="fas fa-plus"></i> Otherを追加
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- finbalance_items オプション -->
+  <div id="unit-options" style="display: none;">
+    <%= options_for_select(@units) %>
+  </div>
+
+  <div id="finbalance-items" style="display: none;">
+    <%= options_from_collection_for_select(@finbalance_items, :id, :item_name) %>
+  </div>
+
+  <!-- Carrier オプション -->
+  <div id="carrier-options" style="display: none;">
+    <%= options_from_collection_for_select(@carriers || [], :id, :name) %>
+  </div>
+
+  <!-- Custom オプション -->
+  <div id="custom-options" style="display: none;">
+    <%= options_from_collection_for_select(@customs || [], :id, :name) %>
+  </div>
+
+  <!-- Agent オプション -->
+  <div id="agent-options" style="display: none;">
+    <%= options_from_collection_for_select(@agents || [], :id, :name) %>
+  </div>
+
+  <!-- Other オプション -->
+  <div id="other-options" style="display: none;">
+    <%= options_from_collection_for_select(@others || [], :id, :name) %>
+  </div>
+</div>

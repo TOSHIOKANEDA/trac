@@ -1,0 +1,19 @@
+<div class="dropdown" data-favorite-new-target="operationsDropdown">
+  <button class="btn btn-secondary dropdown-toggle" data-action="click->favorite-new#toggleOperations">
+    <i class="fas fa-cogs"></i> 操作
+  </button>
+  <div class="dropdown-content" data-favorite-new-target="operationsDropdownContent">
+    <%= link_to favorite_favorite_files_path(@favorite), class: "dropdown-item" do %>
+      <i class="fas fa-edit"></i> 添付ファイル
+    <% end %>
+    <%= link_to favorite_favorite_finbalances_path(favorite_id: @favorite.id), class: "dropdown-item" do %>
+      <i class="fas fa-calculator"></i>お気に入り請求書一覧
+    <% end %>
+    <%= link_to favorite_path(@favorite),
+                method: :delete,
+                data: { confirm: "本当に削除しますか？" },
+                class: "dropdown-item text-danger" do %>
+      <i class="fas fa-trash-alt"></i> 削除
+    <% end %>
+  </div>
+</div>

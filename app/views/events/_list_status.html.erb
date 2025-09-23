@@ -1,0 +1,32 @@
+<!-- 進捗モーダル（案件一覧スタイル） -->
+<div class="modal-overlay" 
+       data-event-list-target="milestoneModalOverlay" 
+       data-event-id="<%= event.id %>"
+       data-action="click->event-list#modalOverlayClick">
+  <div class="modal_show" data-event-list-target="milestoneModal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fas fa-tasks"></i>
+        <span>案件進捗状況</span>
+      </div>
+      <button class="modal-close" 
+              data-action="click->event-list#closeMilestoneModal"
+              data-event-id="<%= event.id %>">
+    </div>
+    <div class="modal-content" data-event-list-target="milestoneModalContent">
+      <ul class="milestone-list">
+        <% EventStep.statuses.keys.each do |status|%>
+          <li class="milestone-item">
+            <div class="milestone-icon <%= event_list_edit_status_check_icon(event[:completed], status, @event_steps[event.id]&.any? { |step| step.status == status }, event, event) %>">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="milestone-content">
+              <div class="milestone-name"><%= I18n.t("activerecord.attributes.event_step.status.#{status}")%></div>
+              <div class="milestone-date"><%= event_list_edit_status_date(status, event) %></div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>

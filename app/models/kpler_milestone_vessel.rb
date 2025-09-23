@@ -1,0 +1,2 @@
+class KplerMilestoneVessel < ApplicationRecord
+end

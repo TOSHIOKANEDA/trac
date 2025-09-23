@@ -12,5 +12,6 @@ class CreateEventGoods < ActiveRecord::Migration[7.2]
       t.datetime :discarded_at
       t.timestamps
     end
+    add_index :event_goods, :discarded_at
   end
 end

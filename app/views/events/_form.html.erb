@@ -1,11 +1,13 @@
 <!-- メインヘッダー -->
 <div class="main-header">
   <div class="header-left">
-    <h1><i class="fas fa-box"></i> 案件編集</h1>
+    <% if @display_header %>
+      <%= render "chat_buttons" %>
+    <% end %>
   </div>
   <div class="header-right">
     <div class="header-actions-right">
-      <% if action_name == "edit" %>
+      <% if @display_header %>
         <%= render "header" %>
       <% end %>
       <%= f.submit "登録", class: "btn btn-primary" do %>
@@ -26,48 +28,60 @@
       <button class="accordion-toggle"><i class="fas fa-chevron-down"></i></button>
     </div>
     <div class="section-content">
-      <div class="form-grid grid-4">
-
+      <div class="form-grid grid-3">
         <div class="form-group">
           <label class="form-label">ID NO.</label>
-          <%= f.text_field :id_string,
-                          class: "form-input",
-                          value: "#{@id_string}",
-                          readonly: true %>
+          <div class="text-input-wrapper">
+            <%= f.text_field :id_string,
+                            class: "form-input",
+                            value: "#{@id_string}",
+                            readonly: true %>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">MBL NO.</label>
-          <%= f.text_field :mbl, class: "form-input"%>
+          <div class="text-input-wrapper">
+            <%= f.text_field :mbl, class: "form-input"%>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">HBL NO.</label>
-          <%= f.text_field :hbl, class: "form-input"%>
+          <div class="text-input-wrapper">
+              <%= f.text_field :hbl, class: "form-input"%>
+          </div>
+        </div>
+      </div>
+      <div class="form-grid grid-3" style="margin-top: 20px;">
+        <div class="form-group">
+          <label class="form-label">請求区分</label>
+          <div class="select-input-wrapper">
+            <%= f.select :charge, [["依頼", true], ["済み", false]], 
+                { prompt: "選択してください" }, 
+                { class: "form-select" } %>
+            <i class="fa-solid fa-chevron-down select-icon"></i>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">担当</label>
-          <%= f.collection_select :user_id, @users, :id, :name, 
-              { prompt: "選択してください" }, 
-              { class: "form-select" } %>
+          <div class="select-input-wrapper">
+            <%= f.collection_select :user_id, @users, :id, :name, 
+                { prompt: "選択してください" }, 
+                { class: "form-select" } %>
+            <i class="fa-solid fa-chevron-down select-icon"></i>
+          </div>
         </div>
-      </div>
-      <div class="form-grid grid-2" style="margin-top: 20px;">
-        <div class="form-group">
-          <label class="form-label">請求</label>
-          <%= f.select :charge, [["依頼", true], ["済み", false]], 
-              { prompt: "選択してください" }, 
-              { class: "form-select" } %>
-        </div>
-
         <div class="form-group">
           <label class="form-label">SOA</label>
-          <%= f.date_field :soa, class: "form-select", data: { event_new_target: "soaInput" } %>
+          <div class="select-input-wrapper">
+            <%= f.date_field :soa, class: "form-select", id: "soa-input" %>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 荷主・業者情報セクション -->
-  <div class="form-section collapsed" id="stakeholderInfo">
+  <div class="form-section" id="stakeholderInfo">
     <div class="section-header" data-action="click->event-new#toggleSection" data-section="stakeholderInfo">
       <div class="section-title">
         <div class="section-icon"><i class="fas fa-users"></i></div>
@@ -80,11 +94,14 @@
       <div class="form-grid grid-2">
         <%= f.fields_for :event_companies do |company_form| %>
           <div class="form-group">
-            <label class="form-label"><%= company_form.object.role.humanize %></label>
+            <label class="form-label"><%= company_form.object&.role&.humanize %></label>
             <%= company_form.hidden_field :role %>
-            <%= company_form.collection_select :company_id, @company_groups[event_new_company_fields(company_form.object.role)] || [], :id, :name,
-                  { prompt: "選択してください" },
-                  { class: "form-select" } %>
+            <div class="select-input-wrapper">
+              <%= company_form.collection_select :company_id, @company_groups[new_company_fields(company_form.object&.role)] || [], :id, :name,
+                    { prompt: "選択してください" },
+                    { class: "form-select" } %>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+            </div>
           </div>
         <% end %>
       </div>
@@ -102,101 +119,130 @@
     </div>
     <div class="section-content">
       <%= f.fields_for :event_shipment do |shipment_form| %>
-        <div class="form-grid grid-2">
+        <div class="form-grid grid-3">
           <div class="form-group">
             <label class="form-label">SHIPMENT</label>
-            <%= shipment_form.select :shipment,
-                  EventShipment.shipments.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.shipment.#{k}"), k] },
-                  { prompt: "選択してください" },
-                  { class: "form-select" } %>
+            <div class="select-input-wrapper">
+              <%= shipment_form.select :shipment,
+                    EventShipment.shipments.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.shipment.#{k}"), k] },
+                    { prompt: "選択してください" },
+                    { class: "form-select" } %>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">METHOD</label>
-            <%= shipment_form.select :med,
-                  EventShipment.meds.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.med.#{k}"), k] },
-                  { prompt: "選択してください" },
-                  { class: "form-select" } %>
+            <label class="form-label">MODE</label>
+            <div class="select-input-wrapper">
+              <%= shipment_form.select :mode,
+                    EventShipment.modes.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.mode.#{k}"), k] },
+                    { prompt: "選択してください" },
+                    { class: "form-select" } %>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+            </div>
           </div>
-        </div>
-        <div class="form-grid grid-1" style="margin-top: 20px;">
           <div class="form-group">
             <label class="form-label">TERM</label>
-            <%= shipment_form.select :term,
-                  EventShipment.terms.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.term.#{k}"), k] },
-                  { prompt: "選択してください" },
-                  { class: "form-select" } %>
+            <div class="select-input-wrapper">
+              <%= shipment_form.select :term,
+                    EventShipment.terms.keys.map { |k| [I18n.t("activerecord.attributes.event_shipment.term.#{k}"), k] },
+                    { prompt: "選択してください" },
+                    { class: "form-select" } %>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+            </div>
           </div>
         </div>
+
         <div class="form-grid grid-4" style="margin-top: 20px;">
           <div class="form-group">
             <label class="form-label">PLACE OF RECIEPT</label>
-            <%= shipment_form.text_field :place_of_receipt,
-                  class: "form-input",
-                  data: {
-                    action: "click->event-new#showPortSearchModal",
-                    port_field: "place_of_receipt"
-                  } %>
+            <div class="text-input-wrapper">
+              <%= shipment_form.text_field :place_of_receipt,
+                    class: "form-input",
+                    data: {
+                      action: "click->event-new#showPortSearchModal",
+                      port_field: "place_of_receipt"
+                    } %>
+            </div>
           </div>
 
           <div class="form-group">
             <label class="form-label">PORT OF LOADING</label>
-            <%= shipment_form.text_field :port_of_loading,
-                  class: "form-input",
-                  data: {
-                    action: "click->event-new#showPortSearchModal",
-                    port_field: "port_of_loading"
-                  } %>
+            <div class="text-input-wrapper">
+              <%= shipment_form.text_field :port_of_loading,
+                    class: "form-input",
+                    data: {
+                      action: "click->event-new#showPortSearchModal",
+                      port_field: "port_of_loading"
+                    } %>
+            </div>
           </div>
 
           <div class="form-group">
             <label class="form-label">PORT OF DISCHARGE</label>
-            <%= shipment_form.text_field :port_of_discharge,
-                  class: "form-input",
-                  data: {
-                    action: "click->event-new#showPortSearchModal",
-                    port_field: "port_of_discharge"
-                  } %>
+            <div class="text-input-wrapper">
+              <%= shipment_form.text_field :port_of_discharge,
+                    class: "form-input",
+                    data: {
+                      action: "click->event-new#showPortSearchModal",
+                      port_field: "port_of_discharge"
+                    } %>
+            </div>
           </div>
 
           <div class="form-group">
             <label class="form-label">PLACE OF DELIVERY</label>
-            <%= shipment_form.text_field :port_of_delivery,
-                  class: "form-input",
-                  data: {
-                    action: "click->event-new#showPortSearchModal",
-                    port_field: "port_of_delivery"
-                  } %>
+            <div class="text-input-wrapper">
+                <%= shipment_form.text_field :port_of_delivery,
+                      class: "form-input",
+                      data: {
+                        action: "click->event-new#showPortSearchModal",
+                        port_field: "port_of_delivery"
+                      } %>
+            </div>
           </div>
-
-          <%= render "layouts/port_search" %>
-
         </div>
         <div class="form-grid grid-2" style="margin-top: 20px;">
           <div class="form-group">
             <label class="form-label">PICK UP</label>
-            <%= shipment_form.text_area :pick_up, class: "form-input"%>
+            <div class="text-input-wrapper" style= "height:88px;">
+              <%= shipment_form.text_area :pick_up, class: "form-input" %>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">DELIVERY</label>
-            <%= shipment_form.text_area :delivery, class: "form-input"%>
+            <div class="text-input-wrapper" style= "height:88px;">
+              <%= shipment_form.text_area :delivery, class: "form-input" %>
+            </div>
           </div>
         </div>
         <div class="form-grid grid-4" style="margin-top: 20px;">
           <div class="form-group">
             <label class="form-label">VESSEL</label>
-            <%= shipment_form.text_field :vessel, class: "form-input"%>
+            <div class="text-input-wrapper">
+              <%= shipment_form.text_field :vessel, class: "form-input"%>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">VOYAGE</label>
-            <%= shipment_form.text_field :voyage, class: "form-input"%>
+            <div class="text-input-wrapper">
+              <%= shipment_form.text_field :voyage, class: "form-input"%>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">BOOKING NO</label>
-            <%= shipment_form.text_field :booking_no, class: "form-input"%>
+            <div class="text-input-wrapper">
+              <%= shipment_form.text_field :booking_no, class: "form-input"%>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">CARRIER</label>
-            <%= shipment_form.text_field :carrier, class: "form-input"%>
+            <div class="select-input-wrapper">
+              <%= shipment_form.select :carrier_id,
+                    @carriers,
+                    { prompt: "選択してください" },
+                    { class: "form-select" } %>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+            </div>
           </div>
         </div>
       <% end %>
@@ -219,7 +265,7 @@
             <tbody data-event-new-target="containerTableBody">
               <%= f.fields_for :containers do |cntr_form| %>
                 <tr>
-                  <% if cntr_form.object.persisted? %>
+                  <% if cntr_form.object&.persisted? %>
                     <%= cntr_form.hidden_field :_destroy, value: false, class: "destroy-flag" %>
                   <% end %>
                   <td><%= cntr_form.text_field :cntr_num, class: "table-input container-number-input"%></td>
@@ -240,9 +286,9 @@
           </table>
         </div>
 
-        <div style="margin-top: 15px;">
-          <button type="button" class="btn btn-secondary" data-action="click->event-new#addContainerRow">
-            <i class="fas fa-plus"></i> コンテナを追加
+        <div class="container-add-wrapper">
+          <button type="button" class="container-add-btn" data-action="click->event-new#addContainerRow">
+            <span><i class="fas fa-plus"></i> コンテナを追加</span>
           </button>
         </div>
       </div>
@@ -250,7 +296,7 @@
   </div>
 
   <!-- スケジュールセクション -->
-  <div class="form-section collapsed" id="scheduleInfo">
+  <div class="form-section" id="scheduleInfo">
     <div class="section-header" data-action="click->event-new#toggleSection" data-section="scheduleInfo">
       <div class="section-title">
         <div class="section-icon"><i class="fas fa-calendar-check"></i></div>
@@ -261,51 +307,71 @@
     <div class="section-content">
       <%= f.fields_for :event_schedule do |skdl_form| %>
         <!-- 積み地スケジュール -->
-        <div class="schedule-section">
+        <div class="schedule-section loading-wrapper">
           <div class="schedule-title loading">
             積み地スケジュール
           </div>
-          <div class="date-grid">
+          <div class="form-grid grid-3">
             <div class="form-group">
               <label class="form-label">CONTAINER PICK UP</label>
-              <%= skdl_form.date_field :container_pick_up, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :container_pick_up, class: "form-input"%>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">VANNING DATE</label>
-              <%= skdl_form.date_field :vanning_date, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :vanning_date, class: "form-input"%>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">CUT OFF DATE</label>
-              <%= skdl_form.date_field :cut_off_date, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :cut_off_date, class: "form-input"%>
+              </div>
             </div>
+          </div>
+          <div class="form-grid grid-3" style="margin-top: 20px;">
             <div class="form-group">
               <label class="form-label">ETD</label>
-              <%= skdl_form.date_field :pol_etd, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :pol_etd, class: "form-input"%>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">ATD</label>
-              <%= skdl_form.date_field :pol_atd, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :pol_atd, class: "form-input"%>
+              </div>
+            </div>
+            <div>            
             </div>
           </div>
         </div>
 
         <!-- 揚げ地スケジュール -->
-        <div class="schedule-section">
+        <div class="schedule-section discharging-wrapper">
           <div class="schedule-title discharging">
             揚げ地スケジュール
           </div>
           <div class="date-grid">
             <div class="form-group">
               <label class="form-label">ETA</label>
-              <%= skdl_form.date_field :pod_eta, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :pod_eta, class: "form-input"%>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">ATA</label>
-              <%= skdl_form.date_field :pod_ata, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :pod_ata, class: "form-input"%>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">DELIVERY DATE</label>
-              <%= skdl_form.date_field :delivery_date, class: "form-input"%>
+              <div class="text-input-wrapper">
+                <%= skdl_form.date_field :delivery_date, class: "form-input"%>
+              </div>
             </div>
           </div>
         </div>
@@ -315,32 +381,38 @@
       <div class="form-grid grid-2" style="margin-top: 20px;">
         <div class="form-group">
           <%= f.label :ac_year, "計上月（年）", class: "form-label" %>
-          <%= f.select :ac_year,
-            options_for_select(
-              ((Time.current.year - 1)..(Time.current.year + 5)).map { |y| ["#{y}年", y] },
-              @event.accounting_month&.year || Time.current.year
-            ),
-            {},
-            class: "form-select" %>
+          <div class="select-input-wrapper">
+            <%= f.select :ac_year,
+              options_for_select(
+                ((Time.current.year - 1)..(Time.current.year + 5)).map { |y| ["#{y}年", y] },
+                @event.accounting_month&.year || Time.current.year
+              ),
+              {},
+              class: "form-select" %>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+          </div>
         </div>
 
         <div class="form-group">
           <%= f.label :ac_month, "計上月（月）", class: "form-label" %>
-          <%= f.select :ac_month,
-            options_for_select(
-              [["月を選択", ""]] +
-              (1..12).map { |m| ["#{m}月", format("%02d", m)] },
-              (@event.accounting_month&.strftime("%m"))
-            ),
-            {},
-            class: "form-select" %>
+          <div class="select-input-wrapper">
+            <%= f.select :ac_month,
+              options_for_select(
+                [["月を選択", ""]] +
+                (1..12).map { |m| ["#{m}月", format("%02d", m)] },
+                (@event.accounting_month&.strftime("%m"))
+              ),
+              {},
+              class: "form-select" %>
+              <i class="fa-solid fa-chevron-down select-icon"></i>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 貨物情報セクション -->
-  <div class="form-section collapsed" id="productInfo">
+  <div class="form-section" id="productInfo">
     <div class="section-header" data-action="click->event-new#toggleSection" data-section="productInfo">
       <div class="section-title">
         <div class="section-icon"><i class="fas fa-boxes"></i></div>
@@ -364,7 +436,7 @@
           <tbody data-event-new-target="cargoTableBody">
             <%= f.fields_for :event_goods do |good_form|%>
               <tr>
-                <% if good_form.object.persisted? %>
+                <% if good_form.object&.persisted? %>
                   <%= good_form.hidden_field :_destroy, value: false, class: "destroy-flag" %>
                 <% end %>
                 <td><%= good_form.text_field :pkg, class: "table-input"%></td>
@@ -382,27 +454,33 @@
           </tbody>
         </table>
       </div>
-      <div style="margin-top: 15px;">
-        <button type="button" class="btn btn-secondary" data-action="click->event-new#addCargoRow">
-          <i class="fas fa-plus"></i> 行を追加
+      <div class="container-add-wrapper">
+        <button type="button" class="container-add-btn" data-action="click->event-new#addCargoRow">
+          <span><i class="fas fa-plus"></i> 行を追加</span>
         </button>
       </div>
 
-      <!-- Description -->
-      <div class="form-group" style="margin-top:20px;">
-        <%= f.label :description, "DESCRIPTION", class: "form-label" %>
-        <%= f.text_area :description, class: "form-textarea", style: "min-height: 100px;" %>
-      </div>
-      <!-- 備考 -->
-      <div class="form-group" style="margin-top:20px;">
-        <%= f.label :remark, "備考", class: "form-label" %>
-        <%= f.text_area :remark, class: "form-textarea", style: "min-height: 100px;" %>
+      <div class="form-grid grid-2">
+        <!-- Description -->
+        <div class="form-group" style="margin-top:20px;">
+          <%= f.label :description, "DESCRIPTION", class: "form-label" %>
+          <div class="text-input-wrapper" style="height: 88px;">
+            <%= f.text_area :description, class: "form-input" %>
+          </div>
+        </div>
+        <!-- 備考 -->
+        <div class="form-group" style="margin-top:20px;">
+          <%= f.label :remark, "備考", class: "form-label" %>
+          <div class="text-input-wrapper" style="height: 88px;">
+            <%= f.text_area :remark, class: "form-input" %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- 必要書類セクション -->
-  <div class="form-section collapsed" id="documentsInfo">
+  <div class="form-section" id="documentsInfo">
     <div class="section-header" data-action="click->event-new#toggleSection" data-section="documentsInfo">
       <div class="section-title">
         <div class="section-icon"><i class="fas fa-file-alt"></i></div>
@@ -415,71 +493,71 @@
       <div id="exportDocuments">                
       <%= f.fields_for :event_doc do |doc_form| %>
         <div class="cargo-table-container">
-          <table class="cargo-table" style="width:100%; border-collapse: collapse; margin-bottom: 25px;">
+          <table class="cargo-table">
             <thead>
               <tr>
-                <th colspan="2" style="text-align:left; padding:8px; background-color:#f0f0f0; font-weight:bold;">
+                <th colspan="2" class="shipper-doc">
                   荷主が提出する書類
                 </th>
-                <th colspan="2" style="text-align:left; padding:8px; background-color:#f0f0f0; font-weight:bold;">
+                <th colspan="2" class="forwarder-doc">
                   フォワーダーが提出する書類
                 </th>
-                <th colspan="2" style="text-align:left; padding:8px; background-color:#f0f0f0; font-weight:bold;">
+                <th colspan="2" class="custom-doc">
                   通関業者が提出する書類
                 </th>
               </tr>
               <tr>
-                <th style="text-align:center; padding:5px;">提出</th>
-                <th style="text-align:left; padding:5px;">書類名</th>
-                <th style="text-align:center; padding:5px;">提出</th>
-                <th style="text-align:left; padding:5px;">書類名</th>
-                <th style="text-align:center; padding:5px;">提出</th>
-                <th style="text-align:left; padding:5px;">書類名</th>
+                <th style="text-align:right;">提出</th>
+                <th style="text-align:left;">書類名</th>
+                <th style="text-align:right;">提出</th>
+                <th style="text-align:left;">書類名</th>
+                <th style="text-align:right;">提出</th>
+                <th style="text-align:left;">書類名</th>
               </tr>
             </thead>
             <tbody>
-              <% (0...[event_new_shipper_docs.size, event_new_forwarder_docs.size, event_new_custom_docs.size].max).each do |i| %>
+              <% (0...[shipper_docs_select.size, forwarder_docs_select.size, custom_docs_select.size].max).each do |i| %>
                 <tr>
                   <!-- 荷主 -->
-                  <% if event_new_shipper_docs[i] %>
-                    <% name = event_new_shipper_docs[i][1] %>
-                    <td style="text-align:center; padding:5px;">
-                      <%= doc_form.check_box name.to_sym, {}, true, false %>
+                  <% if shipper_docs_select[i] %>
+                    <% name = shipper_docs_select[i][1] %>
+                    <td style="text-align: right;">
+                      <%= doc_form.check_box name.to_sym, {class: "shipper-doc-checkbox"}, true, false %>
                     </td>
-                    <td style="text-align:left; padding:5px;">
-                      <%= doc_form.label name.to_sym, event_new_shipper_docs[i][0] %>
+                    <td>
+                      <%= doc_form.label name.to_sym, shipper_docs_select[i][0] %>
                     </td>
                   <% else %>
-                    <td style="text-align:center; padding:5px;"></td>
-                    <td style="text-align:left; padding:5px;"></td>
+                    <td></td>
+                    <td></td>
                   <% end %>
 
                   <!-- フォワーダー -->
-                  <% if event_new_forwarder_docs[i] %>
-                    <% name = event_new_forwarder_docs[i][1] %>
-                    <td style="text-align:center; padding:5px;">
-                      <%= doc_form.check_box name.to_sym, {}, true, false %>
+                  <% if forwarder_docs_select[i] %>
+                    <% name = forwarder_docs_select[i][1] %>
+                    <td style="text-align: right;">
+                      <%= doc_form.check_box name.to_sym, {class: "forwarder-doc-checkbox"}, true, false %>
                     </td>
-                    <td style="text-align:left; padding:5px;">
-                      <%= doc_form.label name.to_sym, event_new_forwarder_docs[i][0] %>
+                    <td>
+                      <%= doc_form.label name.to_sym, forwarder_docs_select[i][0] %>
                     </td>
                   <% else %>
-                    <td style="text-align:center; padding:5px;"></td>
-                    <td style="text-align:left; padding:5px;"></td>
+                    <td></td>
+                    <td></td>
                   <% end %>
 
                   <!-- 通関 -->
-                  <% if event_new_custom_docs[i] %>
-                    <% name = event_new_custom_docs[i][1] %>
-                    <td style="text-align:center; padding:5px;">
-                      <%= doc_form.check_box name.to_sym, {}, true, false %>
+                  <% if custom_docs_select[i] %>
+                    <% name = custom_docs_select[i][1] %>
+                    <td style="text-align: right;">
+                      <%= doc_form.check_box name.to_sym, {class: "custom-doc-checkbox"}, true, false %>
                     </td>
-                    <td style="text-align:left; padding:5px;">
-                      <%= doc_form.label name.to_sym, event_new_custom_docs[i][0] %>
+                    <td>
+                      <%= doc_form.label name.to_sym, custom_docs_select[i][0] %>
                     </td>
                   <% else %>
-                    <td style="text-align:center; padding:5px;"></td>
-                    <td style="text-align:left; padding:5px;"></td>
+                    <td></td>
+                    <td></td>
                   <% end %>
                 </tr>
               <% end %>

@@ -1,6 +1,19 @@
 class EventDoc < ApplicationRecord
   belongs_to :event
   include Discard::Model
+  default_scope -> { kept }
+
+  DOC_COLUMNS = %i[
+    invoice msds packing_list coo l_c van_photo van_repo quarantine slip
+    quotation s_i hbl_awb dg_declaration insurance booking_confirmation
+    mbl freight_memo weight_cert export_permit import_permit dock_receipt
+    house_arrival_notice master_arrival_notice pod
+  ].freeze
+
+  def true_count
+    DOC_COLUMNS.count { |col| self[col] }
+  end
+
   def self.get_required_docs_by_category(event_doc, category)
     doc_definitions = {
       shipper: [
@@ -30,6 +43,7 @@ class EventDoc < ApplicationRecord
       custom: [
         ["検量証明書", "weight_cert"], 
         ["輸出許可書", "export_permit"], 
+        ["輸入許可書", "import_permit"], 
         ["D/R（Dock Receipt）", "dock_receipt"]
       ]
     }

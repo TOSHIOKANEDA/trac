@@ -64,13 +64,28 @@
     font-size: 14px;
 }
 
+// バッジのスタイル
 .section-badge {
-    background: #667eea;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  &.badge-success {
+    background-color: #28a745;
     color: white;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
+  }
+  
+  &.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  
+  &.badge-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
 }
 
 .collapse-icon {
@@ -81,7 +96,6 @@
     padding: 0;
 }
 
-/* 新しいレイアウト */
 .section-layout {
     display: flex;
     min-height: 400px;
@@ -167,29 +181,65 @@
 }
 
 .upload-section {
-    background: #fafbfc;
-    border: 2px dashed #ddd;
-    border-radius: 12px;
-    padding: 25px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.upload-section:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
-}
-
-.upload-section.has-file {
+  position: relative;
+  padding: 40px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+  
+  &:hover {
+    border-color: #4285f4;
+    background-color: #f0f7ff;
+  }
+  
+  // ドラッグオーバー時のスタイル
+  &.drag-over {
+    border-color: #4285f4;
+    background-color: #e3f2fd;
     border-style: solid;
-    background: #f0f7ff;
-}
-
-.upload-section i {
-    font-size: 36px;
-    color: #667eea;
-    margin-bottom: 12px;
+    
+    .drag-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(66, 133, 244, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      z-index: 10;
+      
+      .drag-overlay-content {
+        text-align: center;
+        
+        i {
+          font-size: 48px;
+          color: #4285f4;
+          margin-bottom: 10px;
+          animation: bounce 1s infinite;
+        }
+        
+        p {
+          color: #4285f4;
+          font-weight: 600;
+          font-size: 16px;
+          margin: 0;
+        }
+      }
+    }
+  }
+  
+  // ファイルがアップロード済みの状態
+  &.has-file {
+    border-style: solid;
+    border-color: #28a745;
+    background-color: #f0fff4;
+  }
 }
 
 .upload-text {
@@ -356,7 +406,15 @@
     font-style: italic;
 }
 
-.file-size {
+.file-size{
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.file-meta {
+    margin-left: 5px;
     font-size: 11px;
     color: #666;
     font-weight: 500;
@@ -367,8 +425,22 @@
     color: #999;
 }
 
-.access-control {
+.control-wrap {
     border-top: 1px solid #e1e8ed;
+    display: flex;
+}
+
+.file-update-btn {
+    margin-left: auto;
+    height: 40px;
+    margin-top: auto;
+}
+
+.verification-info {
+    margin-top: auto;
+    margin-left: 10px;
+}
+.access-control {
     padding-top: 12px;
 }
 
@@ -501,4 +573,23 @@
 
 .hidden {
     display: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  margin: 20px;
+  border-radius: 8px;
+  padding: 20px 30px;
+  background: white;
+  color: #333;
+
+  .header-info {
+    margin-left: 20px;
+  }
+
+  > :first-child {
+    margin-right: auto;
+  }
 }

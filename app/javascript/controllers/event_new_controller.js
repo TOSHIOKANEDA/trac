@@ -4,8 +4,8 @@ import consumer from "../channels/consumer"
 
 export default class extends BaseController {
   static targets = [
-    "containerTableBody", "cargoTableBody", "fileCounter", 
-    "milestoneModalOverlay", "milestoneModal", "milestoneContent", "soaInput",
+    "containerTableBody", "cargoTableBody",
+    "milestoneModalOverlay", "milestoneModal", "milestoneContent",
     "operationsDropdown", "operationsDropdownContent",
     "chatModal", "chatModalOverlay", "chatForm", "chatNameInput","chatModalContent",
     "participantInput", "participantsList", "participantSelect"
@@ -20,7 +20,6 @@ export default class extends BaseController {
     this.setupDropdownClickOutside();
     this.fileCount = 3;
     this.participants = []; // チャット参加者を管理
-    this.initializeFlatpickr();
     const portDataEl = document.getElementById("port-data"); // 港検索を表示
     this.portDataList = portDataEl ? JSON.parse(portDataEl.dataset.ports) : []
 
@@ -142,25 +141,6 @@ export default class extends BaseController {
     // 次にURLをリンクに変換
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return processedText.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-  }
-
-  // Flatpickrの初期化
-  initializeFlatpickr() {
-    if (this.hasSoaInputTarget && window.flatpickr) {
-      flatpickr(this.soaInputTarget, {
-        mode: "single",
-        dateFormat: "Y-m",
-        defaultDate: "2025-08",
-        locale: "ja",
-        plugins: [
-          new window.monthSelectPlugin({
-            shorthand: true,
-            dateFormat: "Y-m",
-            altFormat: "Y年m月"
-          })
-        ]
-      });
-    }
   }
 
   // ドロップダウン外部クリックの設定
@@ -533,50 +513,6 @@ export default class extends BaseController {
     event.stopPropagation();
   }
 
-  // 進捗表示（案件一覧スタイルに統一）
-  showMilestone(event) {
-    event.preventDefault();
-    if (!this.hasMilestoneModalOverlayTarget) {
-      console.error('milestoneModalOverlay target not found');
-      return;
-    }
-
-    const modalOverlay = this.milestoneModalOverlayTarget;
-    const modal = this.milestoneModalTarget;
-    
-    // モーダルオーバーレイを表示
-    modalOverlay.classList.add('active');
-    
-    // スクロールを無効化
-    document.body.style.overflow = 'hidden';
-  }
-
-  // 進捗モーダルを閉じる（案件一覧スタイルに統一）
-  closeMilestoneModal(event) {
-    event.preventDefault();
-    if (!this.hasMilestoneModalOverlayTarget) {
-      return;
-    }
-
-    const modalOverlay = this.milestoneModalOverlayTarget;
-    
-    // アクティブクラスを削除（アニメーションで非表示）
-    modalOverlay.classList.remove('active');
-    
-    // スクロールを有効化
-    setTimeout(() => {
-      document.body.style.overflow = '';
-    }, 300); // CSSアニメーション時間に合わせる
-  }
-
-  // モーダルオーバーレイクリック時の処理
-  modalOverlayClick(event) {
-    // オーバーレイ自体がクリックされた場合のみモーダルを閉じる
-    if (event.target === this.milestoneModalOverlayTarget) {
-      this.closeMilestoneModal();
-    }
-  }
-
   // コンテナ行を追加
   addContainerRow() {
     if (!this.hasContainerTableBodyTarget) return;
@@ -620,9 +556,9 @@ export default class extends BaseController {
     newRow.innerHTML = `
       <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][pkg]" id="event_event_goods_attributes_${newIndex}_pkg"></td>
       <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][type_of_pkg]" id="event_event_goods_attributes_${newIndex}_type_of_pkg"></td>
-      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][n_w]" id="event_event_goods_attributes_${newIndex}_"></td>
-      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][g_w]" id="event_event_goods_attributes_${newIndex}_"></td>
-      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][three_m]" id="event_event_goods_attributes_${newIndex}_"></td>
+      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][n_w]" id="event_event_goods_attributes_${newIndex}_n_w"></td>
+      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][g_w]" id="event_event_goods_attributes_${newIndex}_g_w"></td>
+      <td><input class="table-input" type="text" name="event[event_goods_attributes][${newIndex}][three_m]" id="event_event_goods_attributes_${newIndex}_three_m"></td>
       <td>
         <button type="button" class="delete-good-btn" title="貨物を削除" data-action="click->event-new#deleteRow" data-target-name="cargoTableBody">
           <i class="fas fa-trash-alt"></i>
@@ -641,5 +577,165 @@ export default class extends BaseController {
   handleBlur(event) {
     event.target.style.transform = 'translateY(0)';
     event.target.style.boxShadow = 'none';
+  }
+
+  toggleChatFromButton(event) {
+    event.preventDefault();
+    const button = event.currentTarget;
+    const chatId = button.dataset.chatId;
+    const chatName = button.dataset.chatName;
+
+    const chatWidget = document.querySelector(`[data-event-new-chat-id-value="${chatId}"]`);
+
+    if (!chatWidget) {
+      console.error(`Chat widget not found for chat_id: ${chatId}`);
+      return;
+    }
+
+    if (this.currentOpenChatId === parseInt(chatId)) {
+      this.closeChatWidget(chatWidget);
+      this.currentOpenChatId = null;
+      return;
+    }
+
+    if (this.currentOpenChatId !== null) {
+      const previousChatWidget = document.querySelector(`[data-event-new-chat-id-value="${this.currentOpenChatId}"]`);
+      if (previousChatWidget) {
+        this.closeChatWidget(previousChatWidget);
+      }
+    }
+
+    this.openChatWidget(chatWidget);
+    this.currentOpenChatId = parseInt(chatId);
+  }
+
+  openChatWidget(chatWidget) {
+    chatWidget.classList.remove('minimized');
+    chatWidget.classList.add('expanded');
+    
+    chatWidget.style.display = 'block';
+
+    const chatContent = chatWidget.querySelector('.chat-content');
+    const chatInput = chatWidget.querySelector('.chat-input');
+    if (chatContent) chatContent.style.display = 'block';
+    if (chatInput) chatInput.style.display = 'flex';
+
+    const toggleButton = chatWidget.querySelector('.chat-toggle');
+    if (toggleButton) toggleButton.textContent = '−';
+
+    setTimeout(() => {
+      if (chatContent) {
+        chatContent.scrollTop = chatContent.scrollHeight;
+      }
+    }, 300);
+  }
+
+  closeChatWidget(chatWidget) {
+    chatWidget.classList.remove('expanded');
+    chatWidget.classList.add('minimized');
+
+    const chatContent = chatWidget.querySelector('.chat-content');
+    const chatInput = chatWidget.querySelector('.chat-input');
+    if (chatContent) chatContent.style.display = 'none';
+    if (chatInput) chatInput.style.display = 'none';
+
+    const toggleButton = chatWidget.querySelector('.chat-toggle');
+    if (toggleButton) toggleButton.textContent = '＋';
+  }
+
+// ============================================
+// ✨ チャット表示/非表示制御（修正版）
+// ============================================
+// 要件：
+// - デフォルト: visibility: hidden (非表示)
+// - ボタン押下: 該当チャットを表示、他を非表示
+// - 「−」ボタン押下: そのチャットを非表示
+// - 別ボタン押下: 前のチャットを非表示、新しいチャットを表示
+
+toggleChat(event) {
+  // 「−」ボタン押下時の処理（チャットヘッダーの toggle button）
+  const chatWidget = event.currentTarget.closest('.chat-widget')
+  const chatId = parseInt(chatWidget.dataset.eventNewChatIdValue)
+  
+  if (chatWidget.style.visibility === 'hidden' || chatWidget.style.visibility === '') {
+    // 現在非表示 → 表示に変更
+    this.openChatWidget(chatWidget)
+    this.currentOpenChatId = chatId
+  } else {
+    // 現在表示中 → 非表示に変更
+    this.closeChatWidget(chatWidget)
+    this.currentOpenChatId = null
+  }
+}
+
+toggleChatFromButton(event) {
+  // ヘッダーのボタン押下時の処理
+  event.preventDefault();
+  const button = event.currentTarget;
+  const chatId = button.dataset.chatId;
+  const chatName = button.dataset.chatName;
+
+  const chatWidget = document.querySelector(`[data-event-new-chat-id-value="${chatId}"]`);
+
+  if (!chatWidget) {
+    console.error(`Chat widget not found for chat_id: ${chatId}`);
+    return;
+  }
+
+  // 同じボタンが既に開いている場合 → 非表示にする
+  if (this.currentOpenChatId === parseInt(chatId)) {
+    this.closeChatWidget(chatWidget);
+    this.currentOpenChatId = null;
+    return;
+  }
+
+  // 別のチャットが開いている場合 → そちらを非表示にする
+  if (this.currentOpenChatId !== null) {
+    const previousChatWidget = document.querySelector(`[data-event-new-chat-id-value="${this.currentOpenChatId}"]`);
+    if (previousChatWidget) {
+      this.closeChatWidget(previousChatWidget);
+    }
+  }
+
+  // 新しいチャットを表示する
+  this.openChatWidget(chatWidget);
+  this.currentOpenChatId = parseInt(chatId);
+}
+
+  openChatWidget(chatWidget) {
+  // チャットを表示する
+  chatWidget.classList.remove('minimized');
+  chatWidget.classList.add('expanded');
+  
+  // visibility: hidden を削除して表示
+  chatWidget.style.visibility = 'visible';
+
+  // コンテンツと入力欄を表示
+  const chatContent = chatWidget.querySelector('.chat-content');
+  const chatInput = chatWidget.querySelector('.chat-input');
+  if (chatContent) chatContent.style.display = 'block';
+  if (chatInput) chatInput.style.display = 'flex';
+
+  // スクロール位置を一番下に
+  setTimeout(() => {
+    if (chatContent) {
+      chatContent.scrollTop = chatContent.scrollHeight;
+    }
+  }, 300);
+  }
+
+  closeChatWidget(chatWidget) {
+    // チャットを非表示にする
+    chatWidget.classList.remove('expanded');
+    chatWidget.classList.add('minimized');
+
+    // visibility: hidden で非表示（レイアウトスペースは確保）
+    chatWidget.style.visibility = 'hidden';
+
+    // コンテンツと入力欄を非表示
+    const chatContent = chatWidget.querySelector('.chat-content');
+    const chatInput = chatWidget.querySelector('.chat-input');
+    if (chatContent) chatContent.style.display = 'none';
+    if (chatInput) chatInput.style.display = 'none';
   }
 }
